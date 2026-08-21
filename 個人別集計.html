@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>個人別集計</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="個人別集計">
+<meta name="theme-color" content="#1B2430">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="icon" href="data:image/png;base64,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">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans+JP:wght@400;500;600;700&family=Space+Mono:wght@700&display=swap');
+
+:root{
+  --ink:#1B2430;
+  --paper:#F1EFE9;
+  --panel:#FFFFFF;
+  --line:#DCD7CC;
+  --amber:#F2A93B;
+  --amber-deep:#C9821A;
+  --steel:#3E6B8A;
+  --green:#2F8F5B;
+  --red:#C6473C;
+  --muted:#6B7280;
+  --radius:14px;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--paper);
+  background-image:linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size:28px 28px;
+  color:var(--ink);
+  font-family:'IBM Plex Sans JP', -apple-system, 'Hiragino Sans', sans-serif;
+}
+header{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
+  padding:16px 24px;background:var(--ink);color:#fff;
+}
+.brand{display:flex;align-items:baseline;gap:10px;}
+.brand .mark{font-family:'Barlow Condensed';font-weight:700;font-size:15px;letter-spacing:.18em;background:var(--amber);color:var(--ink);padding:3px 8px;border-radius:4px;}
+.brand h1{font-size:19px;font-weight:600;margin:0;}
+.controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.controls label{font-size:12px;color:#B9C2CE;}
+.controls select, .controls input{
+  padding:8px 10px;border-radius:6px;border:1px solid #46505E;background:#232D3B;color:#fff;
+  font-family:'Space Mono',monospace;font-size:13px;
+}
+.controls select option{color:#000;}
+
+main{padding:22px;max-width:1400px;margin:0 auto;}
+
+.summary-bar{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px;}
+.summary-stat{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 18px;min-width:120px;
+}
+.summary-stat .n{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;}
+.summary-stat .l{font-size:11px;color:var(--muted);margin-top:2px;}
+
+.sort-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.sort-row .lbl{font-size:12px;color:var(--muted);font-weight:600;margin-right:4px;}
+.sort-btn{
+  background:#fff;border:1px solid var(--line);border-radius:20px;padding:7px 14px;font-size:13px;
+  font-family:'IBM Plex Sans JP';cursor:pointer;color:var(--muted);font-weight:600;
+}
+.sort-btn.active{background:var(--ink);border-color:var(--ink);color:var(--amber);}
+
+.table-wrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:auto;}
+table{border-collapse:collapse;width:100%;min-width:1100px;}
+thead tr.group-row th{
+  background:#F7F5F0;font-family:'Barlow Condensed';font-weight:700;font-size:13px;letter-spacing:.06em;
+  color:var(--steel);text-align:center;padding:8px 6px;border-bottom:1px solid var(--line);border-left:2px solid var(--paper);
+}
+thead tr.col-row th{
+  font-size:11px;color:var(--muted);font-weight:600;padding:6px;border-bottom:2px solid var(--ink);
+  text-align:right;white-space:nowrap;
+}
+thead tr.col-row th.name-col{text-align:left;}
+tbody td{padding:8px 6px;text-align:right;font-family:'Space Mono',monospace;font-size:13px;border-bottom:1px solid var(--line);white-space:nowrap;}
+tbody td.name-col{text-align:left;font-family:'IBM Plex Sans JP';font-weight:600;font-size:13px;}
+tbody td.cat-col{text-align:left;font-family:'IBM Plex Sans JP';font-size:12px;color:var(--muted);}
+tbody tr:hover td{background:#FBF8F1;}
+tbody tr:nth-child(1) td.total-prod{color:var(--amber-deep);font-weight:700;}
+td.group-sep{border-left:2px solid var(--paper);}
+td.total-col{background:#FCF7EC;}
+
+.empty-msg{padding:60px 20px;text-align:center;color:var(--muted);}
+
+tr.person-row{cursor:pointer;}
+tr.person-row:hover td{background:#F3EEE0;}
+tr.person-row.open td{background:#FBF3E2;}
+tr.person-row .arrow{display:inline-block;width:12px;color:var(--steel);}
+tr.detail-row td{background:#FCFBF8;padding:14px 18px;}
+
+table.raw-table{width:100%;border-collapse:collapse;font-size:12px;}
+table.raw-table th{text-align:left;color:var(--muted);font-weight:600;padding:5px 8px;border-bottom:1px solid var(--line);}
+table.raw-table td{padding:6px 8px;border-bottom:1px solid var(--line);}
+table.raw-table tr.cancelled td{color:var(--muted);text-decoration:line-through;}
+table.raw-table input{padding:5px;border:1px solid var(--line);border-radius:5px;font-family:inherit;font-size:12px;width:100%;}
+
+.mini-btn{background:var(--steel);color:#fff;border:none;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;margin-right:6px;}
+.mini-btn:active{background:#2F5670;}
+.del-btn{background:none;border:1px solid var(--red);color:var(--red);border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:inherit;}
+.del-btn:active{background:#FBEAE8;}
+
+.print-only{display:none;}
+
+@media print{
+  @page{ size: landscape; margin: 12mm; }
+  body{ background:#fff; }
+  #appHeader, .controls, .sort-row{ display:none !important; }
+  tr.detail-row{ display:none !important; }
+  tr.person-row .arrow{ display:none; }
+  .print-only{
+    display:block; margin:0 0 14px; font-family:'IBM Plex Sans JP';
+  }
+  .print-only h2{ margin:0 0 4px; font-size:20px; }
+  .print-only .meta{ font-size:13px; color:#444; }
+  main{ padding:0; max-width:none; }
+  .summary-bar{ margin-bottom:12px; }
+  .summary-stat{ border:1px solid #ccc; }
+  .table-wrap{ border:none; overflow:visible; }
+  table{ min-width:0; width:100%; }
+  thead{ display:table-header-group; }
+  tbody tr{ break-inside:avoid; }
+}
+</style>
+</head>
+<body>
+<header id="appHeader">
+  <div class="brand"><span class="mark">WMS</span><h1>個人別集計</h1></div>
+  <div class="controls">
+    <div>
+      <label>拠点コード</label><br>
+      <select id="siteSelect"></select>
+    </div>
+    <div>
+      <label>作業グループ</label><br>
+      <select id="groupSelect"></select>
+    </div>
+    <div>
+      <label>日付</label><br>
+      <input type="date" id="dateInput">
+    </div>
+    <div>
+      <label>&nbsp;</label><br>
+      <button id="printBtn" style="padding:8px 14px;border-radius:6px;border:1px solid var(--amber);background:var(--amber);color:var(--ink);font-weight:700;font-family:inherit;font-size:13px;cursor:pointer;">🖨 印刷</button>
+      <button id="csvBtn" style="padding:8px 14px;border-radius:6px;border:1px solid #46505E;background:#232D3B;color:#fff;font-weight:700;font-family:inherit;font-size:13px;cursor:pointer;">⬇ CSV</button>
+    </div>
+  </div>
+</header>
+
+<div id="printHeading" class="print-only"></div>
+
+<main>
+  <div class="summary-bar" id="summaryBar"></div>
+  <div class="sort-row" id="sortRow">
+    <span class="lbl">並び替え(合計):</span>
+    <button class="sort-btn" data-key="productivity">生産性</button>
+    <button class="sort-btn" data-key="count">数量</button>
+    <button class="sort-btn" data-key="stores">店舗数</button>
+    <button class="sort-btn" data-key="minutes">作業時間</button>
+  </div>
+  <div class="table-wrap">
+    <table id="resultTable">
+      <thead>
+        <tr class="group-row">
+          <th colspan="2"></th>
+          <th colspan="4">1便</th>
+          <th colspan="4">2便</th>
+          <th colspan="4">合計</th>
+        </tr>
+        <tr class="col-row">
+          <th class="name-col">氏名</th><th>区分</th>
+          <th>店舗数</th><th>数量</th><th>作業時間(分)</th><th>生産性</th>
+          <th class="group-sep">店舗数</th><th>数量</th><th>作業時間(分)</th><th>生産性</th>
+          <th class="group-sep">店舗数</th><th>数量</th><th>作業時間(分)</th><th>生産性</th>
+        </tr>
+      </thead>
+      <tbody id="resultBody"></tbody>
+    </table>
+  </div>
+</main>
+
+<script>
+const SUPABASE_URL = 'https://nhkbfzzysonkqqgmvaao.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_4_LZAPz9gceWwdgT_OGHYQ_EWX4DWvT';
+const SB_HEADERS = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' };
+const $ = id => document.getElementById(id);
+
+async function sbSelect(table, query=''){
+  try{
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, {headers: SB_HEADERS});
+    if(!res.ok) return null;
+    return await res.json();
+  }catch(e){ console.error(e); return null; }
+}
+async function sbUpdate(table, query, patch){
+  try{
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, {
+      method:'PATCH', headers: SB_HEADERS, body: JSON.stringify(patch)
+    });
+    return res.ok;
+  }catch(e){ console.error(e); return false; }
+}
+async function sbDelete(table, query){
+  try{
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, {
+      method:'DELETE', headers: SB_HEADERS
+    });
+    return res.ok;
+  }catch(e){ console.error(e); return false; }
+}
+
+function localGet(key){ try{ const v = localStorage.getItem(key); return v?JSON.parse(v):null; }catch(e){ return null; } }
+function localSet(key, value){ try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){} }
+
+function todayKey(){
+  const d = new Date();
+  const pad = n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+const WEEKDAY_JA = ['日','月','火','水','木','金','土'];
+function weekdayJaOf(dateStr){
+  const [y,m,d] = dateStr.split('-').map(Number);
+  return WEEKDAY_JA[new Date(y, m-1, d).getDay()];
+}
+function fmtTimeShort(iso){
+  const d = new Date(iso);
+  const pad = n=>String(n).padStart(2,'0');
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function fmtDuration(sec){
+  sec = Math.max(0, Math.round(sec));
+  const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+  const pad = n=>String(n).padStart(2,'0');
+  return h>0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
+}
+function toLocalInput(iso){
+  const d = new Date(iso);
+  const pad = n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+let sortKey = 'productivity';
+let expandedPeople = new Set();
+let editingRawId = null;
+let rawLogsByWorker = {}; // worker_no -> array of raw work_log rows (all, including cancelled)
+let lastGroupBinMap = {};
+let lastPeople = [];
+
+async function loadSiteOptions(){
+  const rows = await sbSelect('work_groups', 'select=site_code');
+  const sites = [...new Set((rows||[]).map(r=>r.site_code))].sort();
+  const sel = $('siteSelect');
+  sel.innerHTML = sites.map(s=>`<option value="${s}">${s}</option>`).join('');
+  const saved = localGet('report_site_code');
+  if(saved && sites.includes(saved)) sel.value = saved;
+  else if(sites.length) sel.value = sites[0];
+}
+
+async function loadGroupOptions(){
+  const siteCode = $('siteSelect').value;
+  const rows = await sbSelect('work_groups', `site_code=eq.${encodeURIComponent(siteCode)}&order=name.asc`);
+  const sel = $('groupSelect');
+  const groups = rows || [];
+  sel.innerHTML = `<option value="__all__">全グループ</option>` + groups.map(g=>`<option value="${g.id}">${g.name}</option>`).join('');
+  const saved = localGet('report_group_id_'+siteCode);
+  if(saved && [...sel.options].some(o=>o.value===saved)) sel.value = saved;
+}
+
+async function loadCourseBinMap(siteCode, dateStr){
+  const wd = weekdayJaOf(dateStr);
+  const rows = await sbSelect('course_master', `site_code=eq.${encodeURIComponent(siteCode)}&weekday=eq.${encodeURIComponent(wd)}`);
+  const map = {};
+  (rows||[]).forEach(r=> map[r.course_no] = r.bin);
+  return map;
+}
+
+function detectBinsHeuristic(courseNo, allCourseNos){
+  // fallback when no course_master entry: just call everything bin 1
+  return 1;
+}
+
+async function loadRosterMap(siteCode){
+  const rows = await sbSelect('roster', `site_code=eq.${encodeURIComponent(siteCode)}`);
+  const map = {};
+  (rows||[]).forEach(r=> map[r.worker_no] = {category: r.category||'', empType: r.emp_type||''});
+  return map;
+}
+
+async function loadWorkLog(siteCode, groupId, dateStr){
+  const dayStart = dateStr + 'T00:00:00';
+  const dayEnd = dateStr + 'T23:59:59.999';
+  let q = `site_code=eq.${encodeURIComponent(siteCode)}&start_at=gte.${dayStart}&start_at=lte.${dayEnd}&order=start_at.asc`;
+  if(groupId && groupId !== '__all__') q += `&group_id=eq.${encodeURIComponent(groupId)}`;
+  const rows = await sbSelect('work_log', q);
+  return rows;
+}
+
+function emptyBinStat(){ return {storeKeys:new Set(), count:0, seconds:0}; }
+function finalizeBinStat(s){
+  const minutes = s.seconds/60;
+  const productivity = minutes>0 ? Math.round(s.count*60/minutes) : 0;
+  return { stores: s.storeKeys.size, count: s.count, minutes: Math.round(minutes*10)/10, productivity };
+}
+
+async function render(){
+  const siteCode = $('siteSelect').value;
+  const groupId = $('groupSelect').value;
+  const dateStr = $('dateInput').value;
+  if(!siteCode || !dateStr){ return; }
+  localSet('report_site_code', siteCode);
+  localSet('report_group_id_'+siteCode, groupId);
+
+  $('resultBody').innerHTML = '<tr><td colspan="14" class="empty-msg">読み込み中…</td></tr>';
+  $('summaryBar').innerHTML = '';
+
+  const [binMap, rosterMap, logRows] = await Promise.all([
+    loadCourseBinMap(siteCode, dateStr),
+    loadRosterMap(siteCode),
+    loadWorkLog(siteCode, groupId, dateStr)
+  ]);
+  lastGroupBinMap = binMap;
+
+  if(logRows === null){
+    $('resultBody').innerHTML = '<tr><td colspan="14" class="empty-msg" style="color:var(--red);">⚠ 通信エラーでデータを取得できませんでした。もう一度お試しください。</td></tr>';
+    return;
+  }
+  if(logRows.length === 0){
+    $('resultBody').innerHTML = '<tr><td colspan="14" class="empty-msg">この日の実績データがありません</td></tr>';
+    rawLogsByWorker = {};
+    return;
+  }
+
+  rawLogsByWorker = {};
+  logRows.forEach(r=>{
+    if(!rawLogsByWorker[r.worker_no]) rawLogsByWorker[r.worker_no] = [];
+    rawLogsByWorker[r.worker_no].push(r);
+  });
+
+  const validRows = logRows.filter(r => !r.cancelled);
+  const byWorker = {};
+  validRows.forEach(r=>{
+    const no = r.worker_no;
+    if(!byWorker[no]) byWorker[no] = { no, name: r.worker_name, bin1: emptyBinStat(), bin2: emptyBinStat() };
+    const bin = binMap[r.course_no] || detectBinsHeuristic(r.course_no);
+    const target = bin === 2 ? byWorker[no].bin2 : byWorker[no].bin1;
+    target.storeKeys.add(r.course_no + '-' + r.store_no);
+    target.count += r.count;
+    target.seconds += r.duration_sec;
+  });
+
+  const people = Object.values(byWorker).map(w=>{
+    const bin1 = finalizeBinStat(w.bin1);
+    const bin2 = finalizeBinStat(w.bin2);
+    const totalSeconds = w.bin1.seconds + w.bin2.seconds;
+    const totalCount = w.bin1.count + w.bin2.count;
+    const totalStores = w.bin1.storeKeys.size + w.bin2.storeKeys.size;
+    const totalMinutes = Math.round((totalSeconds/60)*10)/10;
+    const totalProd = totalMinutes>0 ? Math.round(totalCount*60/totalMinutes) : 0;
+    const roster = rosterMap[w.no] || {};
+    return {
+      no: w.no, name: w.name, category: roster.category || roster.empType || '-',
+      bin1, bin2,
+      total: { stores: totalStores, count: totalCount, minutes: totalMinutes, productivity: totalProd }
+    };
+  });
+
+  sortPeople(people);
+  lastPeople = people;
+  renderSummary(people);
+  renderTable(people);
+  updatePrintHeading();
+}
+
+function updatePrintHeading(){
+  const siteCode = $('siteSelect').value;
+  const groupSel = $('groupSelect');
+  const groupName = groupSel.options[groupSel.selectedIndex] ? groupSel.options[groupSel.selectedIndex].textContent : '';
+  const dateStr = $('dateInput').value;
+  const wd = dateStr ? weekdayJaOf(dateStr) : '';
+  $('printHeading').innerHTML = `
+    <h2>個人別集計 ｜ ${esc(siteCode)} ・ ${esc(groupName)}</h2>
+    <div class="meta">${esc(dateStr)}（${wd}）</div>
+  `;
+}
+$('printBtn').addEventListener('click', ()=> window.print());
+$('csvBtn').addEventListener('click', ()=>{
+  if(lastPeople.length === 0){ alert('ダウンロードできるデータがありません'); return; }
+  const siteCode = $('siteSelect').value;
+  const dateStr = $('dateInput').value;
+  const header = ['担当者№','氏名','区分','1便_店舗数','1便_数量','1便_作業時間分','1便_生産性','2便_店舗数','2便_数量','2便_作業時間分','2便_生産性','合計_店舗数','合計_数量','合計_作業時間分','合計_生産性'];
+  const rows = lastPeople.map(p=>[
+    p.no, p.name, p.category,
+    p.bin1.stores, p.bin1.count, p.bin1.minutes, p.bin1.productivity,
+    p.bin2.stores, p.bin2.count, p.bin2.minutes, p.bin2.productivity,
+    p.total.stores, p.total.count, p.total.minutes, p.total.productivity
+  ]);
+  const csv = [header, ...rows].map(row => row.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `個人別集計_${siteCode}_${dateStr}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+function sortPeople(people){
+  const keyMap = { productivity:'productivity', count:'count', stores:'stores', minutes:'minutes' };
+  const k = keyMap[sortKey] || 'productivity';
+  people.sort((a,b)=> b.total[k] - a.total[k]);
+}
+
+function renderSummary(people){
+  const totalCount = people.reduce((s,p)=>s+p.total.count,0);
+  const totalStores = people.reduce((s,p)=>s+p.total.stores,0);
+  const avgProd = people.length ? Math.round(people.reduce((s,p)=>s+p.total.productivity,0)/people.length) : 0;
+  $('summaryBar').innerHTML = `
+    <div class="summary-stat"><div class="n">${people.length}</div><div class="l">人数</div></div>
+    <div class="summary-stat"><div class="n">${totalStores}</div><div class="l">総店舗数</div></div>
+    <div class="summary-stat"><div class="n">${totalCount}</div><div class="l">総数量</div></div>
+    <div class="summary-stat"><div class="n">${avgProd}</div><div class="l">平均生産性/h</div></div>
+  `;
+}
+
+function renderTable(people){
+  $('resultBody').innerHTML = people.map(p => {
+    const isOpen = expandedPeople.has(String(p.no));
+    const summaryRow = `
+    <tr class="person-row${isOpen?' open':''}" data-no="${p.no}">
+      <td class="name-col"><span class="arrow">${isOpen?'▼':'▶'}</span> ${esc(p.name)}<span style="color:var(--muted);font-size:11px;"> (№${p.no})</span></td>
+      <td class="cat-col">${esc(p.category)}</td>
+      <td>${p.bin1.stores}</td><td>${p.bin1.count}</td><td>${p.bin1.minutes}</td><td>${p.bin1.productivity}</td>
+      <td class="group-sep">${p.bin2.stores}</td><td>${p.bin2.count}</td><td>${p.bin2.minutes}</td><td>${p.bin2.productivity}</td>
+      <td class="group-sep total-col">${p.total.stores}</td><td class="total-col">${p.total.count}</td><td class="total-col">${p.total.minutes}</td><td class="total-col total-prod">${p.total.productivity}</td>
+    </tr>`;
+    const detailRow = isOpen ? `
+    <tr class="detail-row" data-no="${p.no}">
+      <td colspan="14">${renderPersonDetail(p.no)}</td>
+    </tr>` : '';
+    return summaryRow + detailRow;
+  }).join('');
+
+  $('resultBody').querySelectorAll('.person-row').forEach(tr=>{
+    tr.addEventListener('click', ()=>{
+      const no = tr.getAttribute('data-no');
+      if(expandedPeople.has(no)) expandedPeople.delete(no); else expandedPeople.add(no);
+      render();
+    });
+  });
+  wireDetailHandlers();
+}
+
+function renderPersonDetail(no){
+  const rows = (rawLogsByWorker[no] || []).slice().sort((a,b)=> new Date(a.start_at)-new Date(b.start_at));
+  if(rows.length === 0) return '<div class="empty-msg">データがありません</div>';
+  const body = rows.map(r=>{
+    const bin = lastGroupBinMap[r.course_no] || detectBinsHeuristic(r.course_no);
+    if(String(r.id) === String(editingRawId)){
+      return `
+      <tr class="raw-row editing" data-id="${r.id}">
+        <td>${esc(r.course_name)}</td><td>${r.store_no}</td><td>${bin}便</td>
+        <td><input type="number" class="edit-count" value="${r.count}"></td>
+        <td colspan="2"><input type="datetime-local" class="edit-start" value="${toLocalInput(r.start_at)}"></td>
+        <td colspan="2"><input type="datetime-local" class="edit-end" value="${toLocalInput(r.end_at)}"></td>
+        <td colspan="2">
+          <button class="mini-btn" data-save="${r.id}">保存</button>
+          <button class="del-btn" data-canceledit="${r.id}">キャンセル</button>
+        </td>
+      </tr>`;
+    }
+    return `
+    <tr class="raw-row${r.cancelled?' cancelled':''}" data-id="${r.id}">
+      <td>${esc(r.course_name)}</td><td>${r.store_no}</td><td>${bin}便</td>
+      <td>${r.count}</td>
+      <td colspan="2">${fmtTimeShort(r.start_at)}</td>
+      <td colspan="2">${fmtTimeShort(r.end_at)}(${fmtDuration(r.duration_sec)})</td>
+      <td>${r.cancelled ? '取消' : r.productivity}</td>
+      <td>
+        <button class="mini-btn" data-edit="${r.id}">編集</button>
+        <button class="del-btn" data-del="${r.id}">削除</button>
+      </td>
+    </tr>`;
+  }).join('');
+  return `<table class="raw-table">
+    <thead><tr><th>コース</th><th>店№</th><th>便</th><th>個口数</th><th colspan="2">開始</th><th colspan="2">終了</th><th>生産性/h</th><th></th></tr></thead>
+    <tbody>${body}</tbody>
+  </table>`;
+}
+
+function wireDetailHandlers(){
+  const body = $('resultBody');
+  body.querySelectorAll('[data-edit]').forEach(btn=>{
+    btn.addEventListener('click', (ev)=>{
+      ev.stopPropagation();
+      editingRawId = btn.getAttribute('data-edit');
+      render();
+    });
+  });
+  body.querySelectorAll('[data-canceledit]').forEach(btn=>{
+    btn.addEventListener('click', (ev)=>{
+      ev.stopPropagation();
+      editingRawId = null;
+      render();
+    });
+  });
+  body.querySelectorAll('[data-save]').forEach(btn=>{
+    btn.addEventListener('click', async (ev)=>{
+      ev.stopPropagation();
+      const id = btn.getAttribute('data-save');
+      const tr = btn.closest('tr');
+      const count = parseInt(tr.querySelector('.edit-count').value, 10);
+      const startVal = tr.querySelector('.edit-start').value;
+      const endVal = tr.querySelector('.edit-end').value;
+      if(!Number.isInteger(count) || count < 0 || !startVal || !endVal){
+        alert('入力内容を確認してください');
+        return;
+      }
+      const startISO = new Date(startVal).toISOString();
+      const endISO = new Date(endVal).toISOString();
+      const durationSec = Math.max(0, Math.round((new Date(endISO) - new Date(startISO))/1000));
+      if(durationSec === 0){
+        alert('終了時刻は開始時刻より後にしてください');
+        return;
+      }
+      const productivity = Math.round(count * 3600 / durationSec);
+      const ok = await sbUpdate('work_log', `id=eq.${id}`, {
+        count, start_at: startISO, end_at: endISO, duration_sec: durationSec, productivity
+      });
+      if(!ok){ alert('保存に失敗しました。もう一度お試しください。'); return; }
+      editingRawId = null;
+      await render();
+    });
+  });
+  body.querySelectorAll('[data-del]').forEach(btn=>{
+    btn.addEventListener('click', async (ev)=>{
+      ev.stopPropagation();
+      const id = btn.getAttribute('data-del');
+      if(!confirm('このデータを削除します。よろしいですか？(元に戻せません)')) return;
+      const ok = await sbDelete('work_log', `id=eq.${id}`);
+      if(!ok){ alert('削除に失敗しました。もう一度お試しください。'); return; }
+      await render();
+    });
+  });
+}
+
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+$('siteSelect').addEventListener('change', async ()=>{ await loadGroupOptions(); render(); });
+$('groupSelect').addEventListener('change', render);
+$('dateInput').addEventListener('change', render);
+$('sortRow').addEventListener('click', (e)=>{
+  const btn = e.target.closest('.sort-btn');
+  if(!btn) return;
+  sortKey = btn.getAttribute('data-key');
+  document.querySelectorAll('.sort-btn').forEach(b=>b.classList.toggle('active', b===btn));
+  render();
+});
+
+(async function init(){
+  $('dateInput').value = todayKey();
+  await loadSiteOptions();
+  await loadGroupOptions();
+  document.querySelector('.sort-btn[data-key="productivity"]').classList.add('active');
+  await render();
+})();
+</script>
+</body>
+</html>
