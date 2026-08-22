@@ -300,7 +300,7 @@ main{flex:1;display:flex;gap:16px;padding:16px;min-height:0;}
 }
 .admin-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:18px 22px;border-bottom:1px solid var(--line);}
 .admin-head h2{margin:0;font-size:19px;}
-.admin-body{overflow-y:auto;padding:0 22px 22px;}
+.admin-body{overflow-y:auto;padding:0 22px 22px;flex:1;min-height:0;}
 table.log{width:100%;border-collapse:collapse;font-size:13px;}
 table.log th{
   text-align:left;font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.04em;
@@ -398,10 +398,13 @@ table.log tr.cancelled td{color:var(--muted);text-decoration:line-through;}
 
     <div class="status-panel">
       <div class="card working-card">
-        <div class="panel-title">現在作業中</div>
+        <div class="panel-title" style="display:flex;align-items:center;justify-content:space-between;">
+          <span>現在作業中</span>
+          <span id="workingCount" style="font-family:'Space Mono',monospace;font-size:15px;color:var(--amber-deep);">0人</span>
+        </div>
         <div class="working-list" id="workingList"></div>
       </div>
-      <div class="card" style="flex-shrink:0;">
+      <div class="card" style="flex-shrink:0;max-height:46%;overflow-y:auto;">
         <div class="panel-title">本日の実績</div>
         <div id="sidebarProgress" style="padding:0 18px 16px;"></div>
       </div>
@@ -414,12 +417,14 @@ table.log tr.cancelled td{color:var(--muted);text-decoration:line-through;}
       <h2>履歴</h2>
       <button class="close-x" id="historyClose">&times;</button>
     </div>
-    <div class="admin-body">
+    <div style="padding:16px 22px 0;flex-shrink:0;">
       <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">今日の実績を全件表示しています。コース№か担当者№で絞り込めます。</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
-        <input type="text" id="historyCourseFilter" placeholder="コース№で検索" style="flex:1;min-width:140px;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;">
-        <input type="text" id="historyWorkerFilter" placeholder="担当者№で検索" style="flex:1;min-width:140px;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" id="historyCourseFilter" placeholder="コース№で検索" style="flex:1;min-width:140px;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" id="historyWorkerFilter" placeholder="担当者№で検索" style="flex:1;min-width:140px;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;">
       </div>
+    </div>
+    <div class="admin-body" style="-webkit-overflow-scrolling:touch;">
       <table class="log">
         <thead><tr>
           <th>コース－店</th><th>担当者</th>
@@ -533,7 +538,7 @@ table.log tr.cancelled td{color:var(--muted);text-decoration:line-through;}
     </div>
     <div class="admin-body">
       <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">前日までに完了済みのコース・店など、不要になった予定だけを個別に削除できます。削除しても実績には影響しません。</div>
-      <input type="text" id="orderManageFilter" placeholder="コース№で絞り込み" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;margin-bottom:14px;">
+      <input type="tel" inputmode="numeric" pattern="[0-9]*" id="orderManageFilter" placeholder="コース№で絞り込み" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;margin-bottom:14px;">
       <div id="orderManageList" style="display:flex;flex-direction:column;gap:8px;max-height:50vh;overflow-y:auto;"></div>
     </div>
   </div>
@@ -737,6 +742,7 @@ function renderClock(){ $('clock').textContent = fmtClock(); }
 function renderWorkingList(){
   const list = $('workingList');
   const entries = Object.values(sessions);
+  $('workingCount').textContent = entries.length + '人';
   if(entries.length === 0){
     list.innerHTML = '<div class="working-empty">現在作業中の担当者はいません</div>';
     return;
@@ -1346,7 +1352,14 @@ async function renderSidebarProgress(){
     container.innerHTML = '<p style="color:var(--muted);font-size:12px;">本日の受注データが未取込です。</p>';
     return;
   }
-  container.innerHTML = renderQtySummary(rangeRows);
+  let html = renderQtySummary(rangeRows);
+  const results = computeGroupBinResults(g);
+  if(results === 'no_course_table'){
+    html += '<p style="color:var(--red);font-size:12px;">⚠ コース表に無いコースが含まれているため、便を判定できません。</p>';
+  } else if(results){
+    html += renderBinCards(results);
+  }
+  container.innerHTML = html;
 }
 
 
