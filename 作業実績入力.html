@@ -1285,16 +1285,16 @@ function currentProductivityFor(data, expectedProd, now){
 function computeEndTime(data, currentProd, prevBinEnd, expectedProd, expectedBreak, now){
   if(data.volumeTotal > 0 && data.remaining <= 0){
     const endTimes = data.done.map(e=>new Date(e.endISO).getTime());
-    return {time: new Date(Math.max(...endTimes)), actual:true};
+    return {time: new Date(Math.max(...endTimes)), actual:true, branch:'done'};
   }
   if(data.started){
     const hoursLeft = currentProd > 0 ? data.remaining/currentProd : 0;
-    return {time: new Date(now.getTime() + hoursLeft*3600000), actual:false};
+    return {time: new Date(now.getTime() + hoursLeft*3600000), actual:false, branch:'started', hoursLeft, currentProd};
   }
   if(prevBinEnd){
     const assumedStart = new Date(prevBinEnd.getTime() + expectedBreak*60000);
     const hoursLeft = expectedProd > 0 ? data.volumeTotal/expectedProd : 0;
-    return {time: new Date(assumedStart.getTime() + hoursLeft*3600000), actual:false};
+    return {time: new Date(assumedStart.getTime() + hoursLeft*3600000), actual:false, branch:'prevBinEnd', hoursLeft, expectedProd, expectedBreak, prevBinEnd, assumedStart};
   }
   return null;
 }
@@ -1314,7 +1314,10 @@ function computeGroupBinResults(g){
     const prod = currentProductivityFor(data, g.expectedProductivity, now);
     const endResult = computeEndTime(data, prod, prevEnd, g.expectedProductivity, g.expectedBreakMinutes, now);
     prevEnd = endResult ? endResult.time : prevEnd;
-    return {...data, prod, endResult};
+    return {...data, prod, endResult, debugStarted: data.started, debugOpenCount: openSessionsInGroup.filter(s=>{
+      const inb = bin.courseSet ? bin.courseSet.has(s.courseNo) : (s.courseNo>=bin.min && s.courseNo<=bin.max);
+      return inb;
+    }).length};
   });
 }
 
@@ -1331,13 +1334,15 @@ function renderBinCards(results){
     const cPct = r.courseTotal ? Math.round(r.courseDone/r.courseTotal*100) : 0;
     const vPct = r.volumeTotal ? Math.round(r.volumeDone/r.volumeTotal*100) : 0;
     const endLabel = r.endResult ? fmtEndLabel(r.endResult.time, r.endResult.actual) : '--:--';
+    const dbg = r.endResult ? `branch:${r.endResult.branch} started:${r.debugStarted} openInBin:${r.debugOpenCount} prod:${Math.round(r.prod)} hoursLeft:${r.endResult.hoursLeft?r.endResult.hoursLeft.toFixed(2):'-'} prevBinEnd:${r.endResult.prevBinEnd?fmtTimeShort(r.endResult.prevBinEnd.toISOString()):'-'}` : '';
     return `
     <div class="bin-compact-row">
       <span class="bcr-label">${escapeHtml(r.label)}</span>
       <span class="bcr-stat">コース ${r.courseDone}/${r.courseTotal}(${cPct}%)</span>
       <span class="bcr-stat">数量 ${Math.round(r.volumeDone)}/${Math.round(r.volumeTotal)}(${vPct}%)</span>
       <span class="bcr-stat">終了 ${endLabel}</span>
-    </div>`;
+    </div>
+    <div style="font-size:9px;color:#B9A98A;padding:0 8px 4px;">${dbg}</div>`;
   }).join('') + `</div>`;
 }
 
