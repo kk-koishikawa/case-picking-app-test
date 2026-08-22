@@ -301,6 +301,13 @@ main{flex:1;display:flex;gap:16px;padding:16px;min-height:0;}
 .admin-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:18px 22px;border-bottom:1px solid var(--line);}
 .admin-head h2{margin:0;font-size:19px;}
 .admin-body{overflow-y:auto;padding:0 22px 22px;}
+table.log{width:100%;border-collapse:collapse;font-size:13px;}
+table.log th{
+  text-align:left;font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.04em;
+  padding:6px 8px;border-bottom:2px solid var(--ink);position:sticky;top:0;background:var(--panel);
+}
+table.log td{padding:8px;border-bottom:1px solid var(--line);}
+table.log tr.cancelled td{color:var(--muted);text-decoration:line-through;}
 .close-x{background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);}
 .export-btn{background:var(--steel);color:#fff;border:none;padding:10px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-family:inherit;font-size:13px;}
 
@@ -337,7 +344,7 @@ main{flex:1;display:flex;gap:16px;padding:16px;min-height:0;}
       <span class="conn" id="orderStatus" style="min-width:140px;"><span class="dot" style="background:var(--muted);"></span><span id="orderStatusText">受注:未取込</span></span>
       <button class="hbtn" id="orderManageBtn">受注データ確認</button>
       <input type="file" id="orderFileInput" accept=".csv" style="display:none;">
-      <button class="hbtn" id="progressBtn">本日の実績</button>
+      <button class="hbtn" id="historyBtn">履歴</button>
       <button class="hbtn" id="settingsBtn">⚙ 設定</button>
       <input type="file" id="rosterFileInput" accept=".csv" style="display:none;">
       <input type="file" id="courseMasterFileInput" accept=".xlsx" style="display:none;">
@@ -394,17 +401,42 @@ main{flex:1;display:flex;gap:16px;padding:16px;min-height:0;}
         <div class="panel-title">現在作業中</div>
         <div class="working-list" id="workingList"></div>
       </div>
-      <div class="card">
-        <div class="panel-title">完了実績(簡易)</div>
+      <div class="card" style="overflow-y:auto;">
+        <div class="panel-title">本日の実績</div>
         <div class="summary-row">
           <div class="stat"><div class="n" id="statCount">0</div><div class="l">件数</div></div>
           <div class="stat"><div class="n" id="statPieces">0</div><div class="l">総個口数</div></div>
           <div class="stat"><div class="n" id="statAvg">0</div><div class="l">平均生産性/h</div></div>
         </div>
         <div id="groupBreakdown" style="font-size:12px;color:var(--muted);padding:0 18px 14px;"></div>
+        <div id="sidebarProgress" style="padding:0 18px 18px;"></div>
       </div>
     </div>
   </main>
+
+<div class="overlay admin-overlay" id="historyOverlay">
+  <div class="admin-card">
+    <div class="admin-head">
+      <h2>履歴</h2>
+      <button class="close-x" id="historyClose">&times;</button>
+    </div>
+    <div class="admin-body">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">今日の実績から検索します。空欄のままでも全件表示されます。</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+        <input type="text" id="historyCourseFilter" placeholder="コース№" style="flex:1;min-width:100px;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;">
+        <input type="text" id="historyStoreFilter" placeholder="店№" style="flex:1;min-width:100px;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;">
+        <input type="text" id="historyWorkerFilter" placeholder="担当者№" style="flex:1;min-width:100px;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;">
+      </div>
+      <table class="log">
+        <thead><tr>
+          <th>担№</th><th>氏名</th><th>グループ</th><th>コース</th><th>店№</th><th>個口数</th>
+          <th>開始</th><th>終了</th><th>作業時間</th><th>生産性/h</th>
+        </tr></thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
 </div>
 
 <div class="overlay" id="resultOverlay">
@@ -545,17 +577,6 @@ main{flex:1;display:flex;gap:16px;padding:16px;min-height:0;}
   </div>
 </div>
 
-<div class="overlay admin-overlay" id="progressOverlay">
-  <div class="admin-card">
-    <div class="admin-head">
-      <h2>本日の実績</h2>
-      <button class="close-x" id="progressClose">&times;</button>
-    </div>
-    <div id="progressGroupTabs" style="display:flex;gap:8px;flex-wrap:wrap;padding:14px 22px 0;"></div>
-    <div class="admin-body" id="progressBody"></div>
-  </div>
-</div>
-
 <script>
 let ROSTER = [{"no": 1, "name": "★河出 陽一", "category": "所長", "type": "社員"}, {"no": 2, "name": "★小野 正壽", "category": "所長補佐", "type": "社員"}, {"no": 3, "name": "松沢幸子", "category": "ケース仕分", "type": "パート"}, {"no": 5, "name": "馬場浩", "category": "ケース仕分", "type": "パート"}, {"no": 7, "name": "町田 知明", "category": "ケース仕分", "type": "アルバイト"}, {"no": 8, "name": "吉澤康穂", "category": "ケース仕分", "type": "パート"}, {"no": 10, "name": "★川手洋人", "category": "所長", "type": "社員"}, {"no": 11, "name": "小林康宏", "category": "ケース仕分", "type": "パート"}, {"no": 12, "name": "斎藤 龍也", "category": "ケース仕分", "type": "パート"}, {"no": 15, "name": "★吉越 克哉", "category": "配送員", "type": "配送員"}, {"no": 18, "name": "羽毛田和也", "category": "酒小物", "type": "パート"}, {"no": 19, "name": "酒井 健一郎", "category": "社員", "type": "社員"}, {"no": 20, "name": "山口 真悟", "category": "配送員", "type": "配送員"}, {"no": 22, "name": "岩本 善次郎", "category": "ケース仕分", "type": "アルバイト"}, {"no": 23, "name": "★草間 貴裕", "category": "配送員", "type": "パート"}, {"no": 26, "name": "★神田 利広", "category": "配送員", "type": "パート"}, {"no": 27, "name": "★小市 崇", "category": "配送員", "type": "パート"}, {"no": 30, "name": "畠山 茂", "category": "ケース仕分", "type": "アルバイト"}, {"no": 31, "name": "荻原 夏江", "category": "ケース仕分", "type": "アルバイト"}, {"no": 33, "name": "青木 優斗", "category": "ケース仕分", "type": "アルバイト"}, {"no": 34, "name": "竹前 佑哉", "category": "ケース仕分", "type": "アルバイト"}, {"no": 36, "name": "★涌永 千春", "category": "酒小物", "type": "パート"}, {"no": 37, "name": "★佐藤 光明", "category": "配送員", "type": "パート"}, {"no": 41, "name": "★星沢 司", "category": "配送員", "type": "パート"}, {"no": 44, "name": "★相場 恵太", "category": "配送員", "type": "パート"}, {"no": 73, "name": "三田 美香子", "category": "事務", "type": "事務Ｐ"}, {"no": 78, "name": "★柳辺 哲也", "category": "配送員", "type": "配送員"}, {"no": 80, "name": "湯本 慎也", "category": "ケース仕分", "type": "アルバイト"}, {"no": 106, "name": "清水陽", "category": "ケース仕分", "type": "パート"}, {"no": 110, "name": "片岡 莉菜", "category": "ケース仕分", "type": "アルバイト"}, {"no": 111, "name": "平林 大樹", "category": "ケース仕分", "type": "アルバイト"}, {"no": 113, "name": "酒井 憲吾", "category": "ケース仕分", "type": "アルバイト"}, {"no": 114, "name": "千脇 黎南", "category": "ケース仕分", "type": "アルバイト"}, {"no": 115, "name": "武内 由子", "category": "ケース仕分", "type": "アルバイト"}, {"no": 116, "name": "池田 啓太郎", "category": "ケース仕分", "type": "アルバイト"}, {"no": 119, "name": "西沢 正夫", "category": "ケース仕分", "type": "パート"}, {"no": 120, "name": "★春日 孝文", "category": "配送員", "type": "配送員"}, {"no": 122, "name": "斉藤健一", "category": "ケース仕分", "type": "アルバイト"}, {"no": 126, "name": "鈴木敏郎", "category": "ケース仕分", "type": "アルバイト"}, {"no": 127, "name": "三上 颯", "category": "ケース仕分", "type": "アルバイト"}, {"no": 129, "name": "栗原 丈一", "category": "酒小物", "type": "パート"}, {"no": 130, "name": "二本松 竜彦", "category": "ケース仕分", "type": "パート"}, {"no": 133, "name": "★青木 雄二", "category": "ケース仕分", "type": "パート"}, {"no": 142, "name": "草間 真奈美", "category": "ケース仕分", "type": "アルバイト"}, {"no": 147, "name": "中村 勉", "category": "ケース仕分", "type": "アルバイト"}, {"no": 148, "name": "★矢坂 浩樹", "category": "配送員", "type": "配送員"}, {"no": 150, "name": "上野 秀樹", "category": "ケース仕分", "type": ""}, {"no": 151, "name": "星 亜耶香", "category": "ケース仕分", "type": ""}, {"no": 152, "name": "佐藤 舞", "category": "社員", "type": "社員"}, {"no": 155, "name": "平塚 勝義", "category": "ケース仕分", "type": ""}, {"no": 156, "name": "小林 滉介", "category": "社員", "type": "社員"}, {"no": 157, "name": "関谷 功", "category": "社員", "type": "社員"}, {"no": 160, "name": "大塚 裕次郎", "category": "ケース仕分", "type": "アルバイト"}, {"no": 161, "name": "田村 勇樹", "category": "ケース仕分", "type": "アルバイト"}, {"no": 162, "name": "中村 勉", "category": "ケース仕分", "type": "アルバイト"}, {"no": 163, "name": "★逸見 輝行", "category": "配送員", "type": ""}, {"no": 164, "name": "勝山 勉", "category": "ケース仕分", "type": "アルバイト"}, {"no": 165, "name": "宮崎 星次", "category": "ケース仕分", "type": "アルバイト"}, {"no": 169, "name": "松山 和子", "category": "ケース仕分", "type": "アルバイト"}, {"no": 178, "name": "栗原 弘之", "category": "ケース仕分", "type": "アルバイト"}, {"no": 181, "name": "玉井 富士夫", "category": "ケース仕分", "type": "パート"}, {"no": 191, "name": "富田 吉明", "category": "ケース仕分", "type": "パート"}, {"no": 195, "name": "駒村 哲也", "category": "ケース仕分", "type": "アルバイト"}, {"no": 200, "name": "★三田 有蓮", "category": "", "type": ""}, {"no": 207, "name": "寒河江 武子", "category": "ケース仕分", "type": "アルバイト"}, {"no": 214, "name": "矢島 裕一", "category": "ケース仕分", "type": "パート"}, {"no": 218, "name": "松本 勝衛", "category": "ケース仕分", "type": "アルバイト"}, {"no": 224, "name": "佐藤 陽子", "category": "ケース仕分", "type": "アルバイト"}, {"no": 227, "name": "和田 光雄", "category": "ケース仕分", "type": "アルバイト"}, {"no": 231, "name": "★アルバイトA", "category": "ケース仕分", "type": "アルバイト"}, {"no": 232, "name": "★アルバイトB", "category": "ケース仕分", "type": "アルバイト"}, {"no": 233, "name": "★アルバイトC", "category": "ケース仕分", "type": "アルバイト"}, {"no": 234, "name": "★アルバイトD", "category": "ケース仕分", "type": "アルバイト"}, {"no": 235, "name": "★アルバイトE", "category": "ケース仕分", "type": "アルバイト"}, {"no": 300, "name": "★中央高速運輸", "category": "", "type": ""}, {"no": 301, "name": "柳澤浩朗", "category": "構内作業", "type": "パート"}, {"no": 302, "name": "高野文雄", "category": "構内作業", "type": "パート"}, {"no": 303, "name": "田中新一", "category": "構内作業", "type": "パート"}, {"no": 306, "name": "倉島吉子", "category": "構内作業", "type": "パート"}, {"no": 308, "name": "田村正雄", "category": "ケース仕分", "type": "アルバイト"}, {"no": 311, "name": "宮下幸男", "category": "構内作業", "type": "パート"}, {"no": 316, "name": "金谷 譲", "category": "構内作業", "type": "アルバイト"}, {"no": 319, "name": "高山良子", "category": "構内作業", "type": "アルバイト"}, {"no": 327, "name": "田中宏美", "category": "構内作業", "type": "アルバイト"}, {"no": 328, "name": "仁科拓哉", "category": "構内作業", "type": "アルバイト"}, {"no": 403, "name": "★馬場美鈴", "category": "菓子小物", "type": "パート"}, {"no": 405, "name": "★大塚美雪", "category": "菓子小物", "type": "パート"}, {"no": 406, "name": "★松本直子", "category": "菓子小物", "type": "パート"}, {"no": 407, "name": "★上野けい子", "category": "菓子小物", "type": "パート"}, {"no": 413, "name": "★剱持千佳", "category": "菓子小物", "type": "パート"}, {"no": 417, "name": "★町田美紀", "category": "菓子小物", "type": "パート"}, {"no": 431, "name": "★坂口美善", "category": "加食小物", "type": "パート"}, {"no": 432, "name": "★市川敬子", "category": "加食小物", "type": "パート"}, {"no": 436, "name": "★西澤久美子", "category": "加食小物", "type": "パート"}, {"no": 438, "name": "★鎌倉由美子", "category": "加食小物", "type": "パート"}, {"no": 440, "name": "★小林洋美", "category": "加食小物", "type": "パート"}, {"no": 441, "name": "★雪入のり子", "category": "加食小物", "type": "パート"}, {"no": 468, "name": "小林真由美", "category": "ケース仕分", "type": "パート"}, {"no": 469, "name": "★牧亜矢加", "category": "菓子小物", "type": "パート"}, {"no": 471, "name": "大峡 淳", "category": "ケース仕分", "type": "パート"}, {"no": 473, "name": "★田牧 弥生", "category": "酒小物", "type": "パート"}, {"no": 500, "name": "★内藤 誉史", "category": "", "type": ""}, {"no": 513, "name": "伊東正明", "category": "社員", "type": "社員"}, {"no": 514, "name": "小池健一", "category": "社員", "type": "社員"}, {"no": 515, "name": "今井英行", "category": "ケース仕分", "type": "パート"}, {"no": 516, "name": "牧野淳一", "category": "社員", "type": "社員"}, {"no": 517, "name": "田中 浩", "category": "社員", "type": "社員"}, {"no": 519, "name": "林 晋司", "category": "ｹｰｽ", "type": "パート"}, {"no": 521, "name": "★渡辺 晴彦", "category": "配送員", "type": "配送員"}, {"no": 522, "name": "★轟 圭", "category": "配送員", "type": "配送員"}, {"no": 523, "name": "★塚田順子", "category": "事務", "type": "事務Ｐ"}, {"no": 601, "name": "★荒井 正和", "category": "配送員", "type": "配送員"}, {"no": 602, "name": "★上原 裕太", "category": "配送員", "type": "配送員"}, {"no": 604, "name": "★武井 聡", "category": "配送員", "type": "配送員"}, {"no": 605, "name": "★山崎 貴史", "category": "配送員", "type": "配送員"}, {"no": 607, "name": "★駒村 幸広", "category": "配送員", "type": "配送員"}, {"no": 609, "name": "★田中貴博", "category": "配送員", "type": "配送員"}, {"no": 610, "name": "★高野晴樹", "category": "配送員", "type": "配送員"}, {"no": 611, "name": "★丸山修平", "category": "配送員", "type": "配送員"}, {"no": 612, "name": "★脇口幸彦", "category": "配送員", "type": "配送員"}, {"no": 613, "name": "★丸山 武", "category": "配送員", "type": ""}, {"no": 616, "name": "★水橋勇貴", "category": "配送員", "type": ""}, {"no": 618, "name": "★米沢祐之", "category": "配送員", "type": "配送員"}, {"no": 621, "name": "★角田政繁", "category": "配送員", "type": "配送員"}, {"no": 622, "name": "★藤森卓司", "category": "配送員", "type": "配送員"}, {"no": 624, "name": "★大塚 章", "category": "配送員", "type": "配送員"}, {"no": 626, "name": "★重田浩之", "category": "配送員", "type": "配送員"}, {"no": 639, "name": "★松井 洋", "category": "配送員", "type": "配送員"}, {"no": 641, "name": "★牧 厚志", "category": "配送員", "type": "配送員"}, {"no": 642, "name": "★岡田真悟", "category": "配送員", "type": "配送員"}, {"no": 643, "name": "★常田 雅之", "category": "配送員", "type": "配送員"}, {"no": 644, "name": "★吉田 卓史", "category": "配送員", "type": "配送員"}, {"no": 648, "name": "★丸山 康成", "category": "配送員", "type": "配送員"}, {"no": 650, "name": "★配送員A", "category": "", "type": ""}, {"no": 651, "name": "★配送員B", "category": "", "type": ""}, {"no": 652, "name": "★配送員C", "category": "", "type": ""}, {"no": 660, "name": "★神林 剛", "category": "配送員", "type": "配送員"}, {"no": 662, "name": "★花倉 良充", "category": "配送員", "type": "配送員"}, {"no": 663, "name": "★柄澤 充紀", "category": "配送員", "type": "配送員"}, {"no": 673, "name": "★杉浦 治", "category": "配送員", "type": "配送員"}, {"no": 679, "name": "★大峡 俊", "category": "配送員", "type": "配送員"}, {"no": 682, "name": "★峯村 憲一", "category": "配送員", "type": "配送員"}, {"no": 686, "name": "★寺畑 崇史", "category": "配送員", "type": "配送員"}, {"no": 687, "name": "★和田 浩明", "category": "配送員", "type": "配送員"}, {"no": 690, "name": "★青木 厚史", "category": "配送員", "type": "配送員"}, {"no": 695, "name": "★武井 里志", "category": "配送員", "type": "配送員"}, {"no": 698, "name": "★西原 孝", "category": "配送員", "type": "配送員"}, {"no": 704, "name": "★小島寿美子", "category": "応援", "type": "事務Ｐ"}, {"no": 706, "name": "★島田鋼吉", "category": "応援", "type": "社員"}, {"no": 715, "name": "★江口豊陽", "category": "応援", "type": "社員"}, {"no": 744, "name": "山崎 ふじ江", "category": "", "type": ""}, {"no": 745, "name": "高橋 孝子", "category": "", "type": ""}, {"no": 746, "name": "小岩井 陽子", "category": "", "type": ""}, {"no": 761, "name": "★酒井 啓光", "category": "応援", "type": "社員"}, {"no": 762, "name": "大久保 嘉男", "category": "応援", "type": "社員"}, {"no": 764, "name": "佐藤 昭江", "category": "応援", "type": "社員"}, {"no": 800, "name": "根石 芳恵", "category": "", "type": ""}, {"no": 801, "name": "松澤和加子", "category": "", "type": ""}, {"no": 805, "name": "★派遣社員F", "category": "", "type": ""}, {"no": 809, "name": "酒井 百合子", "category": "", "type": ""}, {"no": 811, "name": "★西沢 義広", "category": "", "type": ""}, {"no": 812, "name": "★外山 光洋", "category": "", "type": ""}, {"no": 813, "name": "★中頭 利則", "category": "", "type": ""}, {"no": 815, "name": "★宮澤 友輔", "category": "", "type": ""}, {"no": 816, "name": "西村 明美", "category": "ケース仕分", "type": "パート"}, {"no": 817, "name": "高橋 正子", "category": "ケース仕分", "type": "パート"}, {"no": 901, "name": "★望月 健史", "category": "応援", "type": "信陸"}, {"no": 902, "name": "★小林 敏一", "category": "応援", "type": "信陸"}, {"no": 903, "name": "★小林 伸宙", "category": "応援", "type": "信陸"}, {"no": 905, "name": "★山崎 孝仁", "category": "応援", "type": "信陸"}, {"no": 906, "name": "★高木 勝", "category": "応援", "type": "信陸"}, {"no": 907, "name": "★松沢 淳史", "category": "応援", "type": "信陸"}, {"no": 908, "name": "★足立 学", "category": "応援", "type": "信陸"}, {"no": 909, "name": "★土屋 圭一", "category": "応援", "type": "信陸"}, {"no": 910, "name": "★谷口 耕一", "category": "応援", "type": "信陸"}, {"no": 911, "name": "★佐藤 正清", "category": "応援", "type": "信陸"}, {"no": 912, "name": "★南沢 友一", "category": "応援", "type": "信陸"}, {"no": 913, "name": "★大野田 忍", "category": "応援", "type": "信陸"}, {"no": 915, "name": "★夏沢 英俊", "category": "応援", "type": "信陸"}];
 const COURSES = [{"no": 1, "name": "平日１便", "minC": 601, "maxC": 641, "minS": 1, "maxS": 9}, {"no": 2, "name": "平日２便", "minC": 701, "maxC": 741, "minS": 1, "maxS": 9}, {"no": 3, "name": "日曜１便", "minC": 401, "maxC": 426, "minS": 1, "maxS": 13}, {"no": 4, "name": "日曜２便", "minC": 501, "maxC": 526, "minS": 1, "maxS": 13}, {"no": 5, "name": "日曜３便", "minC": 801, "maxC": 826, "minS": 1, "maxS": 13}];
@@ -604,8 +625,8 @@ function speak(text){
 function vibrate(ms){ try{ navigator.vibrate && navigator.vibrate(ms); }catch(e){} }
 
 // ---------- Supabase connection ----------
-const SUPABASE_URL = 'https://nhkbfzzysonkqqgmvaao.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_4_LZAPz9gceWwdgT_OGHYQ_EWX4DWvT';
+const SUPABASE_URL = 'https://pakdabwtszvlzzflfeci.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_VkfxCOHClg-MxPgLvVSCww_VEGJX5fY';
 const SB_HEADERS = {
   'apikey': SUPABASE_KEY,
   'Authorization': 'Bearer ' + SUPABASE_KEY,
@@ -714,8 +735,9 @@ async function refreshFromServer(){
 
   renderWorkingList();
   renderSummary();
-  if($('progressOverlay').classList.contains('show')) renderProgress();
+  await renderSidebarProgress();
   if(step === 'pickStore') renderPickStoreList();
+  if($('historyOverlay').classList.contains('show')) renderHistoryTable();
 }
 
 // ---------- rendering ----------
@@ -1166,6 +1188,7 @@ $('finishJobBtn').addEventListener('click', async ()=>{
     start_at: s.startISO, end_at: endISO, duration_sec: Math.round(durationSec),
     productivity, cancelled: false
   }]);
+  await renderSidebarProgress();
   resetToWorker();
 });
 
@@ -1187,6 +1210,7 @@ $('cancelJobBtn').addEventListener('click', async ()=>{
       start_at: s.startISO, end_at: endISO, duration_sec: Math.round(durationSec),
       productivity: 0, cancelled: true
     }]);
+    await renderSidebarProgress();
     resetToWorker();
   });
 });
@@ -1285,25 +1309,6 @@ function computeEndTime(data, currentProd, prevBinEnd, expectedProd, expectedBre
   }
   return null;
 }
-let progressSelectedGroupId = null; // null = "all groups" (office view)
-
-function renderProgressTabs(){
-  const wrap = $('progressGroupTabs');
-  const groups = appSettings.groups || [];
-  if(groups.length <= 1){ wrap.innerHTML = ''; return; }
-  const tabs = [{id:null, name:'全グループ'}, ...groups.map(g=>({id:g.id, name:g.name}))];
-  wrap.innerHTML = tabs.map(t => `
-    <button class="settings-tab-btn${progressSelectedGroupId===t.id?' active':''}" data-gid="${t.id===null?'':t.id}" style="flex:none;padding:6px 14px;font-size:13px;">${escapeHtml(t.name)}</button>
-  `).join('');
-  wrap.querySelectorAll('button').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const gid = btn.getAttribute('data-gid');
-      progressSelectedGroupId = gid === '' ? null : gid;
-      renderProgress();
-    });
-  });
-}
-
 function computeGroupBinResults(g){
   const orderData = ORDER_DATA[g.id];
   if(!orderData || !orderData.loaded || Object.keys(orderData.map).length === 0) return null;
@@ -1358,49 +1363,27 @@ function renderQtySummary(rangeRows){
     <div class="qty-breakdown">内訳　${breakdown}</div>
   </div>`;
 }
-async function renderProgress(){
-  const body = $('progressBody');
-  renderProgressTabs();
 
-  let targetGroups;
-  if(progressSelectedGroupId === null){
-    targetGroups = appSettings.groups || [];
-  } else {
-    const g = (appSettings.groups||[]).find(x=>x.id===progressSelectedGroupId);
-    targetGroups = g ? [g] : [];
-  }
-
-  if(targetGroups.length === 0){
-    body.innerHTML = '<p style="padding:20px;color:var(--muted);">この拠点にはまだ作業グループがありません。</p>';
+async function renderSidebarProgress(){
+  const container = $('sidebarProgress');
+  const g = resolveActiveGroup();
+  if(!g){
+    container.innerHTML = '<p style="color:var(--muted);font-size:12px;">この端末の作業グループが未設定です。</p>';
     return;
   }
-
-  const sections = [];
-  for(const g of targetGroups){
-    const heading = progressSelectedGroupId === null
-      ? `<h3 style="margin:18px 2px 8px;font-size:15px;">${escapeHtml(g.name)}</h3>` : '';
-    const rangeRows = await loadRangeSummaryForGroup(g);
-    const qtyHtml = renderQtySummary(rangeRows);
-    const results = computeGroupBinResults(g);
-    if(results === null){
-      sections.push(heading + qtyHtml + '<p style="padding:0 2px 10px;color:var(--muted);font-size:13px;">本日の受注データが未取込です。</p>');
-      continue;
-    }
-    if(results === 'no_course_table'){
-      sections.push(heading + qtyHtml + '<p style="padding:0 2px 10px;color:var(--red);font-size:13px;">⚠ コース表に無いコースが含まれているため、便を判定できません。⚙設定からコース表を確認・更新してください。</p>');
-      continue;
-    }
-    sections.push(heading + qtyHtml + renderBinCards(results));
+  const rangeRows = await loadRangeSummaryForGroup(g);
+  const qtyHtml = renderQtySummary(rangeRows);
+  const results = computeGroupBinResults(g);
+  if(results === null){
+    container.innerHTML = qtyHtml + '<p style="color:var(--muted);font-size:12px;">本日の受注データが未取込です。</p>';
+    return;
   }
-  body.innerHTML = sections.join('');
+  if(results === 'no_course_table'){
+    container.innerHTML = qtyHtml + '<p style="color:var(--red);font-size:12px;">⚠ コース表に無いコースが含まれているため、便を判定できません。</p>';
+    return;
+  }
+  container.innerHTML = qtyHtml + renderBinCards(results);
 }
-$('progressBtn').addEventListener('click', async ()=>{
-  const active = resolveActiveGroup();
-  progressSelectedGroupId = active ? active.id : null;
-  $('progressOverlay').classList.add('show');
-  await renderProgress();
-});
-$('progressClose').addEventListener('click', ()=> $('progressOverlay').classList.remove('show'));
 
 
 // ---------- roster import (logi_meter CSV) ----------
@@ -1748,6 +1731,7 @@ $('settingsSave').addEventListener('click', async ()=>{
     await loadRoster();
     await loadCourseMaster();
     await loadOrders();
+    await renderSidebarProgress();
     return;
   }
 
@@ -1802,6 +1786,7 @@ $('settingsSave').addEventListener('click', async ()=>{
   await loadRoster();  // site code may have just been set for the first time
   await loadCourseMaster();
   await loadOrders();  // group definition may have changed, refresh order status
+  await renderSidebarProgress();
 });
 
 
@@ -2133,6 +2118,43 @@ $('orderApply').addEventListener('click', async ()=>{
   );
   pendingOrderImport = null;
   $('orderOverlay').classList.remove('show');
+  await renderSidebarProgress();
+});
+
+// ---------- 履歴(今日、誰がどの店をやったか検索) ----------
+function renderHistoryTable(){
+  const courseFilter = $('historyCourseFilter').value.trim();
+  const storeFilter = $('historyStoreFilter').value.trim();
+  const workerFilter = $('historyWorkerFilter').value.trim();
+
+  let rows = [...todayLog].sort((a,b)=> new Date(b.startISO)-new Date(a.startISO));
+  if(courseFilter) rows = rows.filter(r => String(r.courseNo).includes(courseFilter));
+  if(storeFilter) rows = rows.filter(r => String(r.storeNo).includes(storeFilter));
+  if(workerFilter) rows = rows.filter(r => String(r.no).includes(workerFilter));
+
+  const body = $('historyBody');
+  if(rows.length === 0){
+    body.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px;">該当する記録がありません</td></tr>';
+    return;
+  }
+  body.innerHTML = rows.map(r => `
+    <tr class="${r.cancelled?'cancelled':''}">
+      <td>${r.no}</td><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.groupName||'-')}</td><td>${escapeHtml(r.courseName)}</td>
+      <td>${r.storeNo}</td><td>${r.count}</td>
+      <td>${fmtTimeShort(r.startISO)}</td><td>${fmtTimeShort(r.endISO)}</td>
+      <td>${fmtDuration(r.durationSec)}</td><td>${r.cancelled ? '取消' : r.productivity}</td>
+    </tr>`).join('');
+}
+$('historyBtn').addEventListener('click', ()=>{
+  $('historyCourseFilter').value = '';
+  $('historyStoreFilter').value = '';
+  $('historyWorkerFilter').value = '';
+  renderHistoryTable();
+  $('historyOverlay').classList.add('show');
+});
+$('historyClose').addEventListener('click', ()=> $('historyOverlay').classList.remove('show'));
+['historyCourseFilter','historyStoreFilter','historyWorkerFilter'].forEach(id=>{
+  $(id).addEventListener('input', renderHistoryTable);
 });
 
 // ---------- order data manual cleanup (前日の先行作業などで不要になった予定を消す) ----------
@@ -2187,6 +2209,7 @@ function renderOrderManageList(){
         }
         renderOrderManageList();
         if(step === 'pickStore') renderPickStoreList();
+        await renderSidebarProgress();
       });
     });
   });
