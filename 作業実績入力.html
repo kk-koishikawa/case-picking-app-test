@@ -1318,11 +1318,19 @@ function computeGroupBinResults(g){
   });
 }
 
+function fmtEndLabel(dateObj, actual){
+  const now = new Date();
+  const dayDiff = Math.round((new Date(dateObj.getFullYear(),dateObj.getMonth(),dateObj.getDate()) -
+                               new Date(now.getFullYear(),now.getMonth(),now.getDate())) / 86400000);
+  const timeStr = fmtTimeShort(dateObj.toISOString());
+  const dayTag = dayDiff === 0 ? '' : dayDiff === 1 ? '(翌日)' : dayDiff > 1 ? `(${dayDiff}日後)` : '(前日)';
+  return timeStr + dayTag + (actual ? '済' : '');
+}
 function renderBinCards(results){
   return `<div class="bin-compact-wrap">` + results.map(r=>{
     const cPct = r.courseTotal ? Math.round(r.courseDone/r.courseTotal*100) : 0;
     const vPct = r.volumeTotal ? Math.round(r.volumeDone/r.volumeTotal*100) : 0;
-    const endLabel = r.endResult ? (fmtTimeShort(r.endResult.time.toISOString()) + (r.endResult.actual?'済':'')) : '--:--';
+    const endLabel = r.endResult ? fmtEndLabel(r.endResult.time, r.endResult.actual) : '--:--';
     return `
     <div class="bin-compact-row">
       <span class="bcr-label">${escapeHtml(r.label)}</span>
