@@ -401,15 +401,9 @@ table.log tr.cancelled td{color:var(--muted);text-decoration:line-through;}
         <div class="panel-title">現在作業中</div>
         <div class="working-list" id="workingList"></div>
       </div>
-      <div class="card" style="overflow-y:auto;">
+      <div class="card" style="flex-shrink:0;">
         <div class="panel-title">本日の実績</div>
-        <div class="summary-row">
-          <div class="stat"><div class="n" id="statCount">0</div><div class="l">件数</div></div>
-          <div class="stat"><div class="n" id="statPieces">0</div><div class="l">総個口数</div></div>
-          <div class="stat"><div class="n" id="statAvg">0</div><div class="l">平均生産性/h</div></div>
-        </div>
-        <div id="groupBreakdown" style="font-size:12px;color:var(--muted);padding:0 18px 14px;"></div>
-        <div id="sidebarProgress" style="padding:0 18px 18px;"></div>
+        <div id="sidebarProgress" style="padding:0 18px 16px;"></div>
       </div>
     </div>
   </main>
@@ -421,16 +415,14 @@ table.log tr.cancelled td{color:var(--muted);text-decoration:line-through;}
       <button class="close-x" id="historyClose">&times;</button>
     </div>
     <div class="admin-body">
-      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">今日の実績から検索します。空欄のままでも全件表示されます。</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">今日の実績を全件表示しています。コース№か担当者№で絞り込めます。</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
-        <input type="text" id="historyCourseFilter" placeholder="コース№" style="flex:1;min-width:100px;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;">
-        <input type="text" id="historyStoreFilter" placeholder="店№" style="flex:1;min-width:100px;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;">
-        <input type="text" id="historyWorkerFilter" placeholder="担当者№" style="flex:1;min-width:100px;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;">
+        <input type="text" id="historyCourseFilter" placeholder="コース№で検索" style="flex:1;min-width:140px;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;">
+        <input type="text" id="historyWorkerFilter" placeholder="担当者№で検索" style="flex:1;min-width:140px;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;">
       </div>
       <table class="log">
         <thead><tr>
-          <th>担№</th><th>氏名</th><th>グループ</th><th>コース</th><th>店№</th><th>個口数</th>
-          <th>開始</th><th>終了</th><th>作業時間</th><th>生産性/h</th>
+          <th>コース－店</th><th>担当者</th>
         </tr></thead>
         <tbody id="historyBody"></tbody>
       </table>
@@ -734,7 +726,6 @@ async function refreshFromServer(){
   }
 
   renderWorkingList();
-  renderSummary();
   await renderSidebarProgress();
   if(step === 'pickStore') renderPickStoreList();
   if($('historyOverlay').classList.contains('show')) renderHistoryTable();
@@ -793,27 +784,6 @@ function tickTimers(){
     const start = new Date(el.getAttribute('data-start')).getTime();
     el.textContent = fmtDuration((Date.now()-start)/1000);
   });
-}
-function renderSummary(){
-  const valid = todayLog.filter(r=>!r.cancelled);
-  $('statCount').textContent = valid.length;
-  $('statPieces').textContent = valid.reduce((a,r)=>a+r.count,0);
-  const avg = valid.length ? Math.round(valid.reduce((a,r)=>a+r.productivity,0)/valid.length) : 0;
-  $('statAvg').textContent = avg;
-
-  const byGroup = {};
-  valid.forEach(r=>{
-    const g = r.groupName || '(グループ未設定)';
-    if(!byGroup[g]) byGroup[g] = {count:0, pieces:0};
-    byGroup[g].count++; byGroup[g].pieces += r.count;
-  });
-  const keys = Object.keys(byGroup);
-  const breakdown = $('groupBreakdown');
-  if(breakdown){
-    breakdown.textContent = keys.length > 1
-      ? keys.map(g=>`${g}: ${byGroup[g].count}件・${byGroup[g].pieces}個`).join(' ｜ ')
-      : '';
-  }
 }
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1170,7 +1140,7 @@ $('finishJobBtn').addEventListener('click', async ()=>{
   delete sessions[ctx.no];
   const logRec = {...s, endISO, durationSec, productivity, cancelled:false};
   todayLog.unshift(logRec);
-  renderWorkingList(); renderSummary();
+  renderWorkingList();
 
   $('resultType').textContent = '作業終了';
   $('resultName').textContent = s.name;
@@ -1200,7 +1170,7 @@ $('cancelJobBtn').addEventListener('click', async ()=>{
     const durationSec = (new Date(endISO)-new Date(s.startISO))/1000;
     delete sessions[ctx.no];
     todayLog.unshift({...s, endISO, durationSec, productivity:0, cancelled:true, count:0});
-    renderWorkingList(); renderSummary();
+    renderWorkingList();
     speak('作業を取り消しました');
     await sbDelete('active_sessions', `site_code=eq.${encodeURIComponent(appSettings.siteCode)}&worker_no=eq.${ctx.no}`);
     await sbInsert('work_log', [{
@@ -1372,17 +1342,11 @@ async function renderSidebarProgress(){
     return;
   }
   const rangeRows = await loadRangeSummaryForGroup(g);
-  const qtyHtml = renderQtySummary(rangeRows);
-  const results = computeGroupBinResults(g);
-  if(results === null){
-    container.innerHTML = qtyHtml + '<p style="color:var(--muted);font-size:12px;">本日の受注データが未取込です。</p>';
+  if(!rangeRows || rangeRows.length === 0){
+    container.innerHTML = '<p style="color:var(--muted);font-size:12px;">本日の受注データが未取込です。</p>';
     return;
   }
-  if(results === 'no_course_table'){
-    container.innerHTML = qtyHtml + '<p style="color:var(--red);font-size:12px;">⚠ コース表に無いコースが含まれているため、便を判定できません。</p>';
-    return;
-  }
-  container.innerHTML = qtyHtml + renderBinCards(results);
+  container.innerHTML = renderQtySummary(rangeRows);
 }
 
 
@@ -2124,36 +2088,32 @@ $('orderApply').addEventListener('click', async ()=>{
 // ---------- 履歴(今日、誰がどの店をやったか検索) ----------
 function renderHistoryTable(){
   const courseFilter = $('historyCourseFilter').value.trim();
-  const storeFilter = $('historyStoreFilter').value.trim();
   const workerFilter = $('historyWorkerFilter').value.trim();
-
-  let rows = [...todayLog].sort((a,b)=> new Date(b.startISO)-new Date(a.startISO));
-  if(courseFilter) rows = rows.filter(r => String(r.courseNo).includes(courseFilter));
-  if(storeFilter) rows = rows.filter(r => String(r.storeNo).includes(storeFilter));
-  if(workerFilter) rows = rows.filter(r => String(r.no).includes(workerFilter));
-
   const body = $('historyBody');
+
+  let rows = [...todayLog].filter(r => !r.cancelled);
+  if(courseFilter) rows = rows.filter(r => String(r.courseNo).includes(courseFilter));
+  if(workerFilter) rows = rows.filter(r => String(r.no).includes(workerFilter));
+  rows.sort((a,b)=> a.courseNo - b.courseNo || a.storeNo - b.storeNo);
+
   if(rows.length === 0){
-    body.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px;">該当する記録がありません</td></tr>';
+    body.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--muted);padding:20px;">該当する記録がありません</td></tr>';
     return;
   }
   body.innerHTML = rows.map(r => `
-    <tr class="${r.cancelled?'cancelled':''}">
-      <td>${r.no}</td><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.groupName||'-')}</td><td>${escapeHtml(r.courseName)}</td>
-      <td>${r.storeNo}</td><td>${r.count}</td>
-      <td>${fmtTimeShort(r.startISO)}</td><td>${fmtTimeShort(r.endISO)}</td>
-      <td>${fmtDuration(r.durationSec)}</td><td>${r.cancelled ? '取消' : r.productivity}</td>
+    <tr>
+      <td style="font-family:'Space Mono',monospace;font-weight:700;">${r.courseNo}－${r.storeNo}</td>
+      <td>${escapeHtml(r.name)} <span style="color:var(--muted);font-size:12px;">(№${r.no})</span></td>
     </tr>`).join('');
 }
 $('historyBtn').addEventListener('click', ()=>{
   $('historyCourseFilter').value = '';
-  $('historyStoreFilter').value = '';
   $('historyWorkerFilter').value = '';
   renderHistoryTable();
   $('historyOverlay').classList.add('show');
 });
 $('historyClose').addEventListener('click', ()=> $('historyOverlay').classList.remove('show'));
-['historyCourseFilter','historyStoreFilter','historyWorkerFilter'].forEach(id=>{
+['historyCourseFilter','historyWorkerFilter'].forEach(id=>{
   $(id).addEventListener('input', renderHistoryTable);
 });
 
