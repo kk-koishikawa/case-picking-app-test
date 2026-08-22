@@ -1314,10 +1314,7 @@ function computeGroupBinResults(g){
     const prod = currentProductivityFor(data, g.expectedProductivity, now);
     const endResult = computeEndTime(data, prod, prevEnd, g.expectedProductivity, g.expectedBreakMinutes, now);
     prevEnd = endResult ? endResult.time : prevEnd;
-    return {...data, prod, endResult, debugStarted: data.started, debugOpenCount: openSessionsInGroup.filter(s=>{
-      const inb = bin.courseSet ? bin.courseSet.has(s.courseNo) : (s.courseNo>=bin.min && s.courseNo<=bin.max);
-      return inb;
-    }).length};
+    return {...data, prod, endResult};
   });
 }
 
@@ -1334,15 +1331,13 @@ function renderBinCards(results){
     const cPct = r.courseTotal ? Math.round(r.courseDone/r.courseTotal*100) : 0;
     const vPct = r.volumeTotal ? Math.round(r.volumeDone/r.volumeTotal*100) : 0;
     const endLabel = r.endResult ? fmtEndLabel(r.endResult.time, r.endResult.actual) : '--:--';
-    const dbg = r.endResult ? `branch:${r.endResult.branch} started:${r.debugStarted} openInBin:${r.debugOpenCount} prod:${Math.round(r.prod)} hoursLeft:${r.endResult.hoursLeft?r.endResult.hoursLeft.toFixed(2):'-'} prevBinEnd:${r.endResult.prevBinEnd?fmtTimeShort(r.endResult.prevBinEnd.toISOString()):'-'}` : '';
     return `
     <div class="bin-compact-row">
       <span class="bcr-label">${escapeHtml(r.label)}</span>
       <span class="bcr-stat">コース ${r.courseDone}/${r.courseTotal}(${cPct}%)</span>
       <span class="bcr-stat">数量 ${Math.round(r.volumeDone)}/${Math.round(r.volumeTotal)}(${vPct}%)</span>
       <span class="bcr-stat">終了 ${endLabel}</span>
-    </div>
-    <div style="font-size:9px;color:#B9A98A;padding:0 8px 4px;">${dbg}</div>`;
+    </div>`;
   }).join('') + `</div>`;
 }
 
