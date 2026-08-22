@@ -324,6 +324,7 @@ table.log tr.cancelled td{color:var(--muted);text-decoration:line-through;}
 }
 .bcr-label{font-weight:700;color:var(--steel);flex-shrink:0;}
 .bcr-stat{color:var(--ink);font-family:'Space Mono',monospace;}
+.numpad-key{min-height:52px;font-size:20px;}
 
 @media (max-width:820px){
   main{flex-direction:column;}
@@ -416,10 +417,10 @@ table.log tr.cancelled td{color:var(--muted);text-decoration:line-through;}
       <button class="close-x" id="historyClose">&times;</button>
     </div>
     <div style="padding:16px 22px 0;flex-shrink:0;">
-      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">今日の実績を全件表示しています。コース№か担当者№で絞り込めます。</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">今日の実績を全件表示しています。コース№か担当者№で絞り込めます(タップすると専用のテンキーが出ます)。</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" id="historyCourseFilter" placeholder="コース№で検索" style="flex:1;min-width:140px;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" id="historyWorkerFilter" placeholder="担当者№で検索" style="flex:1;min-width:140px;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;">
+        <input type="text" readonly id="historyCourseFilter" placeholder="コース№で検索" style="flex:1;min-width:140px;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;background:#fff;cursor:pointer;">
+        <input type="text" readonly id="historyWorkerFilter" placeholder="担当者№で検索" style="flex:1;min-width:140px;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;background:#fff;cursor:pointer;">
       </div>
     </div>
     <div class="admin-body" style="-webkit-overflow-scrolling:touch;">
@@ -430,6 +431,20 @@ table.log tr.cancelled td{color:var(--muted);text-decoration:line-through;}
         <tbody id="historyBody"></tbody>
       </table>
     </div>
+  </div>
+</div>
+
+<div class="overlay" id="historyNumpadOverlay" style="z-index:60;">
+  <div class="confirm-card" style="max-width:280px;padding:18px;">
+    <div id="historyNumpadLabel" style="font-size:12px;color:var(--muted);margin-bottom:8px;"></div>
+    <div id="historyNumpadDisplay" style="font-family:'Space Mono',monospace;font-size:22px;text-align:center;padding:10px;border:1px solid var(--line);border-radius:8px;margin-bottom:14px;min-height:26px;background:#F7F5F0;"></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
+      <div class="key numpad-key" data-k="1">1</div><div class="key numpad-key" data-k="2">2</div><div class="key numpad-key" data-k="3">3</div>
+      <div class="key numpad-key" data-k="4">4</div><div class="key numpad-key" data-k="5">5</div><div class="key numpad-key" data-k="6">6</div>
+      <div class="key numpad-key" data-k="7">7</div><div class="key numpad-key" data-k="8">8</div><div class="key numpad-key" data-k="9">9</div>
+      <div class="key fn numpad-key" data-k="clear">クリア</div><div class="key numpad-key" data-k="0">0</div><div class="key fn numpad-key" data-k="back">⌫</div>
+    </div>
+    <button class="yes" id="historyNumpadDone" style="width:100%;">閉じる</button>
   </div>
 </div>
 </div>
@@ -2120,8 +2135,32 @@ $('historyBtn').addEventListener('click', ()=>{
   $('historyOverlay').classList.add('show');
 });
 $('historyClose').addEventListener('click', ()=> $('historyOverlay').classList.remove('show'));
-['historyCourseFilter','historyWorkerFilter'].forEach(id=>{
-  $(id).addEventListener('input', renderHistoryTable);
+
+// 履歴検索欄用の、アプリ内蔵テンキー(iPadのOSキーボードは使わない)
+let historyNumpadTargetId = null;
+function openHistoryNumpad(inputId, label){
+  historyNumpadTargetId = inputId;
+  $('historyNumpadLabel').textContent = label;
+  $('historyNumpadDisplay').textContent = $(inputId).value || ' ';
+  $('historyNumpadOverlay').classList.add('show');
+}
+$('historyCourseFilter').addEventListener('click', ()=> openHistoryNumpad('historyCourseFilter', 'コース№'));
+$('historyWorkerFilter').addEventListener('click', ()=> openHistoryNumpad('historyWorkerFilter', '担当者№'));
+$('historyNumpadOverlay').querySelectorAll('.numpad-key').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    if(!historyNumpadTargetId) return;
+    const input = $(historyNumpadTargetId);
+    const k = btn.getAttribute('data-k');
+    if(k === 'clear') input.value = '';
+    else if(k === 'back') input.value = input.value.slice(0, -1);
+    else input.value += k;
+    $('historyNumpadDisplay').textContent = input.value || ' ';
+    renderHistoryTable();
+  });
+});
+$('historyNumpadDone').addEventListener('click', ()=>{
+  $('historyNumpadOverlay').classList.remove('show');
+  historyNumpadTargetId = null;
 });
 
 // ---------- order data manual cleanup (前日の先行作業などで不要になった予定を消す) ----------
