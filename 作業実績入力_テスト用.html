@@ -1,0 +1,2349 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>作業実績入力</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="作業実績入力">
+<meta name="theme-color" content="#1B2430">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAR/ElEQVR4nO2de7BdVX3Hv7+19t5nn1fuvUmEKCQGIQmgkFACcdrhJQqFocax5RGcDoraARlpi05rB1rB59ixOFNbHgo67XSmoJQxAZULykPrPxUkLwokAYkJCXne5zn7nP1Yv/6xT25yk7tyr+wHNf4+kz8yd272N+ec71577cf6HDrhlGUQhKlQb/V/QPj/i5RDsCLlEKxIOQQrUg7BipRDsCLlEKxIOQQrUg7BipRDsCLlEKxIOQQrUg7BipRDsCLlEKxIOQQrUg7BipRDsCLlEKxIOQQrUg7BipRDsCLlEKxIOQQrUg7BipRDsCLlEKxIOQQrUg7BipRDsCLlEKw4JecpgiLEBswAZdsWQyloQmLAJYZqDQISM80vagUAcZI5MQ1VIJo+NF9KLYdWaHXRibi/RlpN84lOCyl0I4x3ua9KjoKxbE4rtEMEYT6hSmEkYGb0VYl56q0RQIThNhNhlk8ZE9PQ0YATRl+VYAktgvLKoRVG2rx0gb7qHPe8xcpziM2b36uY4WjsHObBjfH3fhmNBqh6U+xYjsJwwGecoK861zl/sa44lGXwSEPXb0vWrI1/uD6uukQEnvxZpT9pd/mKpc7Ks5xl83VsQBkGjzR0w+vmkeejR9fF/lShBUHlaJ8chT3jvHKZ862P+o0ahd0cXhwDWpFTwa+2JKvuDfaNo1aBOaQfjsLecb7sTOc71/vNKoVhPqGeQ+TgrifCz30/nFUF4eCunP59JOAvf7hy86UeJwhjzuOo0gv99pPRZx/sNv1JocVRRjk0YaSDy8/Q91/vM6MTQascXl66hdhgTp3WbktW3dPZ3+KK0zu+aIXRAB84XX/3Ez4hz1DDYGCgSXf/JLzt4bBWObgfE6HVwe0f8m6+1BseYwCKcvgUDw2978nwb/8rrLlllKPwsxVFaIW8dL6676M+M6IEroYiEPXmiW/6T7oFT2N/i5e9U997XSV9E9PQdojTT1D3X+8Tcg7VCo7C/lG+8RLvpovdkTanc0+tMBLwDRe5N1/mDY2xVr1ZZMbEw0I/8X7vrz7gjnR6ocV+doUHEIIIV53j1KrUiaCyD7JH4GoMj/MfnqKXL1TtkNM3tB3ylcudZq2oUK3QDfiac51ZVUpM7/ylUaFrVjhhwEUkpqGdNl99rttfo7j4M5fCyxEZDNTovMVOGBZYdga0pved7nRjKIXYoM+n8xfrKCoqVBE6EU4+Tp05X7e77GgEIZ9xglp0vCqojmloN8bCOeqsBbrdLXzwKOMiGBG84s+KDkspJ9RRcHXv8M+Ao+EU/44eGlooJV0hLefU67CUEkJ5cortykehocUhl88FK1IOwYqUQ7Ai5RCsSDkEK1IOwYqUQ7Ai5RCsSDkEK1IOwYqUQ7Ai5RCsSDkEK1IOwYqUQ7Ai5RCsSDkEK1IOwYqUQ7Aiz5BmS5y8SopLWYh2TD1DSgRXl5ADd/LT50WHMqAJjjrk6XMFnccSt+lDj42nz9P1HTtGmAp+1wxj+35WBObe+o6iQzVhNOC9Y+wqMPeW5o4ErItZtDIROtbhPQdCC6XwcmhCq8uDG2LXpyQpJCLdZYMuP/FC7Lsw3Fvx9tiGxKkUFRobNHys3242vp5UPYoNqi69uNOs+42p+4iKWY4WG9QreGGHWbc9qXlks07kReHlSAz6qvTgL6PntyRzGhTl/VExIzFoNujep6PNu7jqUvqT/io99Gz0y03JnGb+oYmB5yCI8E+DkTrEr6AV3TkYtUL4Tv6ilcTA0wgTfP2xsBxHRxmr7NMjy0CNHvyUv+ydeng8t+GQAK3QbNC/DIa3PhzOqh4caRWhG6FZpQdu8Je/K+fQWoXihD92f+fHG+KBOk30QCsMtfj9pzv//km/4tB4HqaJidCqRwz++P2dNevi2YeEFkdJfo7U6fO2Jt1znf9Hp2hH5yFDAmDQCvnep6M7VndnHWG9SZ0+AzXce131vMW5hXKC7cPmMw90f7Q+ntukePKw5GjsHeNL3+Pcuaoyf0CpnCbFbLBj2PzN97o/eD5+2xGhBVFSOQAohW4EAOecpC8+TXuOVdQ0E5jhOti+n594Id68yzT8qX1ISiGMwMDZC9XFpznpjCRTqMZzW80zL8X7Wtz0p959tcJYhwdqdMGpzjkLVZRkNfu4Dn611Tz9Urxv3BpaBOWVAwARwGiFHMZgZFKppP9WEXyXqt4koY8lFGHMuYQ6CjWPvKPOKpRCHKMVcmyyGmNmHpo7pQrj0sN+o0LKz+mwwjB8tGYcEgrlUz6HFYbhaT4kY6A1+muUZcz4bUNz5y1TTeYCETRNv7Y931CtoAjJdKNBqujIa3Iww9B8KVs1mVofZ1WJMvu5iNCJelubiWoyr9CRNjOOppoEoA78WtOn7KdJRNP7LYugVNXkaMCnv0Nfudw5f4n2nEwX+BhwNO0cMo9tTB56Nmp1rarJkYBPe7v+s3OcC5boSvZQReu2JWvWxo9vjKve1KpJAK0uX/IeZ+VZzlkLdGwyCQXTV7p+e/LI8/HgxmNUNbl3nC8/07nvY/6ses/6mNUlzNCKdAX/sym59t5guI2aN2n8SEMvebfznY/7/Q2KwjwExgzPIWj882B468Pd/iph8mBEhOEW3/Ghyi2Xe0hVk5mnHROhd/0k/Nz3u31HhBZEearJS07X3/2ErwhBiBxlVrHBnAY9+1py7T2d0YDdA2NDqpq86FT9b5/0HZVb6ISwsL9J3xwMP/+DsOEfbKQijHXw9x/0brnMGx7j9CZZvqrJu38S3vpwWPeOiXIoQhDxqfP0j/+6qhXCJH+ZWpRgdpOe+t/4mns6nu6d4qY2t8duqXoOujFyvxkWGwz00a0Pdr/503CgRomBVhhq8w0Xev+4qjI0ykXIweIEA/10+0PdOx/vhRZKGXdl2yGuOtdp1CgoUjV53mK9/J2qdUA12Qr5ynOcvgYFYf7NAKAIYcDXrnCalYOqybpHH3mvE3ZyOJRMHarQbfOqFW5f9VhRTfbX6PyyVJPhIarJCxbrqLDQ3uB0vFo6X7dDdjSCiM84QS2apzpRIXXEhGpyrjprgW4X+X724ordfJpBqLiFpxChcoj0mYoPZcBVmJjlpNe53YLf0TQ047neDJHHBLMlimpS+P1EyiFYkXIIVqQcghUph2BFyiFYkXIIVqQcghUph2BFyiFYkXIIVqQcghUph2BFyiFYkXIIVqQcghUph2BFyiFYkXIIVuQZ0myJb5VqsvgUlKaadHThHxVjkluSivcxpqunDlNNFrEw5zAODS02qOgAhzAa8PptxnEKtN8RwIafey1xFJh7Psb124zWRYUy4GnsHObNbxjfpcTAd2jLbt4xxMXtCWn/do3yy28Y3/3dtwkCYMbq5yNd2CqSxKDmYccQP/1yUvPogMuFVq+Ntc5HEnMkUYJanX72crJ1v6k4MAzPwbYh8/RLSa1OBakmowT1Ov33pvjVPcYvfulK8apJRl+VfrQhufvxcKBJcZLJynUksYHrIGZ85oHu/hbStbIJo6+Kxzcm3xwM+5sUmzxDGQgTzK7T2leSLz4SNiq9PdgwmhX6yqPhs1uSOXUKkzw/vF5ojTZuTW5fE9aLl5CinFX2qTFlNOCvXVm58RKvG3AnymfLitD0KYj4uvs6P1ofz2kcXFucDhjDAX/5w5WbL/PCgDtRPsdpV6HWoLWvJlff1dnX4rp3ULiTOgT6anjghuryRbrd4rwUqK5GrUYbtpqr7gr2jE0KLY6S/BypbyQI+aaLvWvOdU8+jrQCMugymKEUjQa8Ybu5c7D75IvJ7MbhAsYJj8qNF3nXrnBOPk656WwgSyjRzhHzzMvJlx4J94xxvXK4MUYrtLuYXcdtH6xcuES/o18ZzrSuOn2lO0fMzzclX34k3DnCzUpuCqujU55NkAAQRto8q0pL5ytHZ/IhpVOzvWO88fVEERoWAWMvNOCmT0tPVK6TQ+jmXWbrPlOvkKenPlopQpRgvMsLZqvF81QqFMwYumW3eW2vqVfIc6YR5OVIqapJAFohMWiHnP14zICrqOoBmGZKkW+o71I6Az3K1oigCGGMIMrkfDoY6lDFnSY0d8q2CaYqi1nVfAQWM7Qv5huamOlDmZEwXA3fzedsaSahuVN2OdKdeDRA9qt8zHA0VV1gZiPHWDCl5Pi3DvVd8mY8cozlIXKZYWjulFeO9PA/1OKGT8sXKlfD8Js/GDOgFe0bNy/uNFpR44iJ4UQoEYbaXPfoDxYqL4/QV3ab7ftNwyf3qHOOsQ6fOKDOXqiTzDZBrejVPWbbPlP3rROdIiipHL0Thw7fdLG3aoW76HhKL2Vm+aCUopE2r92WfGMw/Nkm69nKWIdvuND7yHudRcdnPVtJQ18fMk+9lHz1h939LdSO8Fum2tP+Kr70p/77TtXzB5ThDH0EwCBFO4bNMy8lX/3h1KdIBVHSdQ4cesmhw50wy2lsj9TV16hSq8t//q3O4y9Mus6R5g4HfMfKyi1XeFEHQS6qyfSSQ52e3Zxcc09npM1Vb5JNMIjQrOA/b6iuWNK7zpHLhDQNnbi4cphUsyBK+r6VVhe3r/Q+fak3NNYTuuVFnCCdxl93X+epl5JGpfeuKcJ4F7dd4d1yec6hzIgM5tTpudeSa7/VGQ16N1OIECdoVOg//sJfcbLeN86uyvR9CUeGzq7Tum3Jqns6w+0C7+BMUMbXeI0E/Mdn6E9f6g2Pce73LR2NMEbFwTdWVQZqSPdUTRgN8IF369QHmm8oETyNfS0+e5G+7U+88S6nG1eEsS7/3RXeiiV63zh7OrdmTITub/Gyk/TnVx4MLZTib7wRiPChs5wkKeouc/pNPyfOpguW6HbISgEEBq9c5iSmqFBXod3iC5foBbNVGPfOTU7sV+87TbdbXJA2zlVotfj8xc5Jc1U3zrN8U1J4OWKDWVVaukDHUYFlZ4AULT9JxwZESAyaPi1boJKkqFAihAneMUCL56kgYq3QiXnR8XTCAMXZvn3n6KGxwbxZdOrbVVDk+5lS0i374t6vCWjy91f0QgtONIyJq+ME5Hv71wYDGS/Jz5CSHhMsuhlTppQQSpNPfyjz2dDMc0tAHjAWrEg5BCtSDsGKlEOwIuUQrEg5BCtSDsGKlEOwIuUQrEg5BCtSDsGKlEOwIuUQrEg5BCtSDsGKlEOwIuUQrEg5BCtSDsGKqCazJYpqMiPlqCYxpWqyyFCbarJMv2WhlKSa3Li9cNWkMfz81oOqyfEub9hudGGhqWryjWHesqunmqw49Mpu3jnMbmH+UwZchd2jvGnXsaKaNIw1ayPtFjUaJgZVD28MT1JNMtOatbHW0/3jN0uUoFajn29OXtvXU01WHPxmyDzzclKrUV6euCND63X6xZbklWNGNdlfpUfXJd/+aTgwi6IiVJMaDHz2we7e8UmqycGNyd1P5O+3TK2PA3XauDX54pqwfohqslGhrzwarv11MjtVTeaWeSC0hhe3JXes7taLHzZQpmpyrIOvX1355MVuXqpJZmiFhk/dmK+/v7N6bTx3smqSgdEAX7vSy9FvyQxXo16nDVuTq+7q7BnlemWSarIdYk4dD36quuxdujXOUR5L/SZCX9xmrvzXYOcINyrHnGqyE/JfXuJdfa67cC45KpPYD4AijHb4hR3mzsfCwRfiOVPJWxhod/nm93urVrgnzaWMCsN0m7tGzc83J19YPbX1MV3VfVwT/7Cycv5iPa9PZR/8ibBrjH+xOf7C6vD1IW76x55qkgDGSMADdVq2QGfVPjEcjd2jvGF7wkBzOtVkf5WWLdCehski9mE4Gi+/YX69x9QqVHGmNuwohTBGu8sL56ol81RiMg0eaeimXebV3abqke+WZ457C1STcYJ2mMdciuFoqs1MNRkbtLv5hPru9NbHVBjXjdCJsjmfDoRWXPJ/H1STitDMyfrIPKOZZqqabPqUS+pM/JY91aSDSk6qyRlKNfOl7HIgvcBX+utEOrqUuNvhQEV+d5F7K4IVKYdgRcohWJFyCFakHIIVKYdgRcohWJFyCFakHIIVKYdgRcohWJFyCFakHIIVKYdgRcohWJFyCFakHIIVKYdgRcohWJFyCFakHIIVKYdgRcohWJFyCFakHIIVKYdgRcohWJFyCFakHIIVKYdg5f8AeZusSVHZfzYAAAAASUVORK5CYII=">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans+JP:wght@400;500;600;700&family=Space+Mono:wght@700&display=swap');
+
+:root{
+  --ink:#1B2430;
+  --paper:#F1EFE9;
+  --panel:#FFFFFF;
+  --line:#DCD7CC;
+  --amber:#F2A93B;
+  --amber-deep:#C9821A;
+  --steel:#3E6B8A;
+  --green:#2F8F5B;
+  --red:#C6473C;
+  --muted:#6B7280;
+  --radius:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  margin:0;
+  background:var(--paper);
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-attachment: fixed;
+  color:var(--ink);
+  font-family:'IBM Plex Sans JP', -apple-system, 'Hiragino Sans', sans-serif;
+  overflow:hidden;
+  user-select:none;
+}
+#app{height:100vh;display:flex;flex-direction:column;}
+
+/* ---------- HEADER ---------- */
+header{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  padding:14px 22px;gap:10px 18px;
+  background:var(--ink);
+  color:#fff;
+  flex-shrink:0;
+}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+.brand .mark{
+  font-family:'Barlow Condensed';font-weight:700;font-size:15px;letter-spacing:.18em;
+  background:var(--amber);color:var(--ink);padding:3px 8px;border-radius:4px;
+}
+.brand h1{font-size:19px;font-weight:600;margin:0;letter-spacing:.02em;}
+.header-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;row-gap:10px;}
+.clock{
+  font-family:'Space Mono',monospace;font-size:22px;letter-spacing:.03em;
+  color:var(--amber);
+}
+.conn{
+  display:flex;align-items:center;gap:6px;font-size:12px;color:#B9C2CE;
+}
+.conn .dot{width:8px;height:8px;border-radius:50%;background:var(--green);transition:background .3s;}
+.conn.offline .dot{background:var(--red);}
+.hbtn{
+  background:transparent;border:1px solid #46505E;color:#EDEFF2;
+  padding:8px 14px;border-radius:8px;font-size:13px;font-weight:500;
+  font-family:inherit;cursor:pointer;
+}
+.hbtn:active{background:#2A3543;}
+.mini-btn{
+  background:var(--steel);color:#fff;border:none;
+  padding:9px 14px;border-radius:8px;font-size:13px;font-weight:600;
+  font-family:'IBM Plex Sans JP';cursor:pointer;white-space:nowrap;
+}
+.mini-btn:active{background:#2F5670;}
+.device-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:#2A3543;border:1px solid #46505E;color:var(--amber);
+  padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;
+  font-family:'IBM Plex Sans JP';
+}
+.device-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--amber);}
+.device-badge.unset{color:#FF8A80;border-color:#5A3A38;}
+
+/* ---------- MAIN LAYOUT ---------- */
+main{flex:1;display:flex;gap:16px;padding:16px;min-height:0;}
+.entry-panel{flex:0 0 46%;display:flex;flex-direction:column;min-height:0;}
+.status-panel{flex:1;display:flex;flex-direction:column;gap:14px;min-height:0;}
+
+.card{
+  background:var(--panel);
+  border-radius:var(--radius);
+  border:1px solid var(--line);
+  box-shadow:0 1px 0 rgba(0,0,0,.02);
+}
+
+/* ---------- ENTRY SCREEN ---------- */
+.entry-panel .card{flex:1;display:flex;flex-direction:column;padding:20px;min-height:0;}
+
+.step-eyebrow{
+  font-family:'Barlow Condensed';font-weight:600;letter-spacing:.12em;
+  font-size:13px;color:var(--amber-deep);text-transform:uppercase;
+}
+.step-title{font-size:22px;font-weight:600;margin:2px 0 14px;}
+
+.display-screen{
+  background:var(--ink);
+  border-radius:10px;
+  padding:16px 20px;
+  min-height:96px;
+  display:flex;flex-direction:column;justify-content:center;
+  margin-bottom:16px;
+  position:relative;
+}
+.display-value{
+  font-family:'Space Mono',monospace;
+  font-size:40px;color:#fff;letter-spacing:.04em;
+  min-height:44px;
+}
+.display-value.placeholder{color:#525C68;font-size:22px;}
+.display-sub{color:var(--amber);font-size:15px;margin-top:4px;font-weight:500;}
+.display-error{
+  position:absolute;bottom:8px;left:20px;right:20px;
+  color:#FF8A80;font-size:13px;font-weight:600;
+}
+.cs-row{display:none;align-items:center;gap:12px;}
+.cs-box{
+  flex:1;background:#232D3B;border:2px solid transparent;border-radius:8px;
+  padding:10px 14px;cursor:pointer;transition:border-color .15s,background .15s;
+}
+.cs-box.active{border-color:var(--amber);background:#2A3547;}
+.cs-box .cs-label{font-size:11px;color:#8B96A5;font-weight:600;letter-spacing:.05em;}
+.cs-box .cs-val{font-family:'Space Mono',monospace;font-size:32px;color:#fff;margin-top:2px;}
+.cs-box .cs-val.placeholder{color:#525C68;font-size:22px;}
+.cs-sep{font-family:'Space Mono',monospace;font-size:28px;color:#525C68;margin-top:14px;}
+
+.pick-store-view{display:flex;flex-direction:column;flex:1;min-height:0;}
+.pick-toggle{display:flex;gap:8px;margin-bottom:10px;}
+.pick-toggle-btn{
+  flex:1;padding:10px;border-radius:8px;border:1px solid var(--line);background:#F7F5F0;
+  font-family:'IBM Plex Sans JP';font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;
+}
+.pick-toggle-btn.active{background:var(--ink);border-color:var(--ink);color:var(--amber);}
+.pick-store-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:2px;}
+.pick-store-item{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;
+}
+.pick-store-item:active{background:#F0EDE6;}
+.pick-store-item .psi-code{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;}
+.pick-store-item .psi-lots{font-size:12px;color:var(--muted);flex:1;}
+.psi-del{
+  background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;
+  width:30px;height:30px;font-size:14px;cursor:pointer;flex-shrink:0;
+}
+.psi-del:active{background:#FBEAE8;border-color:var(--red);color:var(--red);}
+.bin-hide-btn{
+  background:#F7F5F0;color:var(--red);border:1px solid var(--line);
+  padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;
+  font-family:'IBM Plex Sans JP';cursor:pointer;
+}
+.bin-hide-btn:active{background:#FBEAE8;}
+.psg-head{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:6px 4px 2px;margin-top:4px;
+}
+.psg-head:first-child{margin-top:0;}
+.psg-course{font-size:13px;font-weight:700;color:var(--steel);}
+.psg-count{font-size:11px;color:var(--muted);font-weight:500;margin-left:8px;}
+.psg-del{
+  width:auto;height:auto;padding:5px 10px;font-size:11px;font-weight:600;
+  font-family:'IBM Plex Sans JP';color:var(--muted);
+}
+.psg-del:active{background:#FBEAE8;border-color:var(--red);color:var(--red);}
+.pick-manual-link{
+  text-align:center;font-size:13px;color:var(--steel);font-weight:600;cursor:pointer;
+  padding:10px 0 2px;flex-shrink:0;
+}
+
+.locked-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;
+}
+.group-row{
+  display:grid;grid-template-columns:1.4fr 1fr 0.8fr 0.8fr auto;gap:8px;align-items:center;
+  background:#F7F5F0;border:1px solid var(--line);border-radius:8px;padding:8px;
+}
+.group-row input{padding:7px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-family:inherit;width:100%;}
+.group-row .rm{background:none;border:none;color:var(--red);font-size:20px;cursor:pointer;padding:0 4px;}
+.device-group-btn{
+  display:flex;align-items:center;gap:10px;background:#F7F5F0;border:2px solid var(--line);border-radius:8px;
+  padding:10px 12px;cursor:pointer;
+}
+.device-group-btn:active{background:#F0EDE6;}
+.settings-tabs{display:flex;gap:8px;margin-bottom:14px;}
+.settings-tab-btn{
+  flex:1;padding:10px;border-radius:8px;border:1px solid var(--line);background:#F7F5F0;
+  font-family:'IBM Plex Sans JP';font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;
+}
+.settings-tab-btn.active{background:var(--ink);border-color:var(--ink);color:var(--amber);}
+.device-group-btn.selected{border-color:var(--amber-deep);background:#FBF1DF;}
+.device-group-btn .radio{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted);flex-shrink:0;}
+.device-group-btn.selected .radio{border-color:var(--amber-deep);background:var(--amber-deep);}
+.device-group-btn .dgname{font-weight:600;font-size:14px;}
+.device-group-btn .dgmeta{font-size:11px;color:var(--muted);}
+.group-select-grid{display:grid;grid-template-columns:1fr;gap:10px;flex:1;overflow-y:auto;}
+.group-select-btn{
+  background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px;text-align:left;cursor:pointer;
+}
+.group-select-btn:active{background:#F0EDE6;}
+.group-select-btn .gname{font-size:17px;font-weight:700;}
+.group-select-btn .gmeta{font-size:12px;color:var(--muted);margin-top:2px;}
+.locked-item{
+  background:#F7F5F0;border:1px solid var(--line);border-radius:8px;padding:10px 12px;
+}
+.locked-item .lbl{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.05em;}
+.locked-item .val{font-size:20px;font-weight:600;margin-top:2px;}
+
+.keypad{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;flex:1;
+}
+.key{
+  background:#FFFFFF;border:1px solid var(--line);border-radius:10px;
+  font-family:'Space Mono',monospace;font-size:26px;font-weight:700;color:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:transform .05s;
+}
+.key:active{background:#EDEAE2;transform:scale(.96);}
+.key.fn{
+  background:#F7F5F0;color:var(--steel);font-family:'IBM Plex Sans JP';font-size:15px;font-weight:600;
+}
+.key.enter{
+  background:var(--amber);border-color:var(--amber-deep);color:var(--ink);
+  font-family:'IBM Plex Sans JP';font-size:17px;font-weight:700;
+}
+.key.enter:active{background:var(--amber-deep);}
+.key.wide{grid-column:span 2;}
+
+.action-row{display:flex;gap:10px;margin-top:12px;}
+.big-action{
+  flex:1;padding:18px;border-radius:10px;border:none;
+  font-family:'IBM Plex Sans JP';font-size:18px;font-weight:700;cursor:pointer;
+}
+.big-action.finish{background:var(--steel);color:#fff;}
+.big-action.finish:active{background:#2F5670;}
+.big-action.cancel{background:transparent;color:var(--red);border:1px solid var(--red);}
+.big-action.cancel:active{background:#FBEAE8;}
+
+/* ---------- STATUS PANEL ---------- */
+.panel-title{
+  font-family:'Barlow Condensed';font-weight:600;font-size:14px;letter-spacing:.1em;
+  color:var(--muted);text-transform:uppercase;padding:14px 18px 0;
+}
+.working-card{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;}
+.working-list{flex:1;overflow-y:auto;padding:10px 14px 14px;}
+.working-empty{padding:30px 18px;color:var(--muted);font-size:14px;text-align:center;}
+.wk-row{
+  display:flex;align-items:center;gap:12px;padding:10px 8px;border-bottom:1px solid var(--line);
+}
+.wk-row:last-child{border-bottom:none;}
+.wk-avatar{
+  width:38px;height:38px;border-radius:50%;background:var(--ink);color:var(--amber);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;
+  font-family:'Space Mono',monospace;
+}
+.wk-info{flex:1;min-width:0;}
+.wk-name{font-size:15px;font-weight:600;}
+.wk-meta{font-size:12px;color:var(--muted);margin-top:1px;}
+.wk-timer{
+  font-family:'Space Mono',monospace;font-size:17px;font-weight:700;color:var(--steel);flex-shrink:0;
+}
+.wk-force-del{
+  background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;
+  width:26px;height:26px;font-size:15px;cursor:pointer;flex-shrink:0;margin-left:6px;
+}
+.wk-force-del:active{background:#FBEAE8;border-color:var(--red);color:var(--red);}
+
+.summary-row{display:flex;gap:14px;padding:14px 18px;}
+.stat{flex:1;background:#F7F5F0;border-radius:10px;padding:10px 12px;text-align:center;}
+.stat .n{font-family:'Space Mono',monospace;font-size:24px;font-weight:700;}
+.stat .l{font-size:11px;color:var(--muted);margin-top:2px;}
+
+/* ---------- OVERLAYS ---------- */
+.overlay{
+  position:fixed;inset:0;background:rgba(20,24,31,.72);
+  display:flex;align-items:center;justify-content:center;z-index:50;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.overlay.show{opacity:1;pointer-events:auto;}
+.result-card{
+  background:var(--ink);color:#fff;border-radius:18px;padding:34px 44px;text-align:center;
+  min-width:320px;border:1px solid #2C3746;
+}
+.result-card .rtype{
+  font-family:'Barlow Condensed';font-weight:700;font-size:15px;letter-spacing:.15em;
+  color:var(--amber);text-transform:uppercase;
+}
+.result-card .rname{font-size:22px;font-weight:600;margin:6px 0 20px;}
+.result-metrics{display:flex;gap:24px;justify-content:center;}
+.rmetric .num{font-family:'Space Mono',monospace;font-size:38px;font-weight:700;color:var(--amber);}
+.rmetric .lbl{font-size:12px;color:#9AA5B1;margin-top:2px;}
+
+.confirm-card{
+  background:var(--panel);border-radius:16px;padding:28px 30px;max-width:340px;text-align:center;
+}
+.confirm-card p{font-size:15px;line-height:1.6;margin:0 0 20px;}
+.confirm-card .cbtns{display:flex;gap:10px;}
+.confirm-card button{flex:1;padding:14px;border-radius:8px;border:none;font-weight:700;font-size:15px;cursor:pointer;font-family:inherit;}
+.confirm-card .yes{background:var(--amber);color:var(--ink);}
+.confirm-card .no{background:#EEEBE4;color:var(--ink);}
+
+.admin-overlay{align-items:flex-start;}
+.admin-card{
+  background:var(--panel);border-radius:16px;width:min(880px,92vw);margin-top:5vh;max-height:88vh;
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.admin-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:18px 22px;border-bottom:1px solid var(--line);}
+.admin-head h2{margin:0;font-size:19px;}
+.admin-body{overflow-y:auto;padding:0 22px 22px;flex:1;min-height:0;}
+table.log{width:100%;border-collapse:collapse;font-size:13px;}
+table.log th{
+  text-align:left;font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.04em;
+  padding:6px 8px;border-bottom:2px solid var(--ink);position:sticky;top:0;background:var(--panel);
+}
+table.log td{padding:8px;border-bottom:1px solid var(--line);}
+table.log tr.cancelled td{color:var(--muted);text-decoration:line-through;}
+.close-x{background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);}
+.export-btn{background:var(--steel);color:#fff;border:none;padding:10px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-family:inherit;font-size:13px;}
+
+.qty-summary-compact{
+  background:var(--ink);color:#fff;border-radius:8px;padding:8px 10px;margin:0 0 6px;
+  display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-size:11px;
+}
+.qsc-total{font-family:'Space Mono',monospace;font-weight:700;color:var(--amber);font-size:13px;flex-shrink:0;}
+.qsc-breakdown{color:#D7DCE2;}
+.bin-compact-wrap{display:flex;flex-direction:column;gap:4px;}
+.bin-compact-row{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  background:#F7F5F0;border-radius:6px;padding:5px 8px;font-size:10.5px;
+}
+.bcr-label{font-weight:700;color:var(--steel);flex-shrink:0;}
+.bcr-stat{color:var(--ink);font-family:'Space Mono',monospace;}
+.numpad-key{min-height:52px;font-size:20px;}
+
+@media (max-width:820px){
+  main{flex-direction:column;}
+  .entry-panel{flex:1;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand"><span class="mark">WMS</span><h1>作業実績入力</h1><span class="device-badge" id="deviceGroupBadge"><span class="dot"></span><span id="deviceGroupBadgeText">-</span></span></div>
+    <div class="header-right">
+      <div class="conn" id="connBadge"><span class="dot"></span><span id="connText">同期OK</span></div>
+      <div class="clock" id="clock">--:--:--</div>
+      <button class="hbtn" id="orderImportBtn">受注データ取得</button>
+      <span class="conn" id="orderStatus" style="min-width:140px;"><span class="dot" style="background:var(--muted);"></span><span id="orderStatusText">受注:未取込</span></span>
+      <button class="hbtn" id="orderManageBtn">受注データ確認</button>
+      <input type="file" id="orderFileInput" accept=".csv" style="display:none;">
+      <button class="hbtn" id="historyBtn">履歴</button>
+      <button class="hbtn" id="settingsBtn">⚙ 設定</button>
+      <input type="file" id="rosterFileInput" accept=".csv" style="display:none;">
+      <input type="file" id="courseMasterFileInput" accept=".xlsx" style="display:none;">
+    </div>
+  </header>
+  <main>
+    <div class="entry-panel">
+      <div class="card">
+        <div class="step-eyebrow" id="stepEyebrow">STEP 1</div>
+        <div class="step-title" id="stepTitle">担当者№を入力してください</div>
+
+        <div class="display-screen">
+          <div class="display-value placeholder" id="displayValue">-</div>
+          <div class="cs-row" id="csRow">
+            <div class="cs-box" id="csCourseBox" data-field="course">
+              <div class="cs-label">コース№</div>
+              <div class="cs-val placeholder" id="csCourseVal">---</div>
+            </div>
+            <div class="cs-sep">－</div>
+            <div class="cs-box" id="csStoreBox" data-field="store">
+              <div class="cs-label">店№</div>
+              <div class="cs-val placeholder" id="csStoreVal">--</div>
+            </div>
+          </div>
+          <div class="display-sub" id="displaySub"></div>
+          <div class="display-error" id="displayError"></div>
+        </div>
+        <div class="pick-manual-link" id="pickListLink" style="display:none;margin-bottom:12px;">→ 一覧から選ぶ</div>
+
+        <div class="locked-grid" id="lockedGrid" style="display:none;"></div>
+
+        <div class="pick-store-view" id="pickStoreView" style="display:none;">
+          <div class="pick-toggle">
+            <button class="pick-toggle-btn active" id="pickModeSeqBtn">作業順</button>
+            <button class="pick-toggle-btn" id="pickModeCaseBtn">コース順</button>
+          </div>
+          <div class="pick-store-list" id="pickStoreList"></div>
+          <div class="pick-manual-link" id="pickManualLink">→ コース№・店№を直接入力する</div>
+        </div>
+
+        <div class="group-select-grid" id="groupSelectGrid" style="display:none;"></div>
+
+        <div class="keypad" id="keypad"></div>
+
+        <div class="action-row" id="closingActions" style="display:none;">
+          <button class="big-action cancel" id="cancelJobBtn">作業取消</button>
+          <button class="big-action finish" id="finishJobBtn">作業終了</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-panel">
+      <div class="card working-card">
+        <div class="panel-title" style="display:flex;align-items:center;justify-content:space-between;">
+          <span>現在作業中</span>
+          <span id="workingCount" style="font-family:'Space Mono',monospace;font-size:15px;color:var(--amber-deep);">0人</span>
+        </div>
+        <div class="working-list" id="workingList"></div>
+      </div>
+      <div class="card" style="flex-shrink:0;">
+        <div class="panel-title">本日の実績</div>
+        <div id="sidebarProgress" style="padding:0 12px 10px;"></div>
+      </div>
+    </div>
+  </main>
+
+<div class="overlay admin-overlay" id="historyOverlay">
+  <div class="admin-card">
+    <div class="admin-head">
+      <h2>履歴</h2>
+      <button class="close-x" id="historyClose">&times;</button>
+    </div>
+    <div style="padding:16px 22px 0;flex-shrink:0;">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">今日の実績を全件表示しています。コース№か担当者№で絞り込めます(タップすると専用のテンキーが出ます)。</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+        <input type="text" readonly id="historyCourseFilter" placeholder="コース№で検索" style="flex:1;min-width:140px;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;background:#fff;cursor:pointer;">
+        <input type="text" readonly id="historyWorkerFilter" placeholder="担当者№で検索" style="flex:1;min-width:140px;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;background:#fff;cursor:pointer;">
+      </div>
+    </div>
+    <div class="admin-body" style="-webkit-overflow-scrolling:touch;">
+      <table class="log">
+        <thead><tr>
+          <th>コース－店</th><th>担当者</th>
+        </tr></thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="historyNumpadOverlay" style="z-index:60;">
+  <div class="confirm-card" style="max-width:280px;padding:18px;">
+    <div id="historyNumpadLabel" style="font-size:12px;color:var(--muted);margin-bottom:8px;"></div>
+    <div id="historyNumpadDisplay" style="font-family:'Space Mono',monospace;font-size:22px;text-align:center;padding:10px;border:1px solid var(--line);border-radius:8px;margin-bottom:14px;min-height:26px;background:#F7F5F0;"></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
+      <div class="key numpad-key" data-k="1">1</div><div class="key numpad-key" data-k="2">2</div><div class="key numpad-key" data-k="3">3</div>
+      <div class="key numpad-key" data-k="4">4</div><div class="key numpad-key" data-k="5">5</div><div class="key numpad-key" data-k="6">6</div>
+      <div class="key numpad-key" data-k="7">7</div><div class="key numpad-key" data-k="8">8</div><div class="key numpad-key" data-k="9">9</div>
+      <div class="key fn numpad-key" data-k="clear">クリア</div><div class="key numpad-key" data-k="0">0</div><div class="key fn numpad-key" data-k="back">⌫</div>
+    </div>
+    <button class="yes" id="historyNumpadDone" style="width:100%;">閉じる</button>
+  </div>
+</div>
+</div>
+
+<div class="overlay" id="resultOverlay">
+  <div class="result-card">
+    <div class="rtype" id="resultType">作業終了</div>
+    <div class="rname" id="resultName">-</div>
+    <div class="result-metrics">
+      <div class="rmetric"><div class="num" id="resultPieces">0</div><div class="lbl">個口数</div></div>
+      <div class="rmetric"><div class="num" id="resultTime">0:00</div><div class="lbl">作業時間</div></div>
+      <div class="rmetric"><div class="num" id="resultProd">0</div><div class="lbl">生産性/h</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="settingsOverlay">
+  <div class="confirm-card" style="max-width:520px;text-align:left;max-height:82vh;overflow-y:auto;">
+    <p style="font-weight:700;font-size:17px;margin-bottom:14px;">初期設定</p>
+
+    <div class="locked-item" style="margin-bottom:14px;">
+      <div class="lbl">拠点コード / カテゴリ(フォルダ名)</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+        <input type="text" id="siteCodeInput" placeholder="拠点コード 例: NAG" style="flex:1;min-width:0;padding:8px;border:1px solid var(--line);border-radius:6px;font-family:'Space Mono',monospace;font-size:16px;">
+        <input type="text" id="deviceGroupFolderInput" placeholder="フォルダ名 例: 加食" style="flex:1;min-width:0;padding:8px;border:1px solid var(--line);border-radius:6px;font-family:'Space Mono',monospace;font-size:16px;">
+      </div>
+      <button class="mini-btn" id="loadLastRunBtn" style="width:100%;margin-top:8px;">last_run.jsonを読込</button>
+      <input type="file" id="lastRunFileInput" accept=".json" style="display:none;">
+      <div style="font-size:12px;color:var(--muted);margin-top:6px;">拠点導入時に一度だけ設定してください。last_run.jsonを読み込むと、この2つを自動入力します(手入力もできます)。</div>
+      <div id="lastRunHint" style="font-size:12px;color:var(--steel);margin-top:6px;"></div>
+    </div>
+
+    <div class="lbl" style="margin-bottom:8px;">拠点データの管理(たまに更新するもの)</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <button class="mini-btn" id="rosterBtn">名簿更新</button>
+        <span id="rosterStatusText" style="font-size:12px;color:var(--muted);">名簿:読込中…</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <button class="mini-btn" id="courseMasterBtn">コース表更新</button>
+        <span id="courseMasterStatusText" style="font-size:12px;color:var(--muted);">コース表:未設定</span>
+      </div>
+    </div>
+
+    <div style="border-top:1px solid var(--line);margin:4px 0 14px;"></div>
+
+    <div class="settings-tabs">
+      <button class="settings-tab-btn active" id="tabSelectBtn">グループを選ぶ</button>
+      <button class="settings-tab-btn" id="tabCreateBtn">＋ 新しく作る</button>
+    </div>
+
+    <div id="groupSelectPanel">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">この端末が使うグループをタップして選び、「保存」を押してください。棚番の範囲などを直したい時は各グループの「編集」から。</div>
+      <div id="groupSelectList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px;"></div>
+    </div>
+
+    <div id="groupCreatePanel" style="display:none;">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">新しい作業グループの名前と棚番の範囲を登録してください。棚番の範囲は、離れた範囲を複数(例:ドリンク100000〜200000・ビール300000〜400000)まとめて1つのグループにすることもできます。<b>通常はPC側でまとめて作成してください。</b></div>
+
+      <div class="locked-item" style="margin-bottom:10px;">
+        <div class="lbl">グループ名</div>
+        <input type="text" id="deviceGroupNameInput" placeholder="例: ドリンク・ビール" style="width:100%;margin-top:6px;padding:8px;border:1px solid var(--line);border-radius:6px;font-size:14px;">
+      </div>
+
+      <div class="lbl" style="margin-bottom:4px;">棚番の範囲(以上・以下の単純な数値比較です。「〇〇番台」のような桁判定ではありません)</div>
+      <div id="deviceRangeList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;"></div>
+      <button class="mini-btn" id="addRangeBtn" style="margin-bottom:20px;">＋ 範囲を追加</button>
+
+      <div class="lbl" style="margin-bottom:4px;">進捗ダッシュボード用の想定値(実績が溜まるまでの仮の予測に使われます)</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <div class="locked-item" style="flex:1;">
+          <div class="lbl">想定生産性(個/人時)</div>
+          <input type="number" id="expectedProductivityInput" placeholder="300" style="width:100%;margin-top:6px;padding:8px;border:1px solid var(--line);border-radius:6px;font-family:'Space Mono',monospace;font-size:16px;">
+        </div>
+        <div class="locked-item" style="flex:1;">
+          <div class="lbl">想定休憩時間(分)</div>
+          <input type="number" id="expectedBreakInput" placeholder="60" style="width:100%;margin-top:6px;padding:8px;border:1px solid var(--line);border-radius:6px;font-family:'Space Mono',monospace;font-size:16px;">
+        </div>
+      </div>
+    </div>
+
+    <div class="cbtns">
+      <button class="no" id="settingsCancel">閉じる</button>
+      <button class="yes" id="settingsSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="orderOverlay">
+  <div class="confirm-card" style="max-width:400px;">
+    <p id="orderSummaryText" style="white-space:pre-line;"></p>
+    <div class="cbtns">
+      <button class="no" id="orderCancel">キャンセル</button>
+      <button class="yes" id="orderApply">この内容で反映</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay admin-overlay" id="orderManageOverlay">
+  <div class="admin-card" style="width:min(640px,92vw);">
+    <div class="admin-head">
+      <h2>受注データ確認</h2>
+      <button class="close-x" id="orderManageClose">&times;</button>
+    </div>
+    <div class="admin-body">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">残っている(未完了の)コース・店を、店単位・コース単位・便単位で削除できます。すでに完了した店は対象になりません。削除しても実績には影響しません。この操作は元に戻せません。</div>
+      <input type="tel" inputmode="numeric" pattern="[0-9]*" id="orderManageFilter" placeholder="コース№で絞り込み" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;margin-bottom:14px;">
+      <div id="orderManageBinBar" style="display:none;gap:8px;margin-bottom:12px;flex-wrap:wrap;"></div>
+      <div id="orderManageList" style="display:flex;flex-direction:column;gap:2px;max-height:55vh;overflow-y:auto;"></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="rosterOverlay">
+  <div class="confirm-card" style="max-width:380px;">
+    <p id="rosterSummaryText" style="white-space:pre-line;"></p>
+    <div class="cbtns">
+      <button class="no" id="rosterCancel">キャンセル</button>
+      <button class="yes" id="rosterApply">この内容で反映</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="courseMasterOverlay">
+  <div class="confirm-card" style="max-width:420px;">
+    <p id="courseMasterSummaryText" style="white-space:pre-line;"></p>
+    <div class="cbtns">
+      <button class="no" id="courseMasterCancel">キャンセル</button>
+      <button class="yes" id="courseMasterApply">この内容で反映</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="confirmOverlay">
+  <div class="confirm-card">
+    <p id="confirmText"></p>
+    <div class="cbtns">
+      <button class="no" id="confirmNo">キャンセル</button>
+      <button class="yes" id="confirmYes">確認しました</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let ROSTER = [{"no": 1, "name": "★河出 陽一", "category": "所長", "type": "社員"}, {"no": 2, "name": "★小野 正壽", "category": "所長補佐", "type": "社員"}, {"no": 3, "name": "松沢幸子", "category": "ケース仕分", "type": "パート"}, {"no": 5, "name": "馬場浩", "category": "ケース仕分", "type": "パート"}, {"no": 7, "name": "町田 知明", "category": "ケース仕分", "type": "アルバイト"}, {"no": 8, "name": "吉澤康穂", "category": "ケース仕分", "type": "パート"}, {"no": 10, "name": "★川手洋人", "category": "所長", "type": "社員"}, {"no": 11, "name": "小林康宏", "category": "ケース仕分", "type": "パート"}, {"no": 12, "name": "斎藤 龍也", "category": "ケース仕分", "type": "パート"}, {"no": 15, "name": "★吉越 克哉", "category": "配送員", "type": "配送員"}, {"no": 18, "name": "羽毛田和也", "category": "酒小物", "type": "パート"}, {"no": 19, "name": "酒井 健一郎", "category": "社員", "type": "社員"}, {"no": 20, "name": "山口 真悟", "category": "配送員", "type": "配送員"}, {"no": 22, "name": "岩本 善次郎", "category": "ケース仕分", "type": "アルバイト"}, {"no": 23, "name": "★草間 貴裕", "category": "配送員", "type": "パート"}, {"no": 26, "name": "★神田 利広", "category": "配送員", "type": "パート"}, {"no": 27, "name": "★小市 崇", "category": "配送員", "type": "パート"}, {"no": 30, "name": "畠山 茂", "category": "ケース仕分", "type": "アルバイト"}, {"no": 31, "name": "荻原 夏江", "category": "ケース仕分", "type": "アルバイト"}, {"no": 33, "name": "青木 優斗", "category": "ケース仕分", "type": "アルバイト"}, {"no": 34, "name": "竹前 佑哉", "category": "ケース仕分", "type": "アルバイト"}, {"no": 36, "name": "★涌永 千春", "category": "酒小物", "type": "パート"}, {"no": 37, "name": "★佐藤 光明", "category": "配送員", "type": "パート"}, {"no": 41, "name": "★星沢 司", "category": "配送員", "type": "パート"}, {"no": 44, "name": "★相場 恵太", "category": "配送員", "type": "パート"}, {"no": 73, "name": "三田 美香子", "category": "事務", "type": "事務Ｐ"}, {"no": 78, "name": "★柳辺 哲也", "category": "配送員", "type": "配送員"}, {"no": 80, "name": "湯本 慎也", "category": "ケース仕分", "type": "アルバイト"}, {"no": 106, "name": "清水陽", "category": "ケース仕分", "type": "パート"}, {"no": 110, "name": "片岡 莉菜", "category": "ケース仕分", "type": "アルバイト"}, {"no": 111, "name": "平林 大樹", "category": "ケース仕分", "type": "アルバイト"}, {"no": 113, "name": "酒井 憲吾", "category": "ケース仕分", "type": "アルバイト"}, {"no": 114, "name": "千脇 黎南", "category": "ケース仕分", "type": "アルバイト"}, {"no": 115, "name": "武内 由子", "category": "ケース仕分", "type": "アルバイト"}, {"no": 116, "name": "池田 啓太郎", "category": "ケース仕分", "type": "アルバイト"}, {"no": 119, "name": "西沢 正夫", "category": "ケース仕分", "type": "パート"}, {"no": 120, "name": "★春日 孝文", "category": "配送員", "type": "配送員"}, {"no": 122, "name": "斉藤健一", "category": "ケース仕分", "type": "アルバイト"}, {"no": 126, "name": "鈴木敏郎", "category": "ケース仕分", "type": "アルバイト"}, {"no": 127, "name": "三上 颯", "category": "ケース仕分", "type": "アルバイト"}, {"no": 129, "name": "栗原 丈一", "category": "酒小物", "type": "パート"}, {"no": 130, "name": "二本松 竜彦", "category": "ケース仕分", "type": "パート"}, {"no": 133, "name": "★青木 雄二", "category": "ケース仕分", "type": "パート"}, {"no": 142, "name": "草間 真奈美", "category": "ケース仕分", "type": "アルバイト"}, {"no": 147, "name": "中村 勉", "category": "ケース仕分", "type": "アルバイト"}, {"no": 148, "name": "★矢坂 浩樹", "category": "配送員", "type": "配送員"}, {"no": 150, "name": "上野 秀樹", "category": "ケース仕分", "type": ""}, {"no": 151, "name": "星 亜耶香", "category": "ケース仕分", "type": ""}, {"no": 152, "name": "佐藤 舞", "category": "社員", "type": "社員"}, {"no": 155, "name": "平塚 勝義", "category": "ケース仕分", "type": ""}, {"no": 156, "name": "小林 滉介", "category": "社員", "type": "社員"}, {"no": 157, "name": "関谷 功", "category": "社員", "type": "社員"}, {"no": 160, "name": "大塚 裕次郎", "category": "ケース仕分", "type": "アルバイト"}, {"no": 161, "name": "田村 勇樹", "category": "ケース仕分", "type": "アルバイト"}, {"no": 162, "name": "中村 勉", "category": "ケース仕分", "type": "アルバイト"}, {"no": 163, "name": "★逸見 輝行", "category": "配送員", "type": ""}, {"no": 164, "name": "勝山 勉", "category": "ケース仕分", "type": "アルバイト"}, {"no": 165, "name": "宮崎 星次", "category": "ケース仕分", "type": "アルバイト"}, {"no": 169, "name": "松山 和子", "category": "ケース仕分", "type": "アルバイト"}, {"no": 178, "name": "栗原 弘之", "category": "ケース仕分", "type": "アルバイト"}, {"no": 181, "name": "玉井 富士夫", "category": "ケース仕分", "type": "パート"}, {"no": 191, "name": "富田 吉明", "category": "ケース仕分", "type": "パート"}, {"no": 195, "name": "駒村 哲也", "category": "ケース仕分", "type": "アルバイト"}, {"no": 200, "name": "★三田 有蓮", "category": "", "type": ""}, {"no": 207, "name": "寒河江 武子", "category": "ケース仕分", "type": "アルバイト"}, {"no": 214, "name": "矢島 裕一", "category": "ケース仕分", "type": "パート"}, {"no": 218, "name": "松本 勝衛", "category": "ケース仕分", "type": "アルバイト"}, {"no": 224, "name": "佐藤 陽子", "category": "ケース仕分", "type": "アルバイト"}, {"no": 227, "name": "和田 光雄", "category": "ケース仕分", "type": "アルバイト"}, {"no": 231, "name": "★アルバイトA", "category": "ケース仕分", "type": "アルバイト"}, {"no": 232, "name": "★アルバイトB", "category": "ケース仕分", "type": "アルバイト"}, {"no": 233, "name": "★アルバイトC", "category": "ケース仕分", "type": "アルバイト"}, {"no": 234, "name": "★アルバイトD", "category": "ケース仕分", "type": "アルバイト"}, {"no": 235, "name": "★アルバイトE", "category": "ケース仕分", "type": "アルバイト"}, {"no": 300, "name": "★中央高速運輸", "category": "", "type": ""}, {"no": 301, "name": "柳澤浩朗", "category": "構内作業", "type": "パート"}, {"no": 302, "name": "高野文雄", "category": "構内作業", "type": "パート"}, {"no": 303, "name": "田中新一", "category": "構内作業", "type": "パート"}, {"no": 306, "name": "倉島吉子", "category": "構内作業", "type": "パート"}, {"no": 308, "name": "田村正雄", "category": "ケース仕分", "type": "アルバイト"}, {"no": 311, "name": "宮下幸男", "category": "構内作業", "type": "パート"}, {"no": 316, "name": "金谷 譲", "category": "構内作業", "type": "アルバイト"}, {"no": 319, "name": "高山良子", "category": "構内作業", "type": "アルバイト"}, {"no": 327, "name": "田中宏美", "category": "構内作業", "type": "アルバイト"}, {"no": 328, "name": "仁科拓哉", "category": "構内作業", "type": "アルバイト"}, {"no": 403, "name": "★馬場美鈴", "category": "菓子小物", "type": "パート"}, {"no": 405, "name": "★大塚美雪", "category": "菓子小物", "type": "パート"}, {"no": 406, "name": "★松本直子", "category": "菓子小物", "type": "パート"}, {"no": 407, "name": "★上野けい子", "category": "菓子小物", "type": "パート"}, {"no": 413, "name": "★剱持千佳", "category": "菓子小物", "type": "パート"}, {"no": 417, "name": "★町田美紀", "category": "菓子小物", "type": "パート"}, {"no": 431, "name": "★坂口美善", "category": "加食小物", "type": "パート"}, {"no": 432, "name": "★市川敬子", "category": "加食小物", "type": "パート"}, {"no": 436, "name": "★西澤久美子", "category": "加食小物", "type": "パート"}, {"no": 438, "name": "★鎌倉由美子", "category": "加食小物", "type": "パート"}, {"no": 440, "name": "★小林洋美", "category": "加食小物", "type": "パート"}, {"no": 441, "name": "★雪入のり子", "category": "加食小物", "type": "パート"}, {"no": 468, "name": "小林真由美", "category": "ケース仕分", "type": "パート"}, {"no": 469, "name": "★牧亜矢加", "category": "菓子小物", "type": "パート"}, {"no": 471, "name": "大峡 淳", "category": "ケース仕分", "type": "パート"}, {"no": 473, "name": "★田牧 弥生", "category": "酒小物", "type": "パート"}, {"no": 500, "name": "★内藤 誉史", "category": "", "type": ""}, {"no": 513, "name": "伊東正明", "category": "社員", "type": "社員"}, {"no": 514, "name": "小池健一", "category": "社員", "type": "社員"}, {"no": 515, "name": "今井英行", "category": "ケース仕分", "type": "パート"}, {"no": 516, "name": "牧野淳一", "category": "社員", "type": "社員"}, {"no": 517, "name": "田中 浩", "category": "社員", "type": "社員"}, {"no": 519, "name": "林 晋司", "category": "ｹｰｽ", "type": "パート"}, {"no": 521, "name": "★渡辺 晴彦", "category": "配送員", "type": "配送員"}, {"no": 522, "name": "★轟 圭", "category": "配送員", "type": "配送員"}, {"no": 523, "name": "★塚田順子", "category": "事務", "type": "事務Ｐ"}, {"no": 601, "name": "★荒井 正和", "category": "配送員", "type": "配送員"}, {"no": 602, "name": "★上原 裕太", "category": "配送員", "type": "配送員"}, {"no": 604, "name": "★武井 聡", "category": "配送員", "type": "配送員"}, {"no": 605, "name": "★山崎 貴史", "category": "配送員", "type": "配送員"}, {"no": 607, "name": "★駒村 幸広", "category": "配送員", "type": "配送員"}, {"no": 609, "name": "★田中貴博", "category": "配送員", "type": "配送員"}, {"no": 610, "name": "★高野晴樹", "category": "配送員", "type": "配送員"}, {"no": 611, "name": "★丸山修平", "category": "配送員", "type": "配送員"}, {"no": 612, "name": "★脇口幸彦", "category": "配送員", "type": "配送員"}, {"no": 613, "name": "★丸山 武", "category": "配送員", "type": ""}, {"no": 616, "name": "★水橋勇貴", "category": "配送員", "type": ""}, {"no": 618, "name": "★米沢祐之", "category": "配送員", "type": "配送員"}, {"no": 621, "name": "★角田政繁", "category": "配送員", "type": "配送員"}, {"no": 622, "name": "★藤森卓司", "category": "配送員", "type": "配送員"}, {"no": 624, "name": "★大塚 章", "category": "配送員", "type": "配送員"}, {"no": 626, "name": "★重田浩之", "category": "配送員", "type": "配送員"}, {"no": 639, "name": "★松井 洋", "category": "配送員", "type": "配送員"}, {"no": 641, "name": "★牧 厚志", "category": "配送員", "type": "配送員"}, {"no": 642, "name": "★岡田真悟", "category": "配送員", "type": "配送員"}, {"no": 643, "name": "★常田 雅之", "category": "配送員", "type": "配送員"}, {"no": 644, "name": "★吉田 卓史", "category": "配送員", "type": "配送員"}, {"no": 648, "name": "★丸山 康成", "category": "配送員", "type": "配送員"}, {"no": 650, "name": "★配送員A", "category": "", "type": ""}, {"no": 651, "name": "★配送員B", "category": "", "type": ""}, {"no": 652, "name": "★配送員C", "category": "", "type": ""}, {"no": 660, "name": "★神林 剛", "category": "配送員", "type": "配送員"}, {"no": 662, "name": "★花倉 良充", "category": "配送員", "type": "配送員"}, {"no": 663, "name": "★柄澤 充紀", "category": "配送員", "type": "配送員"}, {"no": 673, "name": "★杉浦 治", "category": "配送員", "type": "配送員"}, {"no": 679, "name": "★大峡 俊", "category": "配送員", "type": "配送員"}, {"no": 682, "name": "★峯村 憲一", "category": "配送員", "type": "配送員"}, {"no": 686, "name": "★寺畑 崇史", "category": "配送員", "type": "配送員"}, {"no": 687, "name": "★和田 浩明", "category": "配送員", "type": "配送員"}, {"no": 690, "name": "★青木 厚史", "category": "配送員", "type": "配送員"}, {"no": 695, "name": "★武井 里志", "category": "配送員", "type": "配送員"}, {"no": 698, "name": "★西原 孝", "category": "配送員", "type": "配送員"}, {"no": 704, "name": "★小島寿美子", "category": "応援", "type": "事務Ｐ"}, {"no": 706, "name": "★島田鋼吉", "category": "応援", "type": "社員"}, {"no": 715, "name": "★江口豊陽", "category": "応援", "type": "社員"}, {"no": 744, "name": "山崎 ふじ江", "category": "", "type": ""}, {"no": 745, "name": "高橋 孝子", "category": "", "type": ""}, {"no": 746, "name": "小岩井 陽子", "category": "", "type": ""}, {"no": 761, "name": "★酒井 啓光", "category": "応援", "type": "社員"}, {"no": 762, "name": "大久保 嘉男", "category": "応援", "type": "社員"}, {"no": 764, "name": "佐藤 昭江", "category": "応援", "type": "社員"}, {"no": 800, "name": "根石 芳恵", "category": "", "type": ""}, {"no": 801, "name": "松澤和加子", "category": "", "type": ""}, {"no": 805, "name": "★派遣社員F", "category": "", "type": ""}, {"no": 809, "name": "酒井 百合子", "category": "", "type": ""}, {"no": 811, "name": "★西沢 義広", "category": "", "type": ""}, {"no": 812, "name": "★外山 光洋", "category": "", "type": ""}, {"no": 813, "name": "★中頭 利則", "category": "", "type": ""}, {"no": 815, "name": "★宮澤 友輔", "category": "", "type": ""}, {"no": 816, "name": "西村 明美", "category": "ケース仕分", "type": "パート"}, {"no": 817, "name": "高橋 正子", "category": "ケース仕分", "type": "パート"}, {"no": 901, "name": "★望月 健史", "category": "応援", "type": "信陸"}, {"no": 902, "name": "★小林 敏一", "category": "応援", "type": "信陸"}, {"no": 903, "name": "★小林 伸宙", "category": "応援", "type": "信陸"}, {"no": 905, "name": "★山崎 孝仁", "category": "応援", "type": "信陸"}, {"no": 906, "name": "★高木 勝", "category": "応援", "type": "信陸"}, {"no": 907, "name": "★松沢 淳史", "category": "応援", "type": "信陸"}, {"no": 908, "name": "★足立 学", "category": "応援", "type": "信陸"}, {"no": 909, "name": "★土屋 圭一", "category": "応援", "type": "信陸"}, {"no": 910, "name": "★谷口 耕一", "category": "応援", "type": "信陸"}, {"no": 911, "name": "★佐藤 正清", "category": "応援", "type": "信陸"}, {"no": 912, "name": "★南沢 友一", "category": "応援", "type": "信陸"}, {"no": 913, "name": "★大野田 忍", "category": "応援", "type": "信陸"}, {"no": 915, "name": "★夏沢 英俊", "category": "応援", "type": "信陸"}];
+const COURSES = [{"no": 1, "name": "平日１便", "minC": 601, "maxC": 641, "minS": 1, "maxS": 9}, {"no": 2, "name": "平日２便", "minC": 701, "maxC": 741, "minS": 1, "maxS": 9}, {"no": 3, "name": "日曜１便", "minC": 401, "maxC": 426, "minS": 1, "maxS": 13}, {"no": 4, "name": "日曜２便", "minC": 501, "maxC": 526, "minS": 1, "maxS": 13}, {"no": 5, "name": "日曜３便", "minC": 801, "maxC": 826, "minS": 1, "maxS": 13}];
+
+// ---------- helpers ----------
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2,'0');
+function todayKey(){
+  const d = new Date();
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+function fmtClock(){
+  const d = new Date();
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+function fmtDuration(sec){
+  sec = Math.max(0, Math.round(sec));
+  const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+  return h>0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
+}
+function fmtTimeShort(iso){
+  const d = new Date(iso);
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function findWorker(no){
+  return ROSTER.find(r => r.no === no);
+}
+function isSunday(){ return new Date().getDay() === 0; }
+function allowedCourses(){
+  return isSunday() ? COURSES.filter(c=>c.no>=3) : COURSES.filter(c=>c.no<=2);
+}
+function courseRangeHint(){
+  const label = isSunday() ? '本日: 日曜便' : '本日: 平日便';
+  const ranges = allowedCourses().map(c=>`${c.name} ${c.minC}〜${c.maxC}`).join(' / ');
+  return `${label} ｜ ${ranges}`;
+}
+function speak(text){
+  try{
+    if(!('speechSynthesis' in window)) return;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'ja-JP'; u.rate = 1.02;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+function vibrate(ms){ try{ navigator.vibrate && navigator.vibrate(ms); }catch(e){} }
+
+// ---------- Supabase connection ----------
+const SUPABASE_URL = 'https://nhkbfzzysonkqqgmvaao.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_4_LZAPz9gceWwdgT_OGHYQ_EWX4DWvT';
+const SB_HEADERS = {
+  'apikey': SUPABASE_KEY,
+  'Authorization': 'Bearer ' + SUPABASE_KEY,
+  'Content-Type': 'application/json'
+};
+let pendingWrites = 0;
+
+function setConn(online, mode){
+  const badge = $('connBadge');
+  const text = $('connText');
+  badge.classList.toggle('offline', !online);
+  text.textContent = online ? (mode==='pending' ? '同期中…' : '同期OK') : '再接続待ち…';
+}
+async function sbFetch(path, options={}){
+  pendingWrites++; setConn(true, 'pending');
+  try{
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+      ...options,
+      headers: {...SB_HEADERS, ...(options.headers||{})}
+    });
+    pendingWrites = Math.max(0, pendingWrites-1);
+    if(pendingWrites===0) setConn(true, 'ok');
+    if(!res.ok){
+      const errText = await res.text().catch(()=> '');
+      throw new Error(`${res.status} ${errText}`);
+    }
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  }catch(e){
+    pendingWrites = Math.max(0, pendingWrites-1);
+    setConn(false, 'error');
+    console.error('Supabase error:', path, e);
+    return null;
+  }
+}
+const sbSelect = (table, query='') => sbFetch(`${table}?${query}`, {method:'GET'});
+const sbInsert = (table, rows) => sbFetch(table, {
+  method:'POST', headers:{'Prefer':'return=representation'}, body: JSON.stringify(rows)
+});
+const sbUpsert = (table, rows, onConflict) => sbFetch(`${table}?on_conflict=${onConflict}`, {
+  method:'POST', headers:{'Prefer':'resolution=merge-duplicates,return=representation'}, body: JSON.stringify(rows)
+});
+const sbUpdate = (table, query, patch) => sbFetch(`${table}?${query}`, {
+  method:'PATCH', headers:{'Prefer':'return=representation'}, body: JSON.stringify(patch)
+});
+const sbDelete = (table, query) => sbFetch(`${table}?${query}`, {method:'DELETE'});
+
+// ---------- device-local values (this browser only, never synced) ----------
+function localGet(key){
+  try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; }catch(e){ return null; }
+}
+function localSet(key, value){
+  try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){}
+}
+
+// ---------- state ----------
+let sessions = {};       // { workerNo: {no,name,courseNo,courseName,storeNo,count,startISO,groupId,groupName} }
+let todayLog = [];       // array of completed/cancelled records
+let step = 'worker';     // worker | course | store | count | closing
+let buffer = '';
+let ctx = {};            // in-progress entry context
+
+let lastKnownDateKey = null;
+async function refreshFromServer(){
+  const siteCode = appSettings.siteCode;
+  if(!siteCode) return;
+
+  // if the calendar day has rolled over while this tab/PWA stayed open in the
+  // background, day-scoped caches (orders, roster, course table) would otherwise
+  // keep showing yesterday's data until something forces a reload. Catch that here.
+  const currentDateKey = todayKey();
+  if(lastKnownDateKey === null){
+    lastKnownDateKey = currentDateKey;
+  } else if(lastKnownDateKey !== currentDateKey){
+    lastKnownDateKey = currentDateKey;
+    resetToWorker();
+    await loadRoster();
+    await loadCourseMaster();
+    await loadOrders();
+  }
+
+  const sessRows = await sbSelect('active_sessions', `site_code=eq.${encodeURIComponent(siteCode)}`);
+  if(sessRows){
+    sessions = {};
+    sessRows.forEach(r=>{
+      sessions[r.worker_no] = {
+        no: r.worker_no, name: r.worker_name, groupId: r.group_id, groupName: r.group_name,
+        courseNo: r.course_no, courseName: r.course_name, storeNo: r.store_no,
+        count: r.count, startISO: r.start_at
+      };
+    });
+  }
+
+  const todayStart = todayKey() + 'T00:00:00';
+  const todayEnd = todayKey() + 'T23:59:59.999';
+  const logRows = await sbSelect('work_log',
+    `site_code=eq.${encodeURIComponent(siteCode)}&start_at=gte.${todayStart}&start_at=lte.${todayEnd}&order=start_at.desc`);
+  if(logRows){
+    todayLog = logRows.map(r=>({
+      id: r.id, no: r.worker_no, name: r.worker_name, groupId: r.group_id, groupName: r.group_name,
+      courseNo: r.course_no, courseName: r.course_name, storeNo: r.store_no, count: r.count,
+      startISO: r.start_at, endISO: r.end_at, durationSec: r.duration_sec,
+      productivity: r.productivity, cancelled: r.cancelled
+    }));
+  }
+
+  renderWorkingList();
+  await renderSidebarProgress();
+  if(step === 'pickStore') renderPickStoreList();
+  if($('historyOverlay').classList.contains('show')) renderHistoryTable();
+}
+
+// ---------- rendering ----------
+function renderClock(){ $('clock').textContent = fmtClock(); }
+
+function renderWorkingList(){
+  const list = $('workingList');
+  const entries = Object.values(sessions);
+  $('workingCount').textContent = entries.length + '人';
+  if(entries.length === 0){
+    list.innerHTML = '<div class="working-empty">現在作業中の担当者はいません</div>';
+    return;
+  }
+  entries.sort((a,b)=> new Date(a.startISO) - new Date(b.startISO));
+  const byGroup = {};
+  entries.forEach(s=>{
+    const g = s.groupName || '(グループ未設定)';
+    if(!byGroup[g]) byGroup[g] = [];
+    byGroup[g].push(s);
+  });
+  const multiGroup = Object.keys(byGroup).length > 1;
+  list.innerHTML = Object.keys(byGroup).map(g=>{
+    const rows = byGroup[g].map(s => {
+      const elapsed = (Date.now() - new Date(s.startISO).getTime())/1000;
+      return `<div class="wk-row" data-no="${s.no}">
+        <div class="wk-avatar">${s.no}</div>
+        <div class="wk-info">
+          <div class="wk-name">${escapeHtml(s.name)}</div>
+          <div class="wk-meta">${escapeHtml(s.courseName)} / 店${s.storeNo} ・ ${s.count}個口</div>
+        </div>
+        <div class="wk-timer" data-start="${s.startISO}">${fmtDuration(elapsed)}</div>
+        <button class="wk-force-del" data-no="${s.no}" title="終了忘れなどを強制的に削除">×</button>
+      </div>`;
+    }).join('');
+    if(!multiGroup) return rows;
+    return `<div style="font-size:12px;font-weight:700;color:var(--steel);padding:6px 8px 2px;">${escapeHtml(g)}</div>${rows}`;
+  }).join('');
+  list.querySelectorAll('.wk-force-del').forEach(btn=>{
+    btn.addEventListener('click', (ev)=>{
+      ev.stopPropagation();
+      const no = btn.getAttribute('data-no');
+      const s = sessions[no];
+      if(!s) return;
+      showConfirm(`${s.name}さん(担№${no})の「作業中」記録を強制的に削除します。終了忘れの後始末用です。実績としては記録されません。よろしいですか？`, async ()=>{
+        await sbDelete('active_sessions', `site_code=eq.${encodeURIComponent(appSettings.siteCode)}&worker_no=eq.${no}`);
+        delete sessions[no];
+        renderWorkingList();
+      });
+    });
+  });
+}
+function tickTimers(){
+  document.querySelectorAll('.wk-timer').forEach(el=>{
+    const start = new Date(el.getAttribute('data-start')).getTime();
+    el.textContent = fmtDuration((Date.now()-start)/1000);
+  });
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ---------- keypad ----------
+function buildKeypad(mode){
+  const kp = $('keypad');
+  const keys = ['1','2','3','4','5','6','7','8','9'];
+  let html = keys.map(k=>`<div class="key" data-k="${k}">${k}</div>`).join('');
+  html += `<div class="key fn" data-k="clear">クリア</div>`;
+  html += `<div class="key" data-k="0">0</div>`;
+  html += `<div class="key enter" data-k="enter">確定 ⏎</div>`;
+  kp.innerHTML = html;
+  kp.querySelectorAll('.key').forEach(el=>{
+    el.addEventListener('click', ()=>onKey(el.getAttribute('data-k')));
+  });
+}
+function onKey(k){
+  clearError();
+  if(step === 'courseStore'){
+    if(k === 'clear'){ csClearActive(); return; }
+    if(k === 'enter'){ vibrate(10); csHandleEnter(); return; }
+    csAppendDigit(k);
+    return;
+  }
+  if(k === 'clear'){ buffer = ''; renderDisplay(); return; }
+  if(k === 'enter'){ vibrate(10); handleEnter(); return; }
+  if(buffer.length >= 6) return;
+  buffer += k;
+  renderDisplay();
+}
+function renderDisplay(){
+  const dv = $('displayValue');
+  if(buffer===''){ dv.textContent = placeholderFor(step); dv.classList.add('placeholder'); }
+  else{ dv.textContent = buffer; dv.classList.remove('placeholder'); }
+}
+function placeholderFor(s){
+  return {worker:'担当者№', count:'個口数'}[s] || '-';
+}
+
+// ---------- course / store combined entry ----------
+function csAppendDigit(d){
+  if(ctx.csActive === 'course'){
+    if(ctx.csCourse.length >= 3) return;
+    ctx.csCourse += d;
+    renderCsBoxes();
+    if(ctx.csCourse.length === 3) csValidateCourseAndAdvance();
+  } else {
+    if(ctx.csStore.length >= 2) return;
+    ctx.csStore += d;
+    renderCsBoxes();
+  }
+}
+function csClearActive(){
+  if(ctx.csActive === 'course'){ ctx.csCourse=''; ctx.courseMatch=null; }
+  else { ctx.csStore=''; }
+  renderCsBoxes();
+}
+function currentGroupOrderMap(){
+  const d = ORDER_DATA[ctx.groupId];
+  return (d && d.loaded) ? d.map : null;
+}
+function csValidateCourseAndAdvance(){
+  const c = parseInt(ctx.csCourse, 10);
+  const orderMap = currentGroupOrderMap();
+
+  if(orderMap){
+    const stores = Object.values(orderMap).filter(v => v.courseNo === c).map(v => v.storeNo).sort((a,b)=>a-b);
+    if(stores.length === 0){
+      showError(`コース番号の誤りです(本日の受注データに該当なし)`);
+      ctx.csCourse=''; renderCsBoxes();
+      return;
+    }
+    ctx.courseNo = c; ctx.courseName = `コース${c}`; ctx.courseMatch = null; ctx.dynamicStores = stores;
+    ctx.csActive = 'store';
+    $('displaySub').textContent = `本日の店№: ${stores.join(', ')}`;
+    renderCsBoxes();
+    return;
+  }
+
+  const match = allowedCourses().find(course => c >= course.minC && c <= course.maxC);
+  if(!match){
+    showError(`コース番号の誤りです(${courseRangeHint().split('｜')[1].trim()})`);
+    ctx.csCourse=''; renderCsBoxes();
+    return;
+  }
+  ctx.courseNo = c; ctx.courseName = match.name; ctx.courseMatch = match;
+  ctx.csActive = 'store';
+  $('displaySub').textContent = `${match.name} ｜ 店№ 許容範囲 ${match.minS}〜${match.maxS}`;
+  renderCsBoxes();
+}
+function csHandleEnter(){
+  if(ctx.csActive === 'course'){
+    showError('コース№を3桁で入力して下さい');
+    return;
+  }
+  if(ctx.csStore === ''){ showError('店№を入力して下さい'); return; }
+  const s = parseInt(ctx.csStore, 10);
+  const orderMap = currentGroupOrderMap();
+
+  if(orderMap){
+    const key = ctx.courseNo + '-' + s;
+    const rec = orderMap[key];
+    if(!rec){ showError('店番号の誤りです(本日の受注データに該当なし)'); ctx.csStore=''; renderCsBoxes(); return; }
+    ctx.storeNo = s;
+    step = 'count'; buffer = String(rec.lots);
+    $('csRow').style.display = 'none';
+    $('displayValue').style.display = 'block';
+    $('stepEyebrow').textContent = 'STEP 4';
+    $('stepTitle').textContent = '個口数を確認してください';
+    $('displaySub').textContent = `${ctx.courseName} / 店${s} ｜ 受注データより自動入力(修正可)`;
+    renderDisplay();
+    return;
+  }
+
+  const match = ctx.courseMatch;
+  if(s < match.minS || s > match.maxS){ showError('店番号の誤りです'); ctx.csStore=''; renderCsBoxes(); return; }
+  ctx.storeNo = s;
+  step = 'count'; buffer='';
+  $('csRow').style.display = 'none';
+  $('displayValue').style.display = 'block';
+  $('stepEyebrow').textContent = 'STEP 4';
+  $('stepTitle').textContent = '個口数を入力してください';
+  $('displaySub').textContent = `${ctx.courseName} / 店${s}`;
+  renderDisplay();
+}
+function renderCsBoxes(){
+  const cVal = $('csCourseVal'), sVal = $('csStoreVal');
+  cVal.textContent = ctx.csCourse || '---';
+  cVal.classList.toggle('placeholder', !ctx.csCourse);
+  sVal.textContent = ctx.csStore || '--';
+  sVal.classList.toggle('placeholder', !ctx.csStore);
+  $('csCourseBox').classList.toggle('active', ctx.csActive === 'course');
+  $('csStoreBox').classList.toggle('active', ctx.csActive === 'store');
+}
+$('csCourseBox').addEventListener('click', ()=>{
+  if(step !== 'courseStore') return;
+  ctx.csActive = 'course'; ctx.csCourse=''; ctx.courseMatch=null;
+  clearError(); renderCsBoxes();
+});
+$('csStoreBox').addEventListener('click', ()=>{
+  if(step !== 'courseStore' || !ctx.courseMatch) return;
+  ctx.csActive = 'store';
+  clearError(); renderCsBoxes();
+});
+function showError(msg){ $('displayError').textContent = msg; vibrate([15,40,15]); }
+function clearError(){ $('displayError').textContent = ''; }
+
+// ---------- step machine ----------
+function resetToWorker(){
+  step = 'worker'; buffer=''; ctx = {};
+  $('stepEyebrow').textContent = 'STEP 1';
+  $('stepTitle').textContent = '担当者№を入力してください';
+  $('displaySub').textContent = '';
+  $('lockedGrid').style.display = 'none';
+  $('lockedGrid').innerHTML = '';
+  $('closingActions').style.display = 'none';
+  $('groupSelectGrid').style.display = 'none';
+  $('groupSelectGrid').innerHTML = '';
+  $('pickStoreView').style.display = 'none';
+  $('pickListLink').style.display = 'none';
+  $('keypad').style.display = 'grid';
+  $('csRow').style.display = 'none';
+  $('displayValue').style.display = 'block';
+  clearError();
+  renderDisplay();
+}
+
+function handleEnter(){
+  if(step === 'worker') return handleWorkerEnter();
+  if(step === 'count') return handleCountEnter();
+}
+
+function handleWorkerEnter(){
+  if(buffer === ''){ showError('担当者№を入力して下さい'); return; }
+  const no = parseInt(buffer, 10);
+  if(!Number.isInteger(no) || no <= 0){ showError('担当者№に誤りがあります'); buffer=''; renderDisplay(); return; }
+
+  const worker = findWorker(no);
+  ctx.no = no;
+  ctx.name = worker ? worker.name : '未登録';
+
+  if(sessions[no]){
+    // existing open session -> go to closing confirmation
+    const s = sessions[no];
+    step = 'closing';
+    $('stepEyebrow').textContent = 'STEP 2 ・ 終了確認';
+    $('stepTitle').textContent = `${s.name} さんの作業を終了しますか？`;
+    $('displaySub').textContent = '';
+    buffer = ''; $('displayValue').textContent = '№ ' + no; $('displayValue').classList.remove('placeholder');
+    $('lockedGrid').style.display = 'grid';
+    $('lockedGrid').innerHTML = `
+      <div class="locked-item"><div class="lbl">作業グループ</div><div class="val">${escapeHtml(s.groupName||'-')}</div></div>
+      <div class="locked-item"><div class="lbl">コース</div><div class="val">${escapeHtml(s.courseName)}</div></div>
+      <div class="locked-item"><div class="lbl">店№</div><div class="val">${s.storeNo}</div></div>
+      <div class="locked-item"><div class="lbl">個口数</div><div class="val">${s.count}</div></div>
+      <div class="locked-item"><div class="lbl">開始時刻</div><div class="val">${fmtTimeShort(s.startISO)}</div></div>
+    `;
+    $('keypad').style.display = 'none';
+    $('closingActions').style.display = 'flex';
+    return;
+  }
+
+  // new entry -> resolve this device's fixed work group (no per-transaction picker)
+  const g = resolveActiveGroup();
+  if(!g){
+    showError('この端末の作業グループが未設定です(⚙設定から選んでください)');
+    return;
+  }
+  ctx.groupId = g.id; ctx.groupName = g.name;
+
+  // if today's order data is loaded for this group, offer the tap-to-pick list first;
+  // otherwise fall back to manual course/store keypad entry
+  const orderMap = currentGroupOrderMap();
+  if(orderMap && Object.keys(orderMap).length){
+    return showPickStore();
+  }
+  return goToCourseStore();
+}
+
+// ---------- tap-to-pick course/store (from today's order data) ----------
+let pickMode = 'seq'; // 'seq' (作業順) | 'case' (コース順)
+
+function showPickStore(){
+  step = 'pickStore';
+  $('stepEyebrow').textContent = `STEP 2 ・ ${escapeHtml(ctx.name)} さん${ctx.groupName ? ' ・ '+escapeHtml(ctx.groupName) : ''}`;
+  $('stepTitle').textContent = 'コース・店を選んでください';
+  $('displaySub').textContent = '';
+  $('displayValue').style.display = 'none';
+  $('keypad').style.display = 'none';
+  $('pickStoreView').style.display = 'flex';
+  renderPickStoreList();
+}
+function busyKeysForGroup(groupId){
+  const keys = new Set();
+  todayLog.forEach(r=>{
+    if(!r.cancelled && r.groupId === groupId) keys.add(r.courseNo+'-'+r.storeNo);
+  });
+  Object.values(sessions).forEach(s=>{
+    if(s.groupId === groupId) keys.add(s.courseNo+'-'+s.storeNo);
+  });
+  return keys;
+}
+function renderPickStoreList(){
+  const orderMap = currentGroupOrderMap() || {};
+  const busy = busyKeysForGroup(ctx.groupId);
+  let entries = Object.values(orderMap).filter(e => !busy.has(e.courseNo+'-'+e.storeNo));
+
+  if(pickMode === 'seq'){
+    entries = entries.slice().sort((a,b)=> (a.seq||0) - (b.seq||0));
+  } else {
+    entries = entries.slice().sort((a,b)=> a.courseNo - b.courseNo || a.storeNo - b.storeNo);
+  }
+  $('pickModeSeqBtn').classList.toggle('active', pickMode === 'seq');
+  $('pickModeCaseBtn').classList.toggle('active', pickMode === 'case');
+
+  const list = $('pickStoreList');
+  if(entries.length === 0){
+    list.innerHTML = '<div class="working-empty">残っているコース・店はありません(すべて完了、または作業中です)</div>';
+    return;
+  }
+  list.innerHTML = entries.map(e => `
+    <div class="pick-store-item" data-course="${e.courseNo}" data-store="${e.storeNo}">
+      <div class="psi-code">${e.courseNo} － ${e.storeNo}</div>
+      <div class="psi-lots">${e.lots}個口予定</div>
+    </div>`).join('');
+  list.querySelectorAll('.pick-store-item').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      selectPickedStore(parseInt(el.getAttribute('data-course'),10), parseInt(el.getAttribute('data-store'),10));
+    });
+  });
+}
+$('pickModeSeqBtn').addEventListener('click', ()=>{ pickMode='seq'; renderPickStoreList(); });
+$('pickModeCaseBtn').addEventListener('click', ()=>{ pickMode='case'; renderPickStoreList(); });
+$('pickManualLink').addEventListener('click', ()=>{
+  $('pickStoreView').style.display = 'none';
+  goToCourseStore();
+  $('pickListLink').style.display = 'block';
+});
+$('pickListLink').addEventListener('click', ()=>{
+  showPickStore();
+});
+function selectPickedStore(courseNo, storeNo){
+  const orderMap = currentGroupOrderMap() || {};
+  const rec = orderMap[courseNo + '-' + storeNo];
+  ctx.courseNo = courseNo;
+  ctx.courseName = `コース${courseNo}`;
+  ctx.storeNo = storeNo;
+  step = 'count';
+  buffer = rec ? String(rec.lots) : '';
+  $('pickStoreView').style.display = 'none';
+  $('displayValue').style.display = 'block';
+  $('keypad').style.display = 'grid';
+  $('stepEyebrow').textContent = 'STEP 3';
+  $('stepTitle').textContent = '個口数を確認してください';
+  $('displaySub').textContent = `コース${courseNo} / 店${storeNo} ｜ 受注データより自動入力(修正可)`;
+  renderDisplay();
+}
+
+function goToCourseStore(){
+  step = 'courseStore';
+  ctx.csCourse = ''; ctx.csStore = ''; ctx.csActive = 'course'; ctx.courseMatch = null;
+  $('stepEyebrow').textContent = `STEP 2 ・ ${escapeHtml(ctx.name)} さん${ctx.groupName ? ' ・ '+escapeHtml(ctx.groupName) : ''}`;
+  $('stepTitle').textContent = 'コース№→店№を入力してください';
+  $('displaySub').textContent = courseRangeHint();
+  $('displayValue').style.display = 'none';
+  $('keypad').style.display = 'grid';
+  $('csRow').style.display = 'flex';
+  const orderMap = currentGroupOrderMap();
+  $('pickListLink').style.display = (orderMap && Object.keys(orderMap).length) ? 'block' : 'none';
+  renderCsBoxes();
+}
+
+function handleCountEnter(){
+  if(buffer===''){ showError('個口数を入力して下さい'); return; }
+  const n = parseInt(buffer,10);
+  if(!Number.isInteger(n) || n <= 0){ showError('個口数の誤りです'); buffer=''; renderDisplay(); return; }
+  if(n >= 200){
+    showConfirm(`個口数が ${n} 個です。200以上のため確認します。この数で開始してよろしいですか？`, ()=>{
+      startWork(n);
+    });
+    return;
+  }
+  startWork(n);
+}
+
+async function startWork(count){
+  ctx.count = count;
+  const startISO = new Date().toISOString();
+  const rec = {
+    no: ctx.no, name: ctx.name, courseNo: ctx.courseNo, courseName: ctx.courseName,
+    groupId: ctx.groupId||null, groupName: ctx.groupName||'',
+    storeNo: ctx.storeNo, count: count, startISO
+  };
+  sessions[ctx.no] = rec;
+  renderWorkingList();
+  speak('作業を開始します');
+  await sbUpsert('active_sessions', [{
+    site_code: appSettings.siteCode, worker_no: ctx.no, worker_name: ctx.name,
+    group_id: ctx.groupId||null, group_name: ctx.groupName||'',
+    course_no: ctx.courseNo, course_name: ctx.courseName, store_no: ctx.storeNo,
+    count: count, start_at: startISO
+  }], 'site_code,worker_no');
+  resetToWorker();
+}
+
+// ---------- closing ----------
+$('finishJobBtn').addEventListener('click', async ()=>{
+  const s = sessions[ctx.no];
+  if(!s) return resetToWorker();
+  const endISO = new Date().toISOString();
+  const durationSec = (new Date(endISO) - new Date(s.startISO))/1000;
+  const productivity = durationSec > 0 ? Math.round((s.count*3600)/durationSec) : 0;
+
+  delete sessions[ctx.no];
+  const logRec = {...s, endISO, durationSec, productivity, cancelled:false};
+  todayLog.unshift(logRec);
+  renderWorkingList();
+
+  $('resultType').textContent = '作業終了';
+  $('resultName').textContent = s.name;
+  $('resultPieces').textContent = s.count;
+  $('resultTime').textContent = fmtDuration(durationSec);
+  $('resultProd').textContent = productivity;
+  speak(`作業を終了しました。生産性は ${productivity} です`);
+  showResult();
+
+  await sbDelete('active_sessions', `site_code=eq.${encodeURIComponent(appSettings.siteCode)}&worker_no=eq.${ctx.no}`);
+  await sbInsert('work_log', [{
+    site_code: appSettings.siteCode, worker_no: s.no, worker_name: s.name,
+    group_id: s.groupId||null, group_name: s.groupName||'',
+    course_no: s.courseNo, course_name: s.courseName, store_no: s.storeNo, count: s.count,
+    start_at: s.startISO, end_at: endISO, duration_sec: Math.round(durationSec),
+    productivity, cancelled: false
+  }]);
+  await renderSidebarProgress();
+  resetToWorker();
+});
+
+$('cancelJobBtn').addEventListener('click', async ()=>{
+  const s = sessions[ctx.no];
+  if(!s) return resetToWorker();
+  showConfirm(`${s.name} さんの作業を取り消します。よろしいですか？`, async ()=>{
+    const endISO = new Date().toISOString();
+    const durationSec = (new Date(endISO)-new Date(s.startISO))/1000;
+    delete sessions[ctx.no];
+    todayLog.unshift({...s, endISO, durationSec, productivity:0, cancelled:true, count:0});
+    renderWorkingList();
+    speak('作業を取り消しました');
+    await sbDelete('active_sessions', `site_code=eq.${encodeURIComponent(appSettings.siteCode)}&worker_no=eq.${ctx.no}`);
+    await sbInsert('work_log', [{
+      site_code: appSettings.siteCode, worker_no: s.no, worker_name: s.name,
+      group_id: s.groupId||null, group_name: s.groupName||'',
+      course_no: s.courseNo, course_name: s.courseName, store_no: s.storeNo, count: 0,
+      start_at: s.startISO, end_at: endISO, duration_sec: Math.round(durationSec),
+      productivity: 0, cancelled: true
+    }]);
+    await renderSidebarProgress();
+    resetToWorker();
+  });
+});
+
+// ---------- confirm modal ----------
+let confirmCb = null;
+function showConfirm(text, cb){
+  $('confirmText').textContent = text;
+  confirmCb = cb;
+  $('confirmOverlay').classList.add('show');
+}
+$('confirmYes').addEventListener('click', ()=>{
+  $('confirmOverlay').classList.remove('show');
+  buffer=''; renderDisplay();
+  if(confirmCb) confirmCb();
+  confirmCb = null;
+});
+$('confirmNo').addEventListener('click', ()=>{
+  $('confirmOverlay').classList.remove('show');
+  buffer=''; renderDisplay();
+  confirmCb = null;
+});
+
+// ---------- result overlay ----------
+function showResult(){
+  $('resultOverlay').classList.add('show');
+  clearTimeout(window._resultDismissTimer);
+  window._resultDismissTimer = setTimeout(()=>{ $('resultOverlay').classList.remove('show'); }, 1200);
+}
+$('resultOverlay').addEventListener('click', ()=>{
+  clearTimeout(window._resultDismissTimer);
+  $('resultOverlay').classList.remove('show');
+});
+
+// ---------- progress dashboard (1便/2便 auto-split, no button needed) ----------
+function detectBinsFromCourseTable(courseNumbers){
+  const uniq = [...new Set(courseNumbers)];
+  if(uniq.length === 0) return null;
+  // 便の判定はコース表からのみ行う。表に無いコースが混ざっていれば判定不能として null を返す
+  // (そのコースはそもそも受注データ取込時にコース表外として除外されているはずなので、
+  //  通常はここに来ない。来た場合はコース表が古い/未更新のサイン)
+  if(uniq.some(c => courseBinMap[c] === undefined)) return null;
+  const byBin = {};
+  uniq.forEach(c=>{
+    const b = courseBinMap[c];
+    if(!byBin[b]) byBin[b] = new Set();
+    byBin[b].add(c);
+  });
+  return Object.keys(byBin).map(Number).sort((a,b)=>a-b).map(b => ({label: b+'便', courseSet: byBin[b]}));
+}
+function computeBinData(bin, planEntries, doneEntries, openSessions, now){
+  const inBin = e => bin.courseSet ? bin.courseSet.has(e.courseNo) : (e.courseNo >= bin.min && e.courseNo <= bin.max);
+  const plan = planEntries.filter(inBin);
+  const done = doneEntries.filter(inBin);
+  const openInBin = openSessions.filter(inBin);
+
+  const volumeTotal = plan.reduce((s,e)=>s+e.lots, 0);
+  const doneKeys = new Set(done.map(e => e.courseNo+'-'+e.storeNo));
+  const volumeDone = done.reduce((s,e)=>s+e.count, 0);
+
+  const courseNos = [...new Set(plan.map(e=>e.courseNo))];
+  let courseDone = 0;
+  courseNos.forEach(c=>{
+    const stores = plan.filter(e=>e.courseNo===c).map(e=>e.storeNo);
+    if(stores.length && stores.every(s => doneKeys.has(c+'-'+s))) courseDone++;
+  });
+
+  const startTimes = [...done.map(e=>new Date(e.startISO).getTime()), ...openInBin.map(e=>new Date(e.startISO).getTime())];
+  const started = startTimes.length > 0;
+  const binStart = started ? new Date(Math.min(...startTimes)) : null;
+
+  return {label: bin.label, courseDone, courseTotal: courseNos.length, volumeTotal, volumeDone,
+          remaining: volumeTotal - volumeDone, started, binStart, done};
+}
+function currentProductivityFor(data, expectedProd, now){
+  if(!data.started) return expectedProd;
+  const windowStart = new Date(Math.max(data.binStart.getTime(), now.getTime() - 45*60000));
+  const windowDone = data.done.filter(e => new Date(e.endISO).getTime() >= windowStart.getTime());
+  const vol = windowDone.reduce((s,e)=>s+e.count, 0);
+  const elapsedH = Math.max((now.getTime() - windowStart.getTime())/3600000, 1/3600);
+  return vol > 0 ? vol/elapsedH : expectedProd;
+}
+function computeEndTime(data, currentProd, prevBinEnd, expectedProd, expectedBreak, now){
+  if(data.volumeTotal > 0 && data.remaining <= 0){
+    const endTimes = data.done.map(e=>new Date(e.endISO).getTime());
+    return {time: new Date(Math.max(...endTimes)), actual:true, branch:'done'};
+  }
+  if(data.started){
+    const hoursLeft = currentProd > 0 ? data.remaining/currentProd : 0;
+    return {time: new Date(now.getTime() + hoursLeft*3600000), actual:false, branch:'started', hoursLeft, currentProd};
+  }
+  if(prevBinEnd){
+    const assumedStart = new Date(prevBinEnd.getTime() + expectedBreak*60000);
+    const hoursLeft = expectedProd > 0 ? data.volumeTotal/expectedProd : 0;
+    return {time: new Date(assumedStart.getTime() + hoursLeft*3600000), actual:false, branch:'prevBinEnd', hoursLeft, expectedProd, expectedBreak, prevBinEnd, assumedStart};
+  }
+  return null;
+}
+function computeGroupBinResults(g){
+  const orderData = ORDER_DATA[g.id];
+  if(!orderData || !orderData.loaded || Object.keys(orderData.map).length === 0) return null;
+  const planEntries = Object.values(orderData.map);
+  const doneEntries = todayLog.filter(r => !r.cancelled && r.groupId === g.id);
+  const openSessionsInGroup = Object.values(sessions).filter(s => s.groupId === g.id);
+
+  const bins = detectBinsFromCourseTable(planEntries.map(e=>e.courseNo));
+  if(!bins) return 'no_course_table';
+  const now = new Date();
+  let prevEnd = null;
+  return bins.map(bin=>{
+    const data = computeBinData(bin, planEntries, doneEntries, openSessionsInGroup, now);
+    const prod = currentProductivityFor(data, g.expectedProductivity, now);
+    const endResult = computeEndTime(data, prod, prevEnd, g.expectedProductivity, g.expectedBreakMinutes, now);
+    prevEnd = endResult ? endResult.time : prevEnd;
+    return {...data, prod, endResult};
+  });
+}
+
+function fmtEndLabel(dateObj, actual){
+  const now = new Date();
+  const dayDiff = Math.round((new Date(dateObj.getFullYear(),dateObj.getMonth(),dateObj.getDate()) -
+                               new Date(now.getFullYear(),now.getMonth(),now.getDate())) / 86400000);
+  const timeStr = fmtTimeShort(dateObj.toISOString());
+  const dayTag = dayDiff === 0 ? '' : dayDiff === 1 ? '(翌日)' : dayDiff > 1 ? `(${dayDiff}日後)` : '(前日)';
+  return timeStr + dayTag + (actual ? '済' : '');
+}
+function renderBinCards(results){
+  return `<div class="bin-compact-wrap">` + results.map(r=>{
+    const cPct = r.courseTotal ? Math.round(r.courseDone/r.courseTotal*100) : 0;
+    const vPct = r.volumeTotal ? Math.round(r.volumeDone/r.volumeTotal*100) : 0;
+    const endLabel = r.endResult ? fmtEndLabel(r.endResult.time, r.endResult.actual) : '--:--';
+    return `
+    <div class="bin-compact-row">
+      <span class="bcr-label">${escapeHtml(r.label)}</span>
+      <span class="bcr-stat">コース ${r.courseDone}/${r.courseTotal}(${cPct}%)</span>
+      <span class="bcr-stat">数量 ${Math.round(r.volumeDone)}/${Math.round(r.volumeTotal)}(${vPct}%)</span>
+      <span class="bcr-stat">終了 ${endLabel}</span>
+    </div>`;
+  }).join('') + `</div>`;
+}
+
+async function loadRangeSummaryForGroup(g){
+  const siteCode = appSettings.siteCode;
+  const rows = await sbSelect('order_range_summary',
+    `site_code=eq.${encodeURIComponent(siteCode)}&work_date=eq.${todayKey()}&group_id=eq.${encodeURIComponent(g.id)}`);
+  return rows || [];
+}
+function renderQtySummary(rangeRows){
+  if(!rangeRows || rangeRows.length === 0) return '';
+  const total = rangeRows.reduce((s,r)=>s+r.lots, 0);
+  const breakdown = rangeRows.map(r=>`${escapeHtml(r.range_name)} ${r.lots}`).join(' ／ ');
+  return `<div class="qty-summary-compact">
+    <span class="qsc-total">合計 ${total}</span>
+    <span class="qsc-breakdown">${breakdown}</span>
+  </div>`;
+}
+
+async function renderSidebarProgress(){
+  const container = $('sidebarProgress');
+  const g = resolveActiveGroup();
+  if(!g){
+    container.innerHTML = '<p style="color:var(--muted);font-size:12px;">この端末の作業グループが未設定です。</p>';
+    return;
+  }
+  const rangeRows = await loadRangeSummaryForGroup(g);
+  if(!rangeRows || rangeRows.length === 0){
+    container.innerHTML = '<p style="color:var(--muted);font-size:12px;">本日の受注データが未取込です。</p>';
+    return;
+  }
+  let html = renderQtySummary(rangeRows);
+  const results = computeGroupBinResults(g);
+  if(results === 'no_course_table'){
+    html += '<p style="color:var(--red);font-size:12px;">⚠ コース表に無いコースが含まれているため、便を判定できません。</p>';
+  } else if(results){
+    html += renderBinCards(results);
+  }
+  container.innerHTML = html;
+}
+
+
+// ---------- roster import (logi_meter CSV) ----------
+let rosterMeta = null;   // {count, updatedAt, source}
+let pendingRosterImport = null;
+
+function setRosterStatus(text, color){
+  $('rosterStatusText').textContent = text;
+  $('rosterStatusText').style.color = color || 'var(--muted)';
+}
+
+async function loadRoster(){
+  const siteCode = appSettings.siteCode;
+  if(!siteCode){
+    rosterMeta = {count: ROSTER.length, updatedAt: null};
+    setRosterStatus(`名簿:${ROSTER.length}名(初期データ・拠点コード未設定)`, 'var(--muted)');
+    return;
+  }
+  const rows = await sbSelect('roster', `site_code=eq.${encodeURIComponent(siteCode)}&order=worker_no.asc`);
+  if(rows && rows.length){
+    ROSTER = rows.map(r=>({no:r.worker_no, name:r.name, category:r.category||'', type:r.emp_type||''}));
+    const updatedAt = rows.reduce((max,r)=> r.updated_at > max ? r.updated_at : max, rows[0].updated_at);
+    rosterMeta = {count: ROSTER.length, updatedAt};
+    setRosterStatus(`名簿:${ROSTER.length}名(logi_meter取込 ${fmtTimeShort(updatedAt)})`, 'var(--green)');
+  } else {
+    rosterMeta = {count: ROSTER.length, updatedAt: null};
+    setRosterStatus(`名簿:${ROSTER.length}名(初期データ)`, 'var(--muted)');
+  }
+}
+
+function decodeStaffCsv(buffer){
+  // logi_meter exports Shift-JIS (cp932). Try that first, fall back to UTF-8.
+  try{
+    const text = new TextDecoder('shift_jis').decode(buffer);
+    if(text.includes('社員番号')) return text;
+  }catch(e){}
+  return new TextDecoder('utf-8').decode(buffer);
+}
+
+function parseStaffCsv(text){
+  const result = Papa.parse(text, {header:true, skipEmptyLines:true});
+  const rows = result.data;
+  const list = [];
+  let skipped = 0;
+  rows.forEach(row=>{
+    const active = String(row['有効']).trim() === '1';
+    const noRaw = row['社員番号'];
+    const no = parseInt(noRaw, 10);
+    const sei = (row['姓']||'').trim();
+    const mei = (row['名']||'').trim();
+    const name = (sei + ' ' + mei).trim();
+    if(!active || !Number.isInteger(no) || !name){ skipped++; return; }
+    list.push({
+      no,
+      name,
+      category: (row['所属管理グループ']||'').trim(),
+      type: (row['スタッフラベル']||'').trim()
+    });
+  });
+  return {list, skipped, totalRows: rows.length};
+}
+
+$('rosterBtn').addEventListener('click', ()=>{
+  if(!appSettings.siteCode){
+    alert('先に⚙設定で拠点コードを設定してください');
+    return;
+  }
+  $('rosterFileInput').click();
+});
+$('rosterFileInput').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  e.target.value = '';
+  if(!file) return;
+  const buffer = await file.arrayBuffer();
+  const text = decodeStaffCsv(buffer);
+  const {list, skipped, totalRows} = parseStaffCsv(text);
+  if(list.length === 0){
+    alert('取り込めるデータが見つかりませんでした。logi_meterからの名簿CSVか確認してください。');
+    return;
+  }
+  pendingRosterImport = list;
+  $('rosterSummaryText').textContent =
+    `logi_meterの名簿ファイルを読み込みました。\n\n`+
+    `対象: ${totalRows}件\n有効スタッフ: ${list.length}名\n除外(退職・データ不備等): ${skipped}件\n\n`+
+    `この内容で現在の名簿(${ROSTER.length}名)を置き換えます。よろしいですか？`;
+  $('rosterOverlay').classList.add('show');
+});
+$('rosterCancel').addEventListener('click', ()=>{
+  pendingRosterImport = null;
+  $('rosterOverlay').classList.remove('show');
+});
+$('rosterApply').addEventListener('click', async ()=>{
+  if(!pendingRosterImport) return;
+  const siteCode = appSettings.siteCode;
+  const updatedAt = new Date().toISOString();
+  const rows = pendingRosterImport.map(w=>({
+    site_code: siteCode, worker_no: w.no, name: w.name,
+    category: w.category, emp_type: w.type, updated_at: updatedAt
+  }));
+  // replace this site's roster entirely: clear old rows, then bulk insert the fresh list
+  await sbDelete('roster', `site_code=eq.${encodeURIComponent(siteCode)}`);
+  await sbInsert('roster', rows);
+  ROSTER = pendingRosterImport;
+  rosterMeta = {count: ROSTER.length, updatedAt};
+  setRosterStatus(`名簿:${ROSTER.length}名(logi_meter取込 ${fmtTimeShort(updatedAt)})`, 'var(--green)');
+  pendingRosterImport = null;
+  $('rosterOverlay').classList.remove('show');
+});
+
+// ---------- app settings (拠点コード・作業グループ) ----------
+function defaultGroups(){
+  return [{id:'g1', name:'加食(ビール/ドリンク/ラーメン)', folder:'加食', ranges:[{name:'加食', min:500000,max:900000}], expectedProductivity:300, expectedBreakMinutes:60}];
+}
+function migrateGroup(g){
+  const rawRanges = (Array.isArray(g.ranges) && g.ranges.length) ? g.ranges : [{min:g.shelfMin||0, max:g.shelfMax||0}];
+  const ranges = rawRanges.map(r => ({name: r.name || '', min: r.min, max: r.max}));
+  return {
+    id: g.id, name: g.name, folder: g.folder, ranges,
+    expectedProductivity: Number.isFinite(g.expectedProductivity) ? g.expectedProductivity : (Number.isFinite(g.expected_productivity) ? g.expected_productivity : 300),
+    expectedBreakMinutes: Number.isFinite(g.expectedBreakMinutes) ? g.expectedBreakMinutes : (Number.isFinite(g.expected_break_minutes) ? g.expected_break_minutes : 60)
+  };
+}
+let appSettings = { siteCode:'', groups: defaultGroups() };
+
+// ---------- device-level group assignment (per iPad, not shared) ----------
+let deviceGroupId = null;
+// the group currently being viewed/edited in the settings panel for THIS device
+let editingGroup = {id:null, name:'', folder:'', ranges:[{name:'', min:0,max:0}], expectedProductivity:300, expectedBreakMinutes:60};
+
+function resolveActiveGroup(){
+  const groups = appSettings.groups || [];
+  if(deviceGroupId){
+    const g = groups.find(x => x.id === deviceGroupId);
+    if(g) return g;
+  }
+  if(groups.length === 1) return groups[0];
+  return null;
+}
+function renderDeviceGroupBadge(){
+  const badge = $('deviceGroupBadge');
+  const text = $('deviceGroupBadgeText');
+  const g = resolveActiveGroup();
+  if(g){
+    badge.classList.remove('unset');
+    text.textContent = g.name;
+  } else {
+    badge.classList.add('unset');
+    text.textContent = '未設定(⚙設定で選択)';
+  }
+}
+function loadDeviceGroup(){
+  deviceGroupId = localGet('device_group_id');
+}
+async function loadSettings(){
+  const siteCode = localGet('site_code') || '';
+  appSettings = { siteCode, groups: [] };
+  $('siteCodeInput').value = siteCode;
+  if(!siteCode) return;
+  const rows = await sbSelect('work_groups', `site_code=eq.${encodeURIComponent(siteCode)}&order=name.asc`);
+  if(rows && rows.length){
+    appSettings.groups = rows.map(r => migrateGroup({
+      id:r.id, name:r.name, folder:r.folder, ranges:r.ranges,
+      expected_productivity: r.expected_productivity, expected_break_minutes: r.expected_break_minutes
+    }));
+  }
+}
+
+function initEditingGroupFromDevice(){
+  const g = resolveActiveGroup();
+  editingGroup = g ? JSON.parse(JSON.stringify(g)) : {id:null, name:'', folder:'', ranges:[{name:'',min:0,max:0}], expectedProductivity:300, expectedBreakMinutes:60};
+}
+
+function renderRangeList(){
+  const wrap = $('deviceRangeList');
+  wrap.innerHTML = editingGroup.ranges.map((r,i) => `
+    <div class="group-row" style="grid-template-columns:1fr 1fr 1fr auto;" data-idx="${i}">
+      <input type="text" class="r-name" placeholder="名前(例:ドリンク)" value="${escapeHtml(r.name||'')}">
+      <input type="number" class="r-min" placeholder="この番号 以上" value="${r.min}">
+      <input type="number" class="r-max" placeholder="この番号 以下" value="${r.max}">
+      <button class="rm" data-rmidx="${i}">&times;</button>
+    </div>`).join('');
+  wrap.querySelectorAll('input').forEach(inp=> inp.addEventListener('input', syncRangesFromDom));
+  wrap.querySelectorAll('.rm').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      syncRangesFromDom();
+      const idx = parseInt(btn.getAttribute('data-rmidx'), 10);
+      editingGroup.ranges.splice(idx, 1);
+      if(editingGroup.ranges.length === 0) editingGroup.ranges.push({name:'', min:0, max:0});
+      renderRangeList();
+    });
+  });
+}
+function syncRangesFromDom(){
+  const rows = $('deviceRangeList').querySelectorAll('.group-row');
+  rows.forEach((row,i)=>{
+    const name = row.querySelector('.r-name').value.trim();
+    const min = parseInt(row.querySelector('.r-min').value, 10);
+    const max = parseInt(row.querySelector('.r-max').value, 10);
+    editingGroup.ranges[i] = {name, min: Number.isInteger(min)?min:0, max: Number.isInteger(max)?max:0};
+  });
+}
+$('addRangeBtn').addEventListener('click', ()=>{
+  syncRangesFromDom();
+  editingGroup.ranges.push({name:'', min:0, max:0});
+  renderRangeList();
+});
+
+let settingsMode = 'select'; // 'select' | 'create'
+
+function renderGroupSelectList(){
+  const wrap = $('groupSelectList');
+  const groups = appSettings.groups || [];
+  if(groups.length === 0){
+    wrap.innerHTML = '<div style="font-size:12px;color:var(--muted);">まだ作業グループがありません。「＋ 新しく作る」から登録してください。</div>';
+    return;
+  }
+  wrap.innerHTML = groups.map(g => `
+    <div class="device-group-btn${(settingsMode==='select' && g.id===editingGroup.id) ? ' selected' : ''}" data-gid="${g.id}">
+      <div class="radio"></div>
+      <div style="flex:1;">
+        <div class="dgname">${escapeHtml(g.name)||'(名称未入力)'}</div>
+        <div class="dgmeta">${escapeHtml(g.folder)} ・ 棚番 ${g.ranges.map(r=>r.min+'〜'+r.max).join(' / ')}</div>
+      </div>
+      <div style="font-size:11px;color:var(--steel);font-weight:600;flex-shrink:0;" data-edit="${g.id}">編集</div>
+    </div>`).join('');
+  wrap.querySelectorAll('.device-group-btn').forEach(el=>{
+    const gid = el.getAttribute('data-gid');
+    el.querySelector('[data-edit]').addEventListener('click', (ev)=>{
+      ev.stopPropagation();
+      const g = groups.find(x=>x.id===gid);
+      editingGroup = JSON.parse(JSON.stringify(g));
+      switchSettingsTab('create');
+    });
+    el.addEventListener('click', ()=>{
+      const g = groups.find(x=>x.id===gid);
+      editingGroup = JSON.parse(JSON.stringify(g));
+      renderGroupSelectList();
+    });
+  });
+}
+
+async function refetchGroupsForSiteCode(siteCode){
+  if(!siteCode) return;
+  const rows = await sbSelect('work_groups', `site_code=eq.${encodeURIComponent(siteCode)}&order=name.asc`);
+  appSettings.groups = (rows || []).map(r => migrateGroup({
+    id:r.id, name:r.name, folder:r.folder, ranges:r.ranges,
+    expected_productivity: r.expected_productivity, expected_break_minutes: r.expected_break_minutes
+  }));
+  renderGroupSelectList();
+}
+$('siteCodeInput').addEventListener('blur', ()=>{
+  const typed = $('siteCodeInput').value.trim();
+  if(typed && typed !== appSettings.siteCode){
+    refetchGroupsForSiteCode(typed);
+  }
+});
+
+function renderDeviceGroupEditor(){
+  $('deviceGroupNameInput').value = editingGroup.name;
+  $('deviceGroupFolderInput').value = editingGroup.folder;
+  $('expectedProductivityInput').value = editingGroup.expectedProductivity;
+  $('expectedBreakInput').value = editingGroup.expectedBreakMinutes;
+  renderRangeList();
+}
+$('deviceGroupNameInput').addEventListener('input', e=> editingGroup.name = e.target.value);
+$('deviceGroupFolderInput').addEventListener('input', e=> editingGroup.folder = e.target.value);
+$('expectedProductivityInput').addEventListener('input', e=> editingGroup.expectedProductivity = parseFloat(e.target.value)||0);
+$('expectedBreakInput').addEventListener('input', e=> editingGroup.expectedBreakMinutes = parseFloat(e.target.value)||0);
+
+function switchSettingsTab(mode){
+  settingsMode = mode;
+  $('tabSelectBtn').classList.toggle('active', mode==='select');
+  $('tabCreateBtn').classList.toggle('active', mode==='create');
+  $('groupSelectPanel').style.display = mode==='select' ? 'block' : 'none';
+  $('groupCreatePanel').style.display = mode==='create' ? 'block' : 'none';
+  renderDeviceGroupEditor();
+  renderGroupSelectList();
+}
+$('tabSelectBtn').addEventListener('click', ()=> switchSettingsTab('select'));
+$('tabCreateBtn').addEventListener('click', ()=>{
+  editingGroup = {id:null, name:'', folder: pendingNewCategoryFromJson || '', ranges:[{name:'',min:0,max:0}], expectedProductivity:300, expectedBreakMinutes:60};
+  switchSettingsTab('create');
+});
+
+$('loadLastRunBtn').addEventListener('click', ()=> $('lastRunFileInput').click());
+let pendingNewCategoryFromJson = null;
+$('lastRunFileInput').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  e.target.value = '';
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if(!data.center_name || !data.category_name){
+      alert('last_run.jsonの形式が想定と異なります(center_name / category_name が見つかりません)');
+      return;
+    }
+    $('siteCodeInput').value = data.center_name;
+    $('deviceGroupFolderInput').value = data.category_name;
+    const matches = (appSettings.groups || []).filter(g => g.folder === data.category_name);
+
+    if(matches.length >= 1){
+      // one or more groups already exist for this category -> just point at the select tab,
+      // never silently overwrite whatever is currently being edited
+      switchSettingsTab('select');
+      $('lastRunHint').textContent =
+        `拠点コード「${data.center_name}」を読み込みました。「${data.category_name}」のグループが下の一覧にあります。この端末が使うものをタップして選び、「保存」を押してください。`;
+    } else {
+      pendingNewCategoryFromJson = data.category_name;
+      $('lastRunHint').textContent =
+        `拠点コード「${data.center_name}」を読み込みました。「${data.category_name}」の作業グループがまだ無いようです。新しく登録する場合は「＋ 新しく作る」タブから(通常はPC側で作成してください)。`;
+    }
+  }catch(err){
+    alert('last_run.jsonの読み込みに失敗しました');
+  }
+});
+
+$('settingsBtn').addEventListener('click', ()=>{
+  $('siteCodeInput').value = appSettings.siteCode || '';
+  $('lastRunHint').textContent = '';
+  pendingNewCategoryFromJson = null;
+  initEditingGroupFromDevice();
+  switchSettingsTab((appSettings.groups||[]).length === 0 ? 'create' : 'select');
+  $('settingsOverlay').classList.add('show');
+});
+$('settingsCancel').addEventListener('click', ()=> $('settingsOverlay').classList.remove('show'));
+$('settingsSave').addEventListener('click', async ()=>{
+  const siteCode = $('siteCodeInput').value.trim();
+  if(!siteCode){
+    alert('拠点コードを入力してください');
+    return;
+  }
+  localSet('site_code', siteCode);
+  appSettings.siteCode = siteCode;
+
+  if(settingsMode === 'select'){
+    if(!editingGroup.id){
+      alert('グループをタップして選んでから保存してください');
+      return;
+    }
+    deviceGroupId = editingGroup.id;
+    localSet('device_group_id', deviceGroupId);
+    renderDeviceGroupBadge();
+    $('settingsOverlay').classList.remove('show');
+    await loadRoster();
+    await loadCourseMaster();
+    await loadOrders();
+    await renderSidebarProgress();
+    return;
+  }
+
+  // settingsMode === 'create' (also used for editing an existing group via the 編集 link)
+  syncRangesFromDom();
+  editingGroup.name = $('deviceGroupNameInput').value.trim();
+  editingGroup.folder = $('deviceGroupFolderInput').value.trim();
+  editingGroup.expectedProductivity = parseFloat($('expectedProductivityInput').value) || 300;
+  editingGroup.expectedBreakMinutes = parseFloat($('expectedBreakInput').value) || 60;
+  const validRanges = editingGroup.ranges.filter(r => Number.isInteger(r.min) && Number.isInteger(r.max) && r.min < r.max);
+
+  if(!editingGroup.name || !editingGroup.folder || validRanges.length === 0){
+    alert('グループ名・フォルダ名・棚番の範囲(少なくとも1つ、下限<上限)を入力してください');
+    return;
+  }
+  editingGroup.ranges = validRanges;
+
+  if(!editingGroup.id){
+    // this would create a brand-new group -> re-check the server for a name+folder
+    // collision first, so re-typing an existing group's details can never create a duplicate
+    const freshRows = await sbSelect('work_groups', `site_code=eq.${encodeURIComponent(siteCode)}`);
+    const dup = (freshRows||[]).find(r => r.name.trim() === editingGroup.name && r.folder.trim() === editingGroup.folder);
+    if(dup){
+      appSettings.groups = (freshRows||[]).map(r => migrateGroup({
+        id:r.id, name:r.name, folder:r.folder, ranges:r.ranges,
+        expected_productivity: r.expected_productivity, expected_break_minutes: r.expected_break_minutes
+      }));
+      alert(`同じ名前・フォルダの作業グループ「${dup.name}」がすでに登録されています。新規作成せず、「グループを選ぶ」タブからタップして選び直してください。`);
+      switchSettingsTab('select');
+      return;
+    }
+    editingGroup.id = 'g' + Date.now();
+  }
+
+  await sbUpsert('work_groups', [{
+    id: editingGroup.id, site_code: siteCode, name: editingGroup.name,
+    folder: editingGroup.folder, ranges: editingGroup.ranges,
+    expected_productivity: editingGroup.expectedProductivity,
+    expected_break_minutes: editingGroup.expectedBreakMinutes,
+    updated_at: new Date().toISOString()
+  }], 'id');
+
+  const groups = [...(appSettings.groups || [])];
+  const idx = groups.findIndex(g => g.id === editingGroup.id);
+  if(idx >= 0) groups[idx] = editingGroup; else groups.push(editingGroup);
+  appSettings.groups = groups;
+
+  deviceGroupId = editingGroup.id;
+  localSet('device_group_id', deviceGroupId);
+  renderDeviceGroupBadge();
+  $('settingsOverlay').classList.remove('show');
+  await loadRoster();  // site code may have just been set for the first time
+  await loadCourseMaster();
+  await loadOrders();  // group definition may have changed, refresh order status
+  await renderSidebarProgress();
+});
+
+
+// ---------- order data (PKDATA.CSV) ----------
+let ORDER_DATA = {};   // { [groupId]: {map:{"course-store":{lots,courseNo,storeNo}}, loaded, updatedAt} }
+let pendingOrderImport = null;   // { [groupId]: map, __workDate: 'YYYY-MM-DD'|null }
+let lastImportedFileWorkDate = null;
+let pendingOrderFolder = null;
+
+function setOrderStatus(text, color){
+  $('orderStatusText').textContent = text;
+  $('orderStatus').querySelector('.dot').style.background = color || 'var(--muted)';
+}
+
+async function loadOrders(){
+  ORDER_DATA = {};
+  (appSettings.groups||[]).forEach(g=>{ ORDER_DATA[g.id] = {map:{}, loaded:false, updatedAt:null}; });
+
+  const siteCode = appSettings.siteCode;
+  if(!siteCode || (appSettings.groups||[]).length === 0){
+    setOrderStatus('受注:未取込(固定範囲で判定中)', 'var(--muted)');
+    return;
+  }
+  const rows = await sbSelect('orders',
+    `site_code=eq.${encodeURIComponent(siteCode)}&work_date=eq.${todayKey()}`);
+  if(rows){
+    rows.forEach(r=>{
+      const gd = ORDER_DATA[r.group_id];
+      if(!gd) return;
+      gd.loaded = true;
+      gd.updatedAt = r.updated_at;
+      gd.map[r.course_no + '-' + r.store_no] = {courseNo: r.course_no, storeNo: r.store_no, lots: r.lots, seq: r.seq||0};
+    });
+  }
+  const loadedCount = Object.values(ORDER_DATA).filter(d=>d.loaded).length;
+  const total = (appSettings.groups||[]).length;
+  if(loadedCount === 0){
+    setOrderStatus('受注:未取込(固定範囲で判定中)', 'var(--muted)');
+  } else if(loadedCount < total){
+    setOrderStatus(`受注:一部取込(${loadedCount}/${total}グループ)`, 'var(--amber-deep)');
+  } else {
+    setOrderStatus(`受注:取込済(${total}グループ)`, 'var(--green)');
+  }
+}
+
+// ---------- 「コース・店を選んでください」画面からの、残り予定の削除(店単位・コース単位・便単位) ----------
+// 対象は常に「今、一覧に見えている(=未完了・未着手の)予定」だけ。完了済みの実績には一切触れない。
+// orders テーブルから該当行を削除するので、進捗ダッシュボードの分母(予定数量)にもすぐ反映される。
+async function deleteOrderEntries(entries){
+  const g = resolveActiveGroup();
+  const siteCode = appSettings.siteCode;
+  if(!g || !siteCode || entries.length === 0) return;
+  const workDate = todayKey();
+  await Promise.all(entries.map(e => sbDelete('orders',
+    `site_code=eq.${encodeURIComponent(siteCode)}&work_date=eq.${workDate}&group_id=eq.${encodeURIComponent(g.id)}&course_no=eq.${e.courseNo}&store_no=eq.${e.storeNo}`
+  )));
+  const gd = ORDER_DATA[g.id];
+  if(gd){
+    entries.forEach(e => { delete gd.map[e.courseNo + '-' + e.storeNo]; });
+  }
+  renderPickStoreList();
+  await renderSidebarProgress();
+  if($('orderManageOverlay').classList.contains('show')) renderOrderManageList();
+}
+
+function decodePkCsv(buffer){
+  try{
+    const text = new TextDecoder('shift_jis').decode(buffer);
+    return text;
+  }catch(e){
+    return new TextDecoder('utf-8').decode(buffer);
+  }
+}
+function parsePkRows(text){
+  return Papa.parse(text, {header:false, skipEmptyLines:true}).data;
+}
+function extractFileWorkDate(rows){
+  // PKDATA.CSV's own date field (row[0], format YYYYMMDD) is the day the file was
+  // CREATED, not the day it's meant for. Confirmed: actual work date = that date minus 1 day.
+  // Some rows (courses not in the course table) carry a sentinel value like "99999999"
+  // instead of a real date, so pick the most common *valid calendar date* across all
+  // rows rather than just trusting the first row.
+  const counts = {};
+  rows.forEach(r=>{
+    if(!r || !r[0]) return;
+    const s = String(r[0]);
+    if(!/^\d{8}$/.test(s)) return;
+    const y = parseInt(s.slice(0,4),10), m = parseInt(s.slice(4,6),10), d = parseInt(s.slice(6,8),10);
+    if(m < 1 || m > 12 || d < 1 || d > 31) return; // rejects sentinels like 99999999
+    counts[s] = (counts[s]||0) + 1;
+  });
+  const entries = Object.entries(counts);
+  if(entries.length === 0) return null;
+  entries.sort((a,b)=> b[1]-a[1]); // most frequent real date wins
+  const s = entries[0][0];
+  const y = parseInt(s.slice(0,4),10), m = parseInt(s.slice(4,6),10), d = parseInt(s.slice(6,8),10);
+  const createdDate = new Date(y, m-1, d);
+  const workDate = new Date(createdDate.getTime() - 24*3600*1000);
+  const pad = n=>String(n).padStart(2,'0');
+  return `${workDate.getFullYear()}-${pad(workDate.getMonth()+1)}-${pad(workDate.getDate())}`;
+}
+function aggregateForGroup(rows, ranges){
+  const map = {};
+  const rangeTotals = {}; // name -> lots
+  let inRange = 0, outOfRange = 0, badRows = 0, notInCourseTable = 0;
+  const hasCourseTable = validCourseSet.size > 0;
+  rows.forEach((r, idx)=>{
+    if(!r || r.length < 12) { badRows++; return; }
+    const courseNo = parseInt(r[6], 10);
+    const storeNo = parseInt(r[7], 10);
+    const shelf = parseInt(r[9], 10);
+    const lotSize = parseInt(r[10], 10);
+    const bara = parseInt(r[11], 10);
+    if(!Number.isInteger(courseNo) || !Number.isInteger(storeNo) || !Number.isInteger(shelf)){ badRows++; return; }
+    if(hasCourseTable && !validCourseSet.has(courseNo)){ notInCourseTable++; return; }
+    const matchedRange = ranges.find(rg => shelf >= rg.min && shelf <= rg.max);
+    if(!matchedRange){ outOfRange++; return; }
+    if(!lotSize){ badRows++; return; }
+    inRange++;
+    const lots = bara / lotSize;
+    const key = courseNo + '-' + storeNo;
+    if(!map[key]){
+      // 作業順は「コース表のコース単位の順番」を上位、「ファイル内での実際の出現順」を
+      // コース内の店の並びに使う(コース表には店ごとの並びまでは無いため)
+      const seq = hasCourseTable && courseSeqMap[courseNo] !== undefined
+        ? courseSeqMap[courseNo] * 100000 + idx
+        : idx;
+      map[key] = {courseNo, storeNo, lots: 0, seq};
+    }
+    map[key].lots += lots;
+    const rangeName = matchedRange.name || '(名称未設定)';
+    rangeTotals[rangeName] = (rangeTotals[rangeName] || 0) + lots;
+  });
+  Object.values(map).forEach(v=> v.lots = Math.round(v.lots));
+  Object.keys(rangeTotals).forEach(k=> rangeTotals[k] = Math.round(rangeTotals[k]));
+  return {map, rangeTotals, inRange, outOfRange, badRows, notInCourseTable, totalRows: rows.length};
+}
+
+// ---------- course master (拠点共通のコース表: 作業順・便・曜日別コース№) ----------
+const WEEKDAY_JA = ['日','月','火','水','木','金','土'];
+function todayWeekdayJa(){ return WEEKDAY_JA[new Date().getDay()]; }
+
+let courseSeqMap = {};   // courseNo -> 作業順(そのコースの基準値)
+let courseBinMap = {};   // courseNo -> 便(1 or 2)
+let validCourseSet = new Set(); // 今日の曜日で有効なコース№の集合(空なら未設定=絞り込みなし)
+
+function setCourseMasterStatus(text, color){
+  $('courseMasterStatusText').textContent = text;
+  $('courseMasterStatusText').style.color = color || 'var(--muted)';
+}
+async function loadCourseMaster(){
+  courseSeqMap = {}; courseBinMap = {}; validCourseSet = new Set();
+  const siteCode = appSettings.siteCode;
+  if(!siteCode){ setCourseMasterStatus('コース表:未設定', 'var(--muted)'); return; }
+  const wd = todayWeekdayJa();
+  const rows = await sbSelect('course_master', `site_code=eq.${encodeURIComponent(siteCode)}&weekday=eq.${encodeURIComponent(wd)}`);
+  if(!rows || rows.length === 0){
+    setCourseMasterStatus(`コース表:未設定(${wd}曜日分なし・絞り込みなし)`, 'var(--muted)');
+    return;
+  }
+  rows.forEach(r=>{
+    courseSeqMap[r.course_no] = r.seq;
+    courseBinMap[r.course_no] = r.bin;
+    validCourseSet.add(r.course_no);
+  });
+  setCourseMasterStatus(`コース表:${wd}曜日 ${rows.length}コース`, 'var(--green)');
+}
+
+function parseCourseMasterXlsx(buffer){
+  const wb = XLSX.read(buffer, {type:'array'});
+  const sheetName = wb.SheetNames.find(n => n === 'ケース作業順表') || wb.SheetNames[0];
+  const sheet = wb.Sheets[sheetName];
+  const rows = XLSX.utils.sheet_to_json(sheet, {header:1, raw:true});
+  // fixed layout: col0=作業順 col1=便 col2..8 = 月,火,水,木,金,土,日
+  const weekdayCols = ['月','火','水','木','金','土','日'];
+  const records = [];
+  for(let i=1; i<rows.length; i++){
+    const row = rows[i];
+    if(!row) continue;
+    const seq = parseInt(row[0], 10);
+    const bin = parseInt(row[1], 10);
+    if(!Number.isInteger(seq) || !Number.isInteger(bin)) continue;
+    weekdayCols.forEach((wd, ci)=>{
+      const v = row[2+ci];
+      if(v === undefined || v === null || v === '') return; // 空欄は無視
+      const courseNo = parseInt(v, 10);
+      if(!Number.isInteger(courseNo)) return;
+      records.push({weekday: wd, seq, bin, courseNo});
+    });
+  }
+  return records;
+}
+
+let pendingCourseMasterImport = null;
+$('courseMasterBtn').addEventListener('click', ()=>{
+  if(!appSettings.siteCode){
+    alert('先に⚙設定で拠点コードを設定してください');
+    return;
+  }
+  $('courseMasterFileInput').click();
+});
+$('courseMasterFileInput').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  e.target.value = '';
+  if(!file) return;
+  const buffer = await file.arrayBuffer();
+  let records;
+  try{
+    records = parseCourseMasterXlsx(buffer);
+  }catch(err){
+    alert('ファイルの読み込みに失敗しました。「ケース作業順表」シートを含むxlsxか確認してください。');
+    return;
+  }
+  if(records.length === 0){
+    alert('コース表からデータを読み取れませんでした。');
+    return;
+  }
+  const counts = {};
+  records.forEach(r=> counts[r.weekday] = (counts[r.weekday]||0)+1);
+  pendingCourseMasterImport = records;
+  $('courseMasterSummaryText').textContent =
+    `コース表を読み込みました。\n\n` +
+    WEEKDAY_JA.filter(w=>w!=='日'||counts['日']).map(w=> counts[w] ? `${w}曜日: ${counts[w]}コース` : null).filter(Boolean).join('\n') +
+    `\n\nこの内容で、拠点「${appSettings.siteCode}」のコース表を置き換えます。よろしいですか？`;
+  $('courseMasterOverlay').classList.add('show');
+});
+$('courseMasterCancel').addEventListener('click', ()=>{
+  pendingCourseMasterImport = null;
+  $('courseMasterOverlay').classList.remove('show');
+});
+$('courseMasterApply').addEventListener('click', async ()=>{
+  if(!pendingCourseMasterImport) return;
+  const siteCode = appSettings.siteCode;
+  const updatedAt = new Date().toISOString();
+  await sbDelete('course_master', `site_code=eq.${encodeURIComponent(siteCode)}`);
+  const rows = pendingCourseMasterImport.map(r=>({
+    site_code: siteCode, weekday: r.weekday, seq: r.seq, bin: r.bin, course_no: r.courseNo, updated_at: updatedAt
+  }));
+  // insert in chunks to stay well within a single request's size
+  for(let i=0;i<rows.length;i+=500){
+    await sbInsert('course_master', rows.slice(i, i+500));
+  }
+  pendingCourseMasterImport = null;
+  $('courseMasterOverlay').classList.remove('show');
+  await loadCourseMaster();
+  await loadOrders(); // re-filter today's already-imported orders against the new course table
+});
+
+function distinctFolders(){
+  return [...new Set((appSettings.groups||[]).map(g=>g.folder))];
+}
+
+$('orderImportBtn').addEventListener('click', ()=>{
+  const activeGroup = resolveActiveGroup();
+  const folders = distinctFolders();
+  if(activeGroup){
+    // this device belongs to a single fixed group -> use its folder without asking
+    pendingOrderFolder = activeGroup.folder;
+    $('orderFileInput').click();
+    return;
+  }
+  if(folders.length <= 1){
+    pendingOrderFolder = folders[0] || '';
+    $('orderFileInput').click();
+    return;
+  }
+  // ambiguous device (no fixed group assigned) -> ask which folder this file is from
+  const text = folders.map((f,i)=>`${i+1}. ${f}`).join('\n');
+  const answer = prompt(`どのフォルダのPKDATA.CSVですか？番号で入力してください\n${text}`);
+  const idx = parseInt(answer, 10) - 1;
+  if(!Number.isInteger(idx) || idx < 0 || idx >= folders.length) return;
+  pendingOrderFolder = folders[idx];
+  $('orderFileInput').click();
+});
+$('orderFileInput').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  e.target.value = '';
+  if(!file || !pendingOrderFolder) return;
+  const buffer = await file.arrayBuffer();
+  const text = decodePkCsv(buffer);
+  const rows = parsePkRows(text);
+  const fileWorkDate = extractFileWorkDate(rows);
+  const targetGroups = (appSettings.groups||[]).filter(g => g.folder === pendingOrderFolder);
+  pendingOrderImport = { __workDate: fileWorkDate };
+  const lines = [`PKDATA.CSV(${pendingOrderFolder})を読み込みました。\n`];
+  if(fileWorkDate){
+    if(fileWorkDate === todayKey()){
+      lines.push(`✅ このファイルの対象作業日: ${fileWorkDate}(今日と一致)\n`);
+    } else {
+      lines.push(`⚠️ このファイルの対象作業日: ${fileWorkDate}(今日 ${todayKey()} とは違います！日付を確認してください)\n`);
+    }
+  } else {
+    lines.push(`⚠️ ファイルから対象日を読み取れませんでした。ファイルの中身を確認してください。\n`);
+  }
+  targetGroups.forEach(g=>{
+    const {map, rangeTotals, inRange, outOfRange, badRows, notInCourseTable, totalRows} = aggregateForGroup(rows, g.ranges);
+    pendingOrderImport[g.id] = {map, rangeTotals};
+    const rangeText = g.ranges.map(r=>`${r.name||'(名称未設定)'}:${r.min}〜${r.max}`).join(' / ');
+    const courseNote = validCourseSet.size>0 ? ` / コース表外${notInCourseTable}行を除外` : ' / コース表未設定のため絞り込みなし';
+    const breakdownText = Object.entries(rangeTotals).map(([name,lots])=>`${name} ${lots}`).join(' ・ ');
+    const groupTotal = Object.values(rangeTotals).reduce((s,v)=>s+v,0);
+    lines.push(`【${g.name}】${rangeText}\n  合計${groupTotal} (${breakdownText}) / 組み合わせ${Object.keys(map).length}件${courseNote}`);
+  });
+  lines.push('\nこの内容を本日の受注データとして反映します。よろしいですか？');
+  $('orderSummaryText').textContent = lines.join('\n');
+  $('orderOverlay').classList.add('show');
+});
+$('orderCancel').addEventListener('click', ()=>{
+  pendingOrderImport = null;
+  $('orderOverlay').classList.remove('show');
+});
+$('orderApply').addEventListener('click', async ()=>{
+  if(!pendingOrderImport) return;
+  const updatedAt = new Date().toISOString();
+  const siteCode = appSettings.siteCode;
+  const workDate = todayKey();
+  const fileWorkDate = pendingOrderImport.__workDate;
+
+  // replace this date's rows for each affected group, then bulk-insert the fresh aggregation
+  for(const gid of Object.keys(pendingOrderImport)){
+    if(gid === '__workDate') continue;
+    const {map, rangeTotals} = pendingOrderImport[gid];
+    await sbDelete('orders',
+      `site_code=eq.${encodeURIComponent(siteCode)}&work_date=eq.${workDate}&group_id=eq.${encodeURIComponent(gid)}`);
+    const rows = Object.values(map).map(v => ({
+      site_code: siteCode, work_date: workDate, group_id: gid,
+      course_no: v.courseNo, store_no: v.storeNo, lots: v.lots, seq: v.seq||0, updated_at: updatedAt
+    }));
+    if(rows.length) await sbInsert('orders', rows);
+
+    await sbDelete('order_range_summary',
+      `site_code=eq.${encodeURIComponent(siteCode)}&work_date=eq.${workDate}&group_id=eq.${encodeURIComponent(gid)}`);
+    const summaryRows = Object.entries(rangeTotals).map(([name, lots]) => ({
+      site_code: siteCode, work_date: workDate, group_id: gid,
+      range_name: name, lots, updated_at: updatedAt
+    }));
+    if(summaryRows.length) await sbInsert('order_range_summary', summaryRows);
+
+    ORDER_DATA[gid] = {map, loaded: true, updatedAt};
+  }
+
+  lastImportedFileWorkDate = fileWorkDate || null;
+  const loadedCount = Object.values(ORDER_DATA).filter(d=>d.loaded).length;
+  const total = (appSettings.groups||[]).length;
+  const dateNote = fileWorkDate ? ` ｜ ファイル対象日:${fileWorkDate}${fileWorkDate!==todayKey() ? '⚠️' : ''}` : '';
+  setOrderStatus(
+    (loadedCount>=total ? `受注:取込済(${total}グループ)` : `受注:一部取込(${loadedCount}/${total}グループ)`) + dateNote,
+    (fileWorkDate && fileWorkDate!==todayKey()) ? 'var(--red)' : (loadedCount>=total?'var(--green)':'var(--amber-deep)')
+  );
+  pendingOrderImport = null;
+  $('orderOverlay').classList.remove('show');
+  await renderSidebarProgress();
+});
+
+// ---------- 履歴(今日、誰がどの店をやったか検索) ----------
+function renderHistoryTable(){
+  const courseFilter = $('historyCourseFilter').value.trim();
+  const workerFilter = $('historyWorkerFilter').value.trim();
+  const body = $('historyBody');
+
+  let rows = [...todayLog].filter(r => !r.cancelled);
+  if(courseFilter) rows = rows.filter(r => String(r.courseNo).includes(courseFilter));
+  if(workerFilter) rows = rows.filter(r => String(r.no).includes(workerFilter));
+  rows.sort((a,b)=> a.courseNo - b.courseNo || a.storeNo - b.storeNo);
+
+  if(rows.length === 0){
+    body.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--muted);padding:20px;">該当する記録がありません</td></tr>';
+    return;
+  }
+  body.innerHTML = rows.map(r => `
+    <tr>
+      <td style="font-family:'Space Mono',monospace;font-weight:700;">${r.courseNo}－${r.storeNo}</td>
+      <td>${escapeHtml(r.name)} <span style="color:var(--muted);font-size:12px;">(№${r.no})</span></td>
+    </tr>`).join('');
+}
+$('historyBtn').addEventListener('click', ()=>{
+  $('historyCourseFilter').value = '';
+  $('historyWorkerFilter').value = '';
+  renderHistoryTable();
+  $('historyOverlay').classList.add('show');
+});
+$('historyClose').addEventListener('click', ()=> $('historyOverlay').classList.remove('show'));
+
+// 履歴検索欄用の、アプリ内蔵テンキー(iPadのOSキーボードは使わない)
+let historyNumpadTargetId = null;
+function openHistoryNumpad(inputId, label){
+  historyNumpadTargetId = inputId;
+  $('historyNumpadLabel').textContent = label;
+  $('historyNumpadDisplay').textContent = $(inputId).value || ' ';
+  $('historyNumpadOverlay').classList.add('show');
+}
+$('historyCourseFilter').addEventListener('click', ()=> openHistoryNumpad('historyCourseFilter', 'コース№'));
+$('historyWorkerFilter').addEventListener('click', ()=> openHistoryNumpad('historyWorkerFilter', '担当者№'));
+$('historyNumpadOverlay').querySelectorAll('.numpad-key').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    if(!historyNumpadTargetId) return;
+    const input = $(historyNumpadTargetId);
+    const k = btn.getAttribute('data-k');
+    if(k === 'clear') input.value = '';
+    else if(k === 'back') input.value = input.value.slice(0, -1);
+    else input.value += k;
+    $('historyNumpadDisplay').textContent = input.value || ' ';
+    renderHistoryTable();
+  });
+});
+$('historyNumpadDone').addEventListener('click', ()=>{
+  $('historyNumpadOverlay').classList.remove('show');
+  historyNumpadTargetId = null;
+});
+
+// ---------- order data manual cleanup (前日の先行作業などで不要になった予定を消す) ----------
+function renderOrderManageList(){
+  const g = resolveActiveGroup();
+  const list = $('orderManageList');
+  const binBar = $('orderManageBinBar');
+  if(!g){
+    list.innerHTML = '<div class="working-empty">この端末の作業グループが未設定です</div>';
+    binBar.style.display = 'none'; binBar.innerHTML = '';
+    return;
+  }
+  const orderData = ORDER_DATA[g.id];
+  const orderMap = (orderData && orderData.loaded) ? orderData.map : null;
+  if(!orderMap || Object.keys(orderMap).length === 0){
+    list.innerHTML = '<div class="working-empty">本日の受注データがまだありません</div>';
+    binBar.style.display = 'none'; binBar.innerHTML = '';
+    return;
+  }
+  const filterText = $('orderManageFilter').value.trim();
+  const busy = busyKeysForGroup(g.id);
+  const allEntries = Object.values(orderMap);
+  const remaining = allEntries.filter(e => !busy.has(e.courseNo+'-'+e.storeNo));
+
+  // 便(1便/2便)一括削除バー: コース表が読み込まれていて、複数便が残っている時だけ出す
+  const binsPresent = [...new Set(remaining.map(e => courseBinMap[e.courseNo]).filter(b => b !== undefined))].sort((a,b)=>a-b);
+  if(binsPresent.length > 1){
+    binBar.style.display = 'flex';
+    binBar.innerHTML = binsPresent.map(b =>
+      `<button class="bin-hide-btn" data-bin="${b}">${b}便の残りを削除</button>`).join('');
+    binBar.querySelectorAll('.bin-hide-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const bin = parseInt(btn.getAttribute('data-bin'), 10);
+        const targets = remaining.filter(e => courseBinMap[e.courseNo] === bin);
+        const courseCount = new Set(targets.map(e=>e.courseNo)).size;
+        if(targets.length === 0) return;
+        showConfirm(`${bin}便の残り予定(${courseCount}コース・${targets.length}店)をまとめて削除します。完了済みの店には影響しません。この操作は元に戻せません。よろしいですか？`, ()=>{
+          deleteOrderEntries(targets);
+        });
+      });
+    });
+  } else {
+    binBar.style.display = 'none';
+    binBar.innerHTML = '';
+  }
+
+  // コースごとに集計(残り件数・完了件数)
+  const byCourse = {};
+  allEntries.forEach(e=>{
+    if(!byCourse[e.courseNo]) byCourse[e.courseNo] = {courseNo: e.courseNo, total: 0, done: 0, remainingItems: []};
+    byCourse[e.courseNo].total += 1;
+    if(busy.has(e.courseNo+'-'+e.storeNo)) byCourse[e.courseNo].done += 1;
+    else byCourse[e.courseNo].remainingItems.push(e);
+  });
+  let courses = Object.values(byCourse).sort((a,b)=> a.courseNo-b.courseNo);
+  if(filterText) courses = courses.filter(c => String(c.courseNo).includes(filterText));
+  if(courses.length === 0){
+    list.innerHTML = '<div class="working-empty">該当するコースがありません</div>';
+    return;
+  }
+
+  list.innerHTML = courses.map(c => {
+    const remainCount = c.remainingItems.length;
+    const doneNote = c.done > 0 ? `<span class="psg-count">(完了${c.done}件は対象外)</span>` : '';
+    const courseDelBtn = remainCount > 0
+      ? `<button class="psi-del psg-del" data-course="${c.courseNo}" title="このコースの残りをすべて削除">🗑 コース削除</button>`
+      : '';
+    const storeRows = c.remainingItems
+      .sort((a,b)=> a.storeNo - b.storeNo)
+      .map(e => `
+      <div class="pick-store-item" data-course="${e.courseNo}" data-store="${e.storeNo}" style="cursor:default;">
+        <div class="psi-code">${e.courseNo} － ${e.storeNo}</div>
+        <div class="psi-lots">${e.lots}個口予定</div>
+        <button class="psi-del" data-course="${e.courseNo}" data-store="${e.storeNo}" title="この店を削除">🗑</button>
+      </div>`).join('');
+    return `
+      <div class="psg-head">
+        <span class="psg-course">コース${c.courseNo}<span class="psg-count">残り${remainCount}店</span>${doneNote}</span>
+        ${courseDelBtn}
+      </div>
+      ${storeRows || '<div class="working-empty" style="padding:10px;">残っている店はありません(すべて完了)</div>'}
+    `;
+  }).join('');
+
+  list.querySelectorAll('.psi-del:not(.psg-del)').forEach(btn=>{
+    btn.addEventListener('click', (ev)=>{
+      ev.stopPropagation();
+      const courseNo = parseInt(btn.getAttribute('data-course'), 10);
+      const storeNo = parseInt(btn.getAttribute('data-store'), 10);
+      showConfirm(`コース${courseNo} － 店${storeNo} の予定を削除します。実績には影響しません。この操作は元に戻せません。よろしいですか？`, ()=>{
+        deleteOrderEntries([{courseNo, storeNo}]);
+      });
+    });
+  });
+  list.querySelectorAll('.psg-del').forEach(btn=>{
+    btn.addEventListener('click', (ev)=>{
+      ev.stopPropagation();
+      const courseNo = parseInt(btn.getAttribute('data-course'), 10);
+      const targets = byCourse[courseNo].remainingItems;
+      showConfirm(`コース${courseNo}の残り予定(${targets.length}店)をまとめて削除します。完了済みの店には影響しません。この操作は元に戻せません。よろしいですか？`, ()=>{
+        deleteOrderEntries(targets);
+      });
+    });
+  });
+}
+$('orderManageBtn').addEventListener('click', ()=>{
+  $('orderManageFilter').value = '';
+  renderOrderManageList();
+  $('orderManageOverlay').classList.add('show');
+});
+$('orderManageClose').addEventListener('click', ()=> $('orderManageOverlay').classList.remove('show'));
+$('orderManageFilter').addEventListener('input', renderOrderManageList);
+
+// ---------- init ----------
+buildKeypad();
+resetToWorker();
+renderClock();
+setInterval(renderClock, 1000);
+setInterval(tickTimers, 1000);
+(async ()=>{
+  await loadSettings();
+  loadDeviceGroup();
+  renderDeviceGroupBadge();
+  await loadRoster();
+  await loadCourseMaster();
+  await loadOrders();
+  await refreshFromServer();
+  setInterval(refreshFromServer, 5000);
+})();
+</script>
+</body>
+</html>
