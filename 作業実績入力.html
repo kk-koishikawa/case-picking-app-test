@@ -403,7 +403,6 @@ table.log tr.cancelled td{color:var(--muted);text-decoration:line-through;}
             <button class="pick-toggle-btn active" id="pickModeSeqBtn">作業順</button>
             <button class="pick-toggle-btn" id="pickModeCaseBtn">コース順</button>
           </div>
-          <div id="binHideBar" style="display:none;gap:8px;margin-bottom:8px;flex-wrap:wrap;"></div>
           <div class="pick-store-list" id="pickStoreList"></div>
           <div class="pick-manual-link" id="pickManualLink">→ コース№・店№を直接入力する</div>
         </div>
@@ -568,15 +567,16 @@ table.log tr.cancelled td{color:var(--muted);text-decoration:line-through;}
 </div>
 
 <div class="overlay admin-overlay" id="orderManageOverlay">
-  <div class="admin-card" style="width:min(560px,92vw);">
+  <div class="admin-card" style="width:min(640px,92vw);">
     <div class="admin-head">
       <h2>受注データ確認</h2>
       <button class="close-x" id="orderManageClose">&times;</button>
     </div>
     <div class="admin-body">
-      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">前日までに完了済みのコース・店など、不要になった予定だけを個別に削除できます。削除しても実績には影響しません。</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">残っている(未完了の)コース・店を、店単位・コース単位・便単位で削除できます。すでに完了した店は対象になりません。削除しても実績には影響しません。この操作は元に戻せません。</div>
       <input type="tel" inputmode="numeric" pattern="[0-9]*" id="orderManageFilter" placeholder="コース№で絞り込み" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;margin-bottom:14px;">
-      <div id="orderManageList" style="display:flex;flex-direction:column;gap:8px;max-height:50vh;overflow-y:auto;"></div>
+      <div id="orderManageBinBar" style="display:none;gap:8px;margin-bottom:12px;flex-wrap:wrap;"></div>
+      <div id="orderManageList" style="display:flex;flex-direction:column;gap:2px;max-height:55vh;overflow-y:auto;"></div>
     </div>
   </div>
 </div>
@@ -659,8 +659,8 @@ function speak(text){
 function vibrate(ms){ try{ navigator.vibrate && navigator.vibrate(ms); }catch(e){} }
 
 // ---------- Supabase connection ----------
-const SUPABASE_URL = 'https://nhkbfzzysonkqqgmvaao.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_4_LZAPz9gceWwdgT_OGHYQ_EWX4DWvT';
+const SUPABASE_URL = 'https://pakdabwtszvlzzflfeci.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_VkfxCOHClg-MxPgLvVSCww_VEGJX5fY';
 const SB_HEADERS = {
   'apikey': SUPABASE_KEY,
   'Authorization': 'Bearer ' + SUPABASE_KEY,
@@ -778,7 +778,12 @@ function renderClock(){ $('clock').textContent = fmtClock(); }
 
 function renderWorkingList(){
   const list = $('workingList');
-  const entries = Object.values(sessions);
+  // この端末に割り当てられた作業グループだけを表示する(端末=1グループ専用の運用のため)。
+  // グループ未設定の端末では、これまで通り全グループ横断で表示する(フォールバック)。
+  const activeGroup = resolveActiveGroup();
+  const entries = activeGroup
+    ? Object.values(sessions).filter(s => s.groupId === activeGroup.id)
+    : Object.values(sessions);
   $('workingCount').textContent = entries.length + '人';
   if(entries.length === 0){
     list.innerHTML = '<div class="working-empty">現在作業中の担当者はいません</div>';
@@ -1084,79 +1089,19 @@ function renderPickStoreList(){
   $('pickModeSeqBtn').classList.toggle('active', pickMode === 'seq');
   $('pickModeCaseBtn').classList.toggle('active', pickMode === 'case');
 
-  // 便(1便/2便)一括削除ボタン: コース表が読み込まれていて、複数便が混在している時だけ出す
-  const binsPresent = [...new Set(entries.map(e => courseBinMap[e.courseNo]).filter(b => b !== undefined))].sort((a,b)=>a-b);
-  const binBar = $('binHideBar');
-  if(binsPresent.length > 1){
-    binBar.style.display = 'flex';
-    binBar.innerHTML = binsPresent.map(b =>
-      `<button class="bin-hide-btn" data-bin="${b}">${b}便の残りを削除</button>`).join('');
-    binBar.querySelectorAll('.bin-hide-btn').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        const bin = parseInt(btn.getAttribute('data-bin'), 10);
-        const targets = entries.filter(e => courseBinMap[e.courseNo] === bin);
-        const courseCount = new Set(targets.map(e=>e.courseNo)).size;
-        if(targets.length === 0) return;
-        showConfirm(`${bin}便の残り予定(${courseCount}コース・${targets.length}店)をまとめて削除します。完了済みの実績には影響しません。この操作は元に戻せません。よろしいですか？`, ()=>{
-          deleteOrderEntries(targets);
-        });
-      });
-    });
-  } else {
-    binBar.style.display = 'none';
-    binBar.innerHTML = '';
-  }
-
   const list = $('pickStoreList');
   if(entries.length === 0){
     list.innerHTML = '<div class="working-empty">残っているコース・店はありません(すべて完了、または作業中です)</div>';
     return;
   }
-
-  // コースごとにグループ化して表示(残っているコース・店がひと目でわかるように)
-  const groups = [];
-  entries.forEach(e=>{
-    const last = groups[groups.length-1];
-    if(last && last.courseNo === e.courseNo){ last.items.push(e); }
-    else { groups.push({courseNo: e.courseNo, items: [e]}); }
-  });
-
-  list.innerHTML = groups.map(g => `
-    <div class="psg-head">
-      <span class="psg-course">コース${g.courseNo}<span class="psg-count">残り${g.items.length}店</span></span>
-      <button class="psi-del psg-del" data-course="${g.courseNo}" title="このコースの残りをすべて削除">🗑 コース削除</button>
-    </div>
-    ${g.items.map(e => `
+  list.innerHTML = entries.map(e => `
     <div class="pick-store-item" data-course="${e.courseNo}" data-store="${e.storeNo}">
       <div class="psi-code">${e.courseNo} － ${e.storeNo}</div>
       <div class="psi-lots">${e.lots}個口予定</div>
-      <button class="psi-del" data-course="${e.courseNo}" data-store="${e.storeNo}" title="この店を削除">🗑</button>
-    </div>`).join('')}
-  `).join('');
-
+    </div>`).join('');
   list.querySelectorAll('.pick-store-item').forEach(el=>{
     el.addEventListener('click', ()=>{
       selectPickedStore(parseInt(el.getAttribute('data-course'),10), parseInt(el.getAttribute('data-store'),10));
-    });
-  });
-  list.querySelectorAll('.psi-del:not(.psg-del)').forEach(btn=>{
-    btn.addEventListener('click', (ev)=>{
-      ev.stopPropagation();
-      const courseNo = parseInt(btn.getAttribute('data-course'), 10);
-      const storeNo = parseInt(btn.getAttribute('data-store'), 10);
-      showConfirm(`コース${courseNo} － 店${storeNo} の予定を削除します。完了済みの実績には影響しません。この操作は元に戻せません。よろしいですか？`, ()=>{
-        deleteOrderEntries([{courseNo, storeNo}]);
-      });
-    });
-  });
-  list.querySelectorAll('.psg-del').forEach(btn=>{
-    btn.addEventListener('click', (ev)=>{
-      ev.stopPropagation();
-      const courseNo = parseInt(btn.getAttribute('data-course'), 10);
-      const targets = entries.filter(e => e.courseNo === courseNo);
-      showConfirm(`コース${courseNo}の残り予定(${targets.length}店)をまとめて削除します。完了済みの実績には影響しません。この操作は元に戻せません。よろしいですか？`, ()=>{
-        deleteOrderEntries(targets);
-      });
     });
   });
 }
@@ -2281,23 +2226,53 @@ $('historyNumpadDone').addEventListener('click', ()=>{
 function renderOrderManageList(){
   const g = resolveActiveGroup();
   const list = $('orderManageList');
+  const binBar = $('orderManageBinBar');
   if(!g){
     list.innerHTML = '<div class="working-empty">この端末の作業グループが未設定です</div>';
+    binBar.style.display = 'none'; binBar.innerHTML = '';
     return;
   }
   const orderData = ORDER_DATA[g.id];
   const orderMap = (orderData && orderData.loaded) ? orderData.map : null;
   if(!orderMap || Object.keys(orderMap).length === 0){
     list.innerHTML = '<div class="working-empty">本日の受注データがまだありません</div>';
+    binBar.style.display = 'none'; binBar.innerHTML = '';
     return;
   }
   const filterText = $('orderManageFilter').value.trim();
+  const busy = busyKeysForGroup(g.id);
+  const allEntries = Object.values(orderMap);
+  const remaining = allEntries.filter(e => !busy.has(e.courseNo+'-'+e.storeNo));
 
+  // 便(1便/2便)一括削除バー: コース表が読み込まれていて、複数便が残っている時だけ出す
+  const binsPresent = [...new Set(remaining.map(e => courseBinMap[e.courseNo]).filter(b => b !== undefined))].sort((a,b)=>a-b);
+  if(binsPresent.length > 1){
+    binBar.style.display = 'flex';
+    binBar.innerHTML = binsPresent.map(b =>
+      `<button class="bin-hide-btn" data-bin="${b}">${b}便の残りを削除</button>`).join('');
+    binBar.querySelectorAll('.bin-hide-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const bin = parseInt(btn.getAttribute('data-bin'), 10);
+        const targets = remaining.filter(e => courseBinMap[e.courseNo] === bin);
+        const courseCount = new Set(targets.map(e=>e.courseNo)).size;
+        if(targets.length === 0) return;
+        showConfirm(`${bin}便の残り予定(${courseCount}コース・${targets.length}店)をまとめて削除します。完了済みの店には影響しません。この操作は元に戻せません。よろしいですか？`, ()=>{
+          deleteOrderEntries(targets);
+        });
+      });
+    });
+  } else {
+    binBar.style.display = 'none';
+    binBar.innerHTML = '';
+  }
+
+  // コースごとに集計(残り件数・完了件数)
   const byCourse = {};
-  Object.values(orderMap).forEach(e=>{
-    if(!byCourse[e.courseNo]) byCourse[e.courseNo] = {courseNo: e.courseNo, stores: 0, lots: 0};
-    byCourse[e.courseNo].stores += 1;
-    byCourse[e.courseNo].lots += e.lots;
+  allEntries.forEach(e=>{
+    if(!byCourse[e.courseNo]) byCourse[e.courseNo] = {courseNo: e.courseNo, total: 0, done: 0, remainingItems: []};
+    byCourse[e.courseNo].total += 1;
+    if(busy.has(e.courseNo+'-'+e.storeNo)) byCourse[e.courseNo].done += 1;
+    else byCourse[e.courseNo].remainingItems.push(e);
   });
   let courses = Object.values(byCourse).sort((a,b)=> a.courseNo-b.courseNo);
   if(filterText) courses = courses.filter(c => String(c.courseNo).includes(filterText));
@@ -2305,31 +2280,47 @@ function renderOrderManageList(){
     list.innerHTML = '<div class="working-empty">該当するコースがありません</div>';
     return;
   }
-  list.innerHTML = courses.map(c => `
-    <div class="pick-store-item" data-course="${c.courseNo}">
-      <div class="psi-code">コース${c.courseNo}</div>
-      <div class="psi-lots">${c.stores}件・${c.lots}個口予定</div>
-      <button class="wk-force-del" data-course="${c.courseNo}" title="このコースを削除">×</button>
-    </div>`).join('');
-  list.querySelectorAll('.wk-force-del').forEach(btn=>{
+
+  list.innerHTML = courses.map(c => {
+    const remainCount = c.remainingItems.length;
+    const doneNote = c.done > 0 ? `<span class="psg-count">(完了${c.done}件は対象外)</span>` : '';
+    const courseDelBtn = remainCount > 0
+      ? `<button class="psi-del psg-del" data-course="${c.courseNo}" title="このコースの残りをすべて削除">🗑 コース削除</button>`
+      : '';
+    const storeRows = c.remainingItems
+      .sort((a,b)=> a.storeNo - b.storeNo)
+      .map(e => `
+      <div class="pick-store-item" data-course="${e.courseNo}" data-store="${e.storeNo}" style="cursor:default;">
+        <div class="psi-code">${e.courseNo} － ${e.storeNo}</div>
+        <div class="psi-lots">${e.lots}個口予定</div>
+        <button class="psi-del" data-course="${e.courseNo}" data-store="${e.storeNo}" title="この店を削除">🗑</button>
+      </div>`).join('');
+    return `
+      <div class="psg-head">
+        <span class="psg-course">コース${c.courseNo}<span class="psg-count">残り${remainCount}店</span>${doneNote}</span>
+        ${courseDelBtn}
+      </div>
+      ${storeRows || '<div class="working-empty" style="padding:10px;">残っている店はありません(すべて完了)</div>'}
+    `;
+  }).join('');
+
+  list.querySelectorAll('.psi-del:not(.psg-del)').forEach(btn=>{
     btn.addEventListener('click', (ev)=>{
       ev.stopPropagation();
       const courseNo = parseInt(btn.getAttribute('data-course'), 10);
-      const c = byCourse[courseNo];
-      showConfirm(`コース${courseNo}(${c.stores}件・${c.lots}個口予定)の予定をまとめて削除します。前日までに終わっている分の後始末用です。よろしいですか？`, async ()=>{
-        const siteCode = appSettings.siteCode;
-        const g2 = resolveActiveGroup();
-        await sbDelete('orders',
-          `site_code=eq.${encodeURIComponent(siteCode)}&work_date=eq.${todayKey()}&group_id=eq.${encodeURIComponent(g2.id)}&course_no=eq.${courseNo}`);
-        const orderData = ORDER_DATA[g2.id];
-        if(orderData){
-          Object.keys(orderData.map).forEach(key=>{
-            if(orderData.map[key].courseNo === courseNo) delete orderData.map[key];
-          });
-        }
-        renderOrderManageList();
-        if(step === 'pickStore') renderPickStoreList();
-        await renderSidebarProgress();
+      const storeNo = parseInt(btn.getAttribute('data-store'), 10);
+      showConfirm(`コース${courseNo} － 店${storeNo} の予定を削除します。実績には影響しません。この操作は元に戻せません。よろしいですか？`, ()=>{
+        deleteOrderEntries([{courseNo, storeNo}]);
+      });
+    });
+  });
+  list.querySelectorAll('.psg-del').forEach(btn=>{
+    btn.addEventListener('click', (ev)=>{
+      ev.stopPropagation();
+      const courseNo = parseInt(btn.getAttribute('data-course'), 10);
+      const targets = byCourse[courseNo].remainingItems;
+      showConfirm(`コース${courseNo}の残り予定(${targets.length}店)をまとめて削除します。完了済みの店には影響しません。この操作は元に戻せません。よろしいですか？`, ()=>{
+        deleteOrderEntries(targets);
       });
     });
   });
