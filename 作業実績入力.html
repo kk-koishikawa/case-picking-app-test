@@ -436,13 +436,13 @@ table.log tr.cancelled td{color:var(--muted);text-decoration:line-through;}
   </main>
 
 <div class="overlay admin-overlay" id="historyOverlay">
-  <div class="admin-card">
+  <div class="admin-card" style="width:min(760px,94vw);">
     <div class="admin-head">
       <h2>履歴</h2>
       <button class="close-x" id="historyClose">&times;</button>
     </div>
     <div style="padding:16px 22px 0;flex-shrink:0;">
-      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">今日の実績を全件表示しています。コース№か担当者№で絞り込めます(タップすると専用のテンキーが出ます)。</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">今日の実績を全件表示しています。コース№か担当者№で絞り込めます(タップすると専用のテンキーが出ます)。入力ミスの修正・削除もここから行えます。コース-店番号を直すと、直した先が「コース-店を選択」から消え、直す前のコース-店が「コース-店を選択」に再表示されます。削除した場合も同様に、そのコース-店が再表示されます。</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
         <input type="text" readonly id="historyCourseFilter" placeholder="コース№で検索" style="flex:1;min-width:140px;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;background:#fff;cursor:pointer;">
         <input type="text" readonly id="historyWorkerFilter" placeholder="担当者№で検索" style="flex:1;min-width:140px;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;background:#fff;cursor:pointer;">
@@ -451,7 +451,7 @@ table.log tr.cancelled td{color:var(--muted);text-decoration:line-through;}
     <div class="admin-body" style="-webkit-overflow-scrolling:touch;">
       <table class="log">
         <thead><tr>
-          <th>コース－店</th><th>担当者</th>
+          <th>コース－店</th><th>担当者</th><th>個口数</th><th>開始</th><th>終了</th><th>生産性/h</th><th></th>
         </tr></thead>
         <tbody id="historyBody"></tbody>
       </table>
@@ -2228,25 +2228,140 @@ $('orderApply').addEventListener('click', async ()=>{
 });
 
 // ---------- 履歴(今日、誰がどの店をやったか検索) ----------
+function toLocalInput(iso){
+  const d = new Date(iso);
+  const pad = n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+let editingHistoryId = null;
+function validateCourseStore(groupId, courseNo, storeNo){
+  const orderData = ORDER_DATA[groupId];
+  if(orderData && orderData.loaded){
+    const rec = orderData.map[courseNo + '-' + storeNo];
+    if(!rec) return {ok:false, message:'そのコース-店は本日の受注データにありません'};
+    return {ok:true, courseName: `コース${courseNo}`};
+  }
+  const match = allowedCourses().find(c => courseNo >= c.minC && courseNo <= c.maxC);
+  if(!match) return {ok:false, message:'コース番号の誤りです'};
+  if(storeNo < match.minS || storeNo > match.maxS) return {ok:false, message:'店番号の誤りです'};
+  return {ok:true, courseName: match.name};
+}
 function renderHistoryTable(){
   const courseFilter = $('historyCourseFilter').value.trim();
   const workerFilter = $('historyWorkerFilter').value.trim();
   const body = $('historyBody');
 
   let rows = [...todayLog].filter(r => !r.cancelled);
+  const activeGroup = resolveActiveGroup();
+  if(activeGroup) rows = rows.filter(r => r.groupId === activeGroup.id);
   if(courseFilter) rows = rows.filter(r => String(r.courseNo).includes(courseFilter));
   if(workerFilter) rows = rows.filter(r => String(r.no).includes(workerFilter));
   rows.sort((a,b)=> a.courseNo - b.courseNo || a.storeNo - b.storeNo);
 
   if(rows.length === 0){
-    body.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--muted);padding:20px;">該当する記録がありません</td></tr>';
+    body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px;">該当する記録がありません</td></tr>';
     return;
   }
-  body.innerHTML = rows.map(r => `
+  body.innerHTML = rows.map(r => {
+    if(String(r.id) === String(editingHistoryId)){
+      return `
+      <tr data-id="${r.id}">
+        <td><input type="number" class="hist-edit-course" value="${r.courseNo}" style="width:56px;padding:6px;border:1px solid var(--line);border-radius:6px;font-family:'Space Mono',monospace;">－<input type="number" class="hist-edit-store" value="${r.storeNo}" style="width:48px;padding:6px;border:1px solid var(--line);border-radius:6px;font-family:'Space Mono',monospace;"></td>
+        <td>${escapeHtml(r.name)} <span style="color:var(--muted);font-size:12px;">(№${r.no})</span></td>
+        <td><input type="number" class="hist-edit-count" value="${r.count}" style="width:64px;padding:6px;border:1px solid var(--line);border-radius:6px;font-family:inherit;"></td>
+        <td colspan="2"><input type="datetime-local" class="hist-edit-start" value="${toLocalInput(r.startISO)}" style="padding:6px;border:1px solid var(--line);border-radius:6px;font-family:inherit;font-size:12px;"><br><input type="datetime-local" class="hist-edit-end" value="${toLocalInput(r.endISO)}" style="margin-top:4px;padding:6px;border:1px solid var(--line);border-radius:6px;font-family:inherit;font-size:12px;"></td>
+        <td>${r.productivity}</td>
+        <td style="white-space:nowrap;">
+          <button class="mini-btn" data-histsave="${r.id}">保存</button>
+          <button class="psi-del" data-histcanceledit="${r.id}">戻る</button>
+        </td>
+      </tr>`;
+    }
+    return `
     <tr>
       <td style="font-family:'Space Mono',monospace;font-weight:700;">${r.courseNo}－${r.storeNo}</td>
       <td>${escapeHtml(r.name)} <span style="color:var(--muted);font-size:12px;">(№${r.no})</span></td>
-    </tr>`).join('');
+      <td>${r.count}</td>
+      <td>${fmtTimeShort(r.startISO)}</td>
+      <td>${fmtTimeShort(r.endISO)}</td>
+      <td>${r.productivity}</td>
+      <td style="white-space:nowrap;">
+        <button class="mini-btn" data-histedit="${r.id}">編集</button>
+        <button class="psi-del" data-histdel="${r.id}">削除</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  body.querySelectorAll('[data-histedit]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      editingHistoryId = btn.getAttribute('data-histedit');
+      renderHistoryTable();
+    });
+  });
+  body.querySelectorAll('[data-histcanceledit]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      editingHistoryId = null;
+      renderHistoryTable();
+    });
+  });
+  body.querySelectorAll('[data-histsave]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.getAttribute('data-histsave');
+      const tr = btn.closest('tr');
+      const original = rows.find(r=>String(r.id)===id);
+      if(!original) return;
+      const newCourseNo = parseInt(tr.querySelector('.hist-edit-course').value, 10);
+      const newStoreNo = parseInt(tr.querySelector('.hist-edit-store').value, 10);
+      const count = parseInt(tr.querySelector('.hist-edit-count').value, 10);
+      const startVal = tr.querySelector('.hist-edit-start').value;
+      const endVal = tr.querySelector('.hist-edit-end').value;
+      if(!Number.isInteger(newCourseNo) || !Number.isInteger(newStoreNo) || !Number.isInteger(count) || count < 0 || !startVal || !endVal){
+        alert('入力内容を確認してください');
+        return;
+      }
+      const startISO = new Date(startVal).toISOString();
+      const endISO = new Date(endVal).toISOString();
+      const durationSec = Math.max(0, Math.round((new Date(endISO) - new Date(startISO))/1000));
+      if(durationSec === 0){
+        alert('終了時刻は開始時刻より後にしてください');
+        return;
+      }
+      const productivity = Math.round(count * 3600 / durationSec);
+
+      let courseName = original.courseName;
+      if(newCourseNo !== original.courseNo || newStoreNo !== original.storeNo){
+        const check = validateCourseStore(original.groupId, newCourseNo, newStoreNo);
+        if(!check.ok){ alert(check.message); return; }
+        courseName = check.courseName;
+        const dup = todayLog.some(r => !r.cancelled && String(r.id) !== String(id) && r.groupId === original.groupId
+          && r.courseNo === newCourseNo && r.storeNo === newStoreNo);
+        const dupSession = Object.values(sessions).some(s => s.groupId === original.groupId
+          && s.courseNo === newCourseNo && s.storeNo === newStoreNo);
+        if(dup || dupSession){ alert('そのコース-店は既に他の記録があります'); return; }
+      }
+
+      const ok = await sbUpdate('work_log', `id=eq.${id}`, {
+        course_no: newCourseNo, course_name: courseName, store_no: newStoreNo,
+        count, start_at: startISO, end_at: endISO, duration_sec: durationSec, productivity
+      });
+      if(!ok){ alert('保存に失敗しました。もう一度お試しください。'); return; }
+      editingHistoryId = null;
+      await refreshFromServer();
+    });
+  });
+  body.querySelectorAll('[data-histdel]').forEach(btn=>{
+    btn.addEventListener('click', (ev)=>{
+      ev.stopPropagation();
+      const id = btn.getAttribute('data-histdel');
+      const row = rows.find(r=>String(r.id)===id);
+      if(!row) return;
+      showConfirm(`${row.name}さん(担№${row.no}) コース${row.courseNo}－店${row.storeNo}・${row.count}個口 の記録を削除します。このコース-店は「コース-店を選択」に再表示されます。よろしいですか？(元に戻せません)`, async ()=>{
+        const ok = await sbDelete('work_log', `id=eq.${id}`);
+        if(!ok){ alert('削除に失敗しました。もう一度お試しください。'); return; }
+        await refreshFromServer();
+      });
+    });
+  });
 }
 $('historyBtn').addEventListener('click', ()=>{
   $('historyCourseFilter').value = '';
