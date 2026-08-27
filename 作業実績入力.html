@@ -2302,9 +2302,9 @@ function renderHistoryTable(){
     if(String(r.id) === String(editingHistoryId)){
       return `
       <tr data-id="${r.id}">
-        <td><input type="number" class="hist-edit-course" value="${r.courseNo}" style="width:56px;padding:6px;border:1px solid var(--line);border-radius:6px;font-family:'Space Mono',monospace;">－<input type="number" class="hist-edit-store" value="${r.storeNo}" style="width:48px;padding:6px;border:1px solid var(--line);border-radius:6px;font-family:'Space Mono',monospace;"></td>
+        <td><input type="text" readonly id="histEditCourseInput" class="hist-edit-course" value="${r.courseNo}" style="width:56px;padding:6px;border:1px solid var(--line);border-radius:6px;font-family:'Space Mono',monospace;background:#fff;cursor:pointer;text-align:center;">－<input type="text" readonly id="histEditStoreInput" class="hist-edit-store" value="${r.storeNo}" style="width:48px;padding:6px;border:1px solid var(--line);border-radius:6px;font-family:'Space Mono',monospace;background:#fff;cursor:pointer;text-align:center;"></td>
         <td>${escapeHtml(r.name)} <span style="color:var(--muted);font-size:12px;">(№${r.no})</span></td>
-        <td><input type="number" class="hist-edit-count" value="${r.count}" style="width:64px;padding:6px;border:1px solid var(--line);border-radius:6px;font-family:inherit;"></td>
+        <td><input type="text" readonly id="histEditCountInput" class="hist-edit-count" value="${r.count}" style="width:64px;padding:6px;border:1px solid var(--line);border-radius:6px;font-family:inherit;background:#fff;cursor:pointer;text-align:center;"></td>
         <td colspan="2"><input type="datetime-local" class="hist-edit-start" value="${toLocalInput(r.startISO)}" style="padding:6px;border:1px solid var(--line);border-radius:6px;font-family:inherit;font-size:12px;"><br><input type="datetime-local" class="hist-edit-end" value="${toLocalInput(r.endISO)}" style="margin-top:4px;padding:6px;border:1px solid var(--line);border-radius:6px;font-family:inherit;font-size:12px;"></td>
         <td>${r.productivity}</td>
         <td style="white-space:nowrap;">
@@ -2340,6 +2340,14 @@ function renderHistoryTable(){
       renderHistoryTable();
     });
   });
+  // 編集行のコース№・店№・個口数は、アプリ内蔵のテンキー(historyNumpadOverlay)で入力する。
+  // iPadのOSキーボードは一切開かない(readonly + クリックでテンキー起動)。
+  const editCourseInput = $('histEditCourseInput');
+  const editStoreInput = $('histEditStoreInput');
+  const editCountInput = $('histEditCountInput');
+  if(editCourseInput) editCourseInput.addEventListener('click', ()=> openHistoryNumpad(editCourseInput, 'コース№', false));
+  if(editStoreInput) editStoreInput.addEventListener('click', ()=> openHistoryNumpad(editStoreInput, '店№', false));
+  if(editCountInput) editCountInput.addEventListener('click', ()=> openHistoryNumpad(editCountInput, '個口数', false));
   body.querySelectorAll('[data-histsave]').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
       const id = btn.getAttribute('data-histsave');
@@ -2407,31 +2415,36 @@ $('historyBtn').addEventListener('click', ()=>{
 });
 $('historyClose').addEventListener('click', ()=> $('historyOverlay').classList.remove('show'));
 
-// 履歴検索欄用の、アプリ内蔵テンキー(iPadのOSキーボードは使わない)
-let historyNumpadTargetId = null;
-function openHistoryNumpad(inputId, label){
-  historyNumpadTargetId = inputId;
+// 履歴検索欄・履歴編集欄用の、アプリ内蔵テンキー(iPadのOSキーボードは使わない)
+// historyNumpadTargetInput: 入力中のinput要素そのものを保持する(idが動的に無くなる編集行にも対応するため)
+// historyNumpadIsFilter: true の場合のみ、1打鍵ごとに一覧を再フィルタする(検索欄用)。
+// 編集欄(コース№・店№・個口数)ではtrueにしない = 打鍵のたびに編集行が再描画されて入力中の値が消えるのを防ぐ。
+let historyNumpadTargetInput = null;
+let historyNumpadIsFilter = false;
+function openHistoryNumpad(inputEl, label, isFilter){
+  historyNumpadTargetInput = inputEl;
+  historyNumpadIsFilter = !!isFilter;
   $('historyNumpadLabel').textContent = label;
-  $('historyNumpadDisplay').textContent = $(inputId).value || ' ';
+  $('historyNumpadDisplay').textContent = inputEl.value || ' ';
   $('historyNumpadOverlay').classList.add('show');
 }
-$('historyCourseFilter').addEventListener('click', ()=> openHistoryNumpad('historyCourseFilter', 'コース№'));
-$('historyWorkerFilter').addEventListener('click', ()=> openHistoryNumpad('historyWorkerFilter', '担当者№'));
+$('historyCourseFilter').addEventListener('click', ()=> openHistoryNumpad($('historyCourseFilter'), 'コース№', true));
+$('historyWorkerFilter').addEventListener('click', ()=> openHistoryNumpad($('historyWorkerFilter'), '担当者№', true));
 $('historyNumpadOverlay').querySelectorAll('.numpad-key').forEach(btn=>{
   btn.addEventListener('click', ()=>{
-    if(!historyNumpadTargetId) return;
-    const input = $(historyNumpadTargetId);
+    if(!historyNumpadTargetInput) return;
+    const input = historyNumpadTargetInput;
     const k = btn.getAttribute('data-k');
     if(k === 'clear') input.value = '';
     else if(k === 'back') input.value = input.value.slice(0, -1);
     else input.value += k;
     $('historyNumpadDisplay').textContent = input.value || ' ';
-    renderHistoryTable();
+    if(historyNumpadIsFilter) renderHistoryTable();
   });
 });
 $('historyNumpadDone').addEventListener('click', ()=>{
   $('historyNumpadOverlay').classList.remove('show');
-  historyNumpadTargetId = null;
+  historyNumpadTargetInput = null;
 });
 
 // ---------- order data manual cleanup (前日の先行作業などで不要になった予定を消す) ----------
