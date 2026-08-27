@@ -413,6 +413,11 @@ table.log tr.cancelled td{color:var(--muted);text-decoration:line-through;}
 
         <div class="keypad" id="keypad"></div>
 
+        <div class="action-row" id="startingActions" style="display:none;">
+          <button class="big-action cancel" id="cancelStartBtn">取消</button>
+          <button class="big-action finish" id="confirmStartBtn">開始</button>
+        </div>
+
         <div class="action-row" id="closingActions" style="display:none;">
           <button class="big-action cancel" id="cancelJobBtn">作業取消</button>
           <button class="big-action finish" id="finishJobBtn">作業終了</button>
@@ -990,6 +995,7 @@ function resetToWorker(){
   $('displaySub').textContent = '';
   $('lockedGrid').style.display = 'none';
   $('lockedGrid').innerHTML = '';
+  $('startingActions').style.display = 'none';
   $('closingActions').style.display = 'none';
   $('groupSelectGrid').style.display = 'none';
   $('groupSelectGrid').innerHTML = '';
@@ -1211,14 +1217,41 @@ function handleCountEnter(){
   if(buffer===''){ showError('個口数を入力して下さい'); return; }
   const n = parseInt(buffer,10);
   if(!Number.isInteger(n) || n <= 0){ showError('個口数の誤りです'); buffer=''; renderDisplay(); return; }
-  if(n >= 200){
-    showConfirm(`個口数が ${n} 個です。200以上のため確認します。この数で開始してよろしいですか？`, ()=>{
-      startWork(n);
-    });
-    return;
-  }
-  startWork(n);
+  showStartConfirm(n);
 }
+
+function showStartConfirm(count){
+  ctx.pendingCount = count;
+  step = 'startConfirm';
+  $('stepEyebrow').textContent = 'STEP 4 ・ 開始確認';
+  $('stepTitle').textContent = `この内容で開始しますか？`;
+  $('displaySub').textContent = count >= 200 ? '⚠ 個口数が200以上です。内容をご確認ください。' : '';
+  buffer = '';
+  $('displayValue').style.display = 'none';
+  $('keypad').style.display = 'none';
+  $('csRow').style.display = 'none';
+  $('lockedGrid').style.display = 'grid';
+  $('lockedGrid').innerHTML = `
+    <div class="locked-item"><div class="lbl">担当者№</div><div class="val">${ctx.no} ${escapeHtml(ctx.name)}</div></div>
+    <div class="locked-item"><div class="lbl">作業グループ</div><div class="val">${escapeHtml(ctx.groupName||'-')}</div></div>
+    <div class="locked-item"><div class="lbl">コース</div><div class="val">${escapeHtml(ctx.courseName)}</div></div>
+    <div class="locked-item"><div class="lbl">店№</div><div class="val">${ctx.storeNo}</div></div>
+    <div class="locked-item"><div class="lbl">個口数</div><div class="val">${count}</div></div>
+  `;
+  $('startingActions').style.display = 'flex';
+}
+$('confirmStartBtn').addEventListener('click', ()=>{
+  vibrate(10);
+  const count = ctx.pendingCount;
+  $('startingActions').style.display = 'none';
+  $('lockedGrid').style.display = 'none';
+  $('lockedGrid').innerHTML = '';
+  startWork(count);
+});
+$('cancelStartBtn').addEventListener('click', ()=>{
+  speak('開始を取り消しました');
+  resetToWorker();
+});
 
 async function startWork(count){
   ctx.count = count;
