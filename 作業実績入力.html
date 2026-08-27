@@ -760,8 +760,11 @@ async function refreshFromServer(){
     });
   }
 
-  const todayStart = todayKey() + 'T00:00:00';
-  const todayEnd = todayKey() + 'T23:59:59.999';
+  const todayStartD = new Date(); todayStartD.setHours(0,0,0,0);
+  const todayEndD = new Date(); todayEndD.setHours(23,59,59,999);
+  const todayStart = todayStartD.toISOString();
+  const todayEnd = todayEndD.toISOString();
+  
   const logRows = await sbSelect('work_log',
     `site_code=eq.${encodeURIComponent(siteCode)}&start_at=gte.${todayStart}&start_at=lte.${todayEnd}&order=start_at.desc`);
   if(logRows){
