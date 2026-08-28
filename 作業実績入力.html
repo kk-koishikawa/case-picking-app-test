@@ -418,9 +418,8 @@ table.log tr.cancelled td{color:var(--muted);text-decoration:line-through;}
           <button class="big-action finish" id="confirmStartBtn">開始</button>
         </div>
 
-        <div class="pick-manual-link" id="backToWorkerLink" style="display:none;margin-bottom:12px;">← 担当者№入力に戻る(この作業には触れません)</div>
         <div class="action-row" id="closingActions" style="display:none;">
-          <button class="big-action cancel" id="cancelJobBtn">作業取消</button>
+          <button class="big-action cancel" id="backToWorkerBtn">担当者№入力に戻る</button>
           <button class="big-action finish" id="finishJobBtn">作業終了</button>
         </div>
       </div>
@@ -1008,7 +1007,6 @@ function resetToWorker(){
   $('lockedGrid').innerHTML = '';
   $('startingActions').style.display = 'none';
   $('closingActions').style.display = 'none';
-  $('backToWorkerLink').style.display = 'none';
   $('groupSelectGrid').style.display = 'none';
   $('groupSelectGrid').innerHTML = '';
   $('pickStoreView').style.display = 'none';
@@ -1051,7 +1049,6 @@ function handleWorkerEnter(){
       <div class="locked-item"><div class="lbl">開始時刻</div><div class="val">${fmtTimeShort(s.startISO)}</div></div>
     `;
     $('keypad').style.display = 'none';
-    $('backToWorkerLink').style.display = 'block';
     $('closingActions').style.display = 'flex';
     return;
   }
@@ -1310,7 +1307,6 @@ $('finishJobBtn').addEventListener('click', async ()=>{
   const productivity = durationSec > 0 ? Math.round((s.count*3600)/durationSec) : 0;
 
   $('closingActions').style.display = 'none';
-  $('backToWorkerLink').style.display = 'none';
   $('stepTitle').textContent = '保存しています…';
 
   // 履歴(work_log)への保存が確認できるまでは、現在作業中の記録をローカルからも
@@ -1328,7 +1324,6 @@ $('finishJobBtn').addEventListener('click', async ()=>{
     alert('通信エラーのため実績を保存できませんでした。もう一度「作業終了」を押してください。');
     $('stepTitle').textContent = `${s.name} さんの作業を終了しますか？`;
     $('closingActions').style.display = 'flex';
-    $('backToWorkerLink').style.display = 'block';
     return;
   }
 
@@ -1349,46 +1344,9 @@ $('finishJobBtn').addEventListener('click', async ()=>{
   resetToWorker();
 });
 
-$('backToWorkerLink').addEventListener('click', ()=>{
+$('backToWorkerBtn').addEventListener('click', ()=>{
   speak('担当者番号の入力に戻ります');
   resetToWorker();
-});
-$('cancelJobBtn').addEventListener('click', async ()=>{
-  const s = sessions[ctx.no];
-  if(!s) return resetToWorker();
-  showConfirm(`${s.name} さんの作業を取り消します。よろしいですか？`, async ()=>{
-    const endISO = new Date().toISOString();
-    const durationSec = (new Date(endISO)-new Date(s.startISO))/1000;
-
-    $('closingActions').style.display = 'none';
-    $('backToWorkerLink').style.display = 'none';
-    $('stepTitle').textContent = '保存しています…';
-
-    const insertOk = await sbInsert('work_log', [{
-      site_code: appSettings.siteCode, worker_no: s.no, worker_name: s.name,
-      group_id: s.groupId||null, group_name: s.groupName||'',
-      course_no: s.courseNo, course_name: s.courseName, store_no: s.storeNo, count: 0,
-      start_at: s.startISO, end_at: endISO, duration_sec: Math.round(durationSec),
-      productivity: 0, cancelled: true
-    }]);
-
-    if(!insertOk){
-      vibrate([15,40,15]);
-      alert('通信エラーのため取消を保存できませんでした。もう一度「作業取消」を押してください。');
-      $('stepTitle').textContent = `${s.name} さんの作業を終了しますか？`;
-      $('closingActions').style.display = 'flex';
-      $('backToWorkerLink').style.display = 'block';
-      return;
-    }
-
-    await sbDelete('active_sessions', `site_code=eq.${encodeURIComponent(appSettings.siteCode)}&worker_no=eq.${ctx.no}`);
-    delete sessions[ctx.no];
-    todayLog.unshift({...s, endISO, durationSec, productivity:0, cancelled:true, count:0});
-    renderWorkingList();
-    speak('作業を取り消しました');
-    await renderSidebarProgress();
-    resetToWorker();
-  });
 });
 
 // ---------- confirm modal ----------
