@@ -259,9 +259,12 @@ function weekdayJaOf(dateStr){
 // (以前、UTC基準で計算していたためJST 00:00〜09:00のレコードが欠落するバグがあったため、
 //  同じ罠を週次・月次・年次でも踏まないよう、ここで一元管理する)
 function jstTodayParts(){
+  // Date#getTime()は常にUTC基準の絶対時刻(ミリ秒)を返すため、
+  // ブラウザのtimezoneOffsetを重ねて加算してはいけない(二重補正になり、
+  // ブラウザがJST設定の場合はJST 00:00〜08:59の間だけ前日扱いになるバグを生む)。
+  // ここでは絶対時刻に+9時間するだけでJSTのカレンダー日付が得られる。
   const now = new Date();
-  const utcMs = now.getTime() + now.getTimezoneOffset()*60000;
-  const jst = new Date(utcMs + 9*3600000);
+  const jst = new Date(now.getTime() + 9*3600000);
   return { y: jst.getUTCFullYear(), m: jst.getUTCMonth()+1, d: jst.getUTCDate() };
 }
 function parseDateStrToParts(s){
