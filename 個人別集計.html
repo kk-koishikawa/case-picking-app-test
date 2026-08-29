@@ -90,7 +90,6 @@ thead tr.col-row th{
 thead tr.col-row th.name-col{text-align:left;}
 tbody td{padding:8px 6px;text-align:right;font-family:'Space Mono',monospace;font-size:13px;border-bottom:1px solid var(--line);white-space:nowrap;}
 tbody td.name-col{text-align:left;font-family:'IBM Plex Sans JP';font-weight:600;font-size:13px;}
-tbody td.cat-col{text-align:left;font-family:'IBM Plex Sans JP';font-size:12px;color:var(--muted);}
 tbody tr:hover td{background:#FBF8F1;}
 tbody tr:nth-child(1) td.total-prod{color:var(--amber-deep);font-weight:700;}
 td.group-sep{border-left:2px solid var(--paper);}
@@ -118,22 +117,27 @@ table.raw-table input{padding:5px;border:1px solid var(--line);border-radius:5px
 .print-only{display:none;}
 
 @media print{
-  @page{ size: landscape; margin: 12mm; }
+  @page{ size: A3 portrait; margin: 10mm; }
   body{ background:#fff; }
   #appHeader, .controls, .sort-row{ display:none !important; }
   tr.detail-row{ display:none !important; }
   tr.person-row .arrow{ display:none; }
   .print-only{
-    display:block; margin:0 0 14px; font-family:'IBM Plex Sans JP';
+    display:block; margin:0 0 10px; font-family:'IBM Plex Sans JP';
   }
-  .print-only h2{ margin:0 0 4px; font-size:20px; }
-  .print-only .meta{ font-size:13px; color:#444; }
+  .print-only h2{ margin:0 0 3px; font-size:18px; }
+  .print-only .meta{ font-size:12px; color:#444; }
   main{ padding:0; max-width:none; }
-  .summary-bar{ margin-bottom:12px; }
-  .summary-stat{ border:1px solid #ccc; }
+  .summary-bar{ margin-bottom:8px; gap:8px; }
+  .summary-stat{ border:1px solid #ccc; padding:6px 12px; min-width:90px; }
+  .summary-stat .n{ font-size:16px; }
+  .summary-stat .l{ font-size:10px; }
   .table-wrap{ border:none; overflow:visible; }
-  table{ min-width:0; width:100%; }
+  table{ min-width:0; width:100%; font-size:10.5px; }
   thead{ display:table-header-group; }
+  thead tr.group-row th{ padding:4px 3px; font-size:11px; }
+  thead tr.col-row th{ padding:3px; font-size:9px; }
+  tbody td{ padding:3px; font-size:10.5px; }
   tbody tr{ break-inside:avoid; }
 }
 </style>
@@ -194,13 +198,13 @@ table.raw-table input{padding:5px;border:1px solid var(--line);border-radius:5px
     <table id="resultTable">
       <thead>
         <tr class="group-row">
-          <th colspan="2"></th>
+          <th colspan="1"></th>
           <th colspan="4">1便</th>
           <th colspan="4">2便</th>
           <th colspan="4">合計</th>
         </tr>
         <tr class="col-row">
-          <th class="name-col">氏名</th><th>区分</th>
+          <th class="name-col">氏名</th>
           <th>店舗数</th><th>数量</th><th>作業時間(分)</th><th>生産性</th>
           <th class="group-sep">店舗数</th><th>数量</th><th>作業時間(分)</th><th>生産性</th>
           <th class="group-sep">店舗数</th><th>数量</th><th>作業時間(分)</th><th>生産性</th>
@@ -387,13 +391,6 @@ function getBinForRow(r, binMapByWeekday){
   return dayMap[r.course_no] || detectBinsHeuristic(r.course_no);
 }
 
-async function loadRosterMap(siteCode){
-  const rows = await sbSelect('roster', `site_code=eq.${encodeURIComponent(siteCode)}`);
-  const map = {};
-  (rows||[]).forEach(r=> map[r.worker_no] = {category: r.category||'', empType: r.emp_type||''});
-  return map;
-}
-
 async function loadWorkLog(siteCode, groupId, startStr, endStr){
   const { startISO, endISO } = jstRangeToUtcISO(startStr, endStr);
   let q = `site_code=eq.${encodeURIComponent(siteCode)}&start_at=gte.${encodeURIComponent(startISO)}&start_at=lte.${encodeURIComponent(endISO)}&order=start_at.asc`;
@@ -416,7 +413,7 @@ async function render(){
   const endStr = $('endDateInput').value;
   if(!siteCode || !startStr || !endStr){ return; }
   if(startStr > endStr){
-    $('resultBody').innerHTML = '<tr><td colspan="14" class="empty-msg" style="color:var(--red);">⚠ 開始日が終了日より後になっています</td></tr>';
+    $('resultBody').innerHTML = '<tr><td colspan="13" class="empty-msg" style="color:var(--red);">⚠ 開始日が終了日より後になっています</td></tr>';
     return;
   }
   localSet('report_site_code', siteCode);
@@ -424,22 +421,21 @@ async function render(){
   updatePeriodLabel(startStr, endStr);
   updatePresetHighlight(startStr, endStr);
 
-  $('resultBody').innerHTML = '<tr><td colspan="14" class="empty-msg">読み込み中…</td></tr>';
+  $('resultBody').innerHTML = '<tr><td colspan="13" class="empty-msg">読み込み中…</td></tr>';
   $('summaryBar').innerHTML = '';
 
-  const [binMap, rosterMap, logRows] = await Promise.all([
+  const [binMap, logRows] = await Promise.all([
     loadCourseBinMap(siteCode),
-    loadRosterMap(siteCode),
     loadWorkLog(siteCode, groupId, startStr, endStr)
   ]);
   lastGroupBinMap = binMap;
 
   if(logRows === null){
-    $('resultBody').innerHTML = '<tr><td colspan="14" class="empty-msg" style="color:var(--red);">⚠ 通信エラーでデータを取得できませんでした。もう一度お試しください。</td></tr>';
+    $('resultBody').innerHTML = '<tr><td colspan="13" class="empty-msg" style="color:var(--red);">⚠ 通信エラーでデータを取得できませんでした。もう一度お試しください。</td></tr>';
     return;
   }
   if(logRows.length === 0){
-    $('resultBody').innerHTML = '<tr><td colspan="14" class="empty-msg">この期間の実績データがありません</td></tr>';
+    $('resultBody').innerHTML = '<tr><td colspan="13" class="empty-msg">この期間の実績データがありません</td></tr>';
     rawLogsByWorker = {};
     return;
   }
@@ -470,9 +466,8 @@ async function render(){
     const totalStores = w.bin1.storeKeys.size + w.bin2.storeKeys.size;
     const totalMinutes = Math.round((totalSeconds/60)*10)/10;
     const totalProd = totalMinutes>0 ? Math.round(totalCount*60/totalMinutes) : 0;
-    const roster = rosterMap[w.no] || {};
     return {
-      no: w.no, name: w.name, category: roster.category || roster.empType || '-',
+      no: w.no, name: w.name,
       bin1, bin2,
       total: { stores: totalStores, count: totalCount, minutes: totalMinutes, productivity: totalProd }
     };
@@ -523,9 +518,9 @@ $('csvBtn').addEventListener('click', ()=>{
   const startStr = $('startDateInput').value;
   const endStr = $('endDateInput').value;
   const periodTag = startStr === endStr ? startStr : `${startStr}_${endStr}`;
-  const header = ['担当者№','氏名','区分','1便_店舗数','1便_数量','1便_作業時間分','1便_生産性','2便_店舗数','2便_数量','2便_作業時間分','2便_生産性','合計_店舗数','合計_数量','合計_作業時間分','合計_生産性'];
+  const header = ['担当者№','氏名','1便_店舗数','1便_数量','1便_作業時間分','1便_生産性','2便_店舗数','2便_数量','2便_作業時間分','2便_生産性','合計_店舗数','合計_数量','合計_作業時間分','合計_生産性'];
   const rows = lastPeople.map(p=>[
-    p.no, p.name, p.category,
+    p.no, p.name,
     p.bin1.stores, p.bin1.count, p.bin1.minutes, p.bin1.productivity,
     p.bin2.stores, p.bin2.count, p.bin2.minutes, p.bin2.productivity,
     p.total.stores, p.total.count, p.total.minutes, p.total.productivity
@@ -563,14 +558,13 @@ function renderTable(people){
     const summaryRow = `
     <tr class="person-row${isOpen?' open':''}" data-no="${p.no}">
       <td class="name-col"><span class="arrow">${isOpen?'▼':'▶'}</span> ${esc(p.name)}<span style="color:var(--muted);font-size:11px;"> (№${p.no})</span></td>
-      <td class="cat-col">${esc(p.category)}</td>
       <td>${p.bin1.stores}</td><td>${p.bin1.count}</td><td>${p.bin1.minutes}</td><td>${p.bin1.productivity}</td>
       <td class="group-sep">${p.bin2.stores}</td><td>${p.bin2.count}</td><td>${p.bin2.minutes}</td><td>${p.bin2.productivity}</td>
       <td class="group-sep total-col">${p.total.stores}</td><td class="total-col">${p.total.count}</td><td class="total-col">${p.total.minutes}</td><td class="total-col total-prod">${p.total.productivity}</td>
     </tr>`;
     const detailRow = isOpen ? `
     <tr class="detail-row" data-no="${p.no}">
-      <td colspan="14">${renderPersonDetail(p.no)}</td>
+      <td colspan="13">${renderPersonDetail(p.no)}</td>
     </tr>` : '';
     return summaryRow + detailRow;
   }).join('');
