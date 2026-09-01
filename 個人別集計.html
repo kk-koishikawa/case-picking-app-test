@@ -49,6 +49,13 @@ header{
   font-family:'Space Mono',monospace;font-size:13px;
 }
 .controls select option{color:#000;}
+.controls input.num-input{
+  width:56px;padding:8px 6px;text-align:center;-moz-appearance:textfield;
+}
+.controls input.num-input::-webkit-outer-spin-button,
+.controls input.num-input::-webkit-inner-spin-button{
+  -webkit-appearance:none;margin:0;
+}
 
 main{padding:22px;max-width:1400px;margin:0 auto;}
 
@@ -181,12 +188,12 @@ table.raw-table input{padding:5px;border:1px solid var(--line);border-radius:5px
       <label>フィルタ</label><br>
       <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;color:#B9C2CE;font-size:12px;">
         <label style="display:flex;align-items:center;gap:4px;white-space:nowrap;">
-          <input type="checkbox" id="filterQtyEnable">数量<input type="number" id="filterQtyValue" value="5" min="1" style="width:48px;">個未満を除外
+          <input type="checkbox" id="filterQtyEnable">1店舗あたりの出荷数量が<input type="number" id="filterQtyValue" value="5" min="1" class="num-input">個未満を除外
         </label>
       </div>
       <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;color:#B9C2CE;font-size:12px;margin-top:4px;">
         <label style="display:flex;align-items:center;gap:4px;white-space:nowrap;">
-          <input type="checkbox" id="filterCountEnable"><select id="filterCountMode"><option value="count">件数</option><option value="percent">割合%</option></select><input type="number" id="filterCountValue" value="3" min="0" style="width:48px;">未満の人を除外
+          <input type="checkbox" id="filterCountEnable">指定期間の<select id="filterCountMode"><option value="count">店舗数(件数)</option><option value="percent">店舗数の割合(%)</option></select>が<input type="number" id="filterCountValue" value="3" min="0" class="num-input">未満の人を除外
         </label>
       </div>
     </div>
@@ -621,10 +628,10 @@ function sortPeople(people){
 function updateFilterNote(){
   const parts = [];
   if(filterQtyEnabled && lastExcludedInfo.qtyRows > 0){
-    parts.push(`数量${filterQtyValue}個未満のレコードを${lastExcludedInfo.qtyRows}件除外`);
+    parts.push(`1店舗あたりの出荷数量が${filterQtyValue}個未満のレコードを${lastExcludedInfo.qtyRows}件除外`);
   }
   if(filterCountEnabled && lastExcludedInfo.people > 0){
-    const modeLabel = filterCountMode === 'percent' ? `割合${filterCountValue}%未満` : `件数${filterCountValue}件未満`;
+    const modeLabel = filterCountMode === 'percent' ? `期間中の店舗数の割合が${filterCountValue}%未満` : `期間中の店舗数(件数)が${filterCountValue}件未満`;
     parts.push(`${modeLabel}の作業者を${lastExcludedInfo.people}名除外`);
   }
   $('filterNote').textContent = parts.length ? ('※ ' + parts.join('　/　')) : '';
