@@ -96,6 +96,9 @@ td.group-sep{border-left:2px solid var(--paper);}
 td.total-col{background:#FCF7EC;}
 
 .empty-msg{padding:60px 20px;text-align:center;color:var(--muted);}
+.filter-note{font-size:11px;color:var(--muted);margin:-8px 0 14px;}
+
+table.raw-table tr.qty-excluded td{color:var(--muted);background:#F7F5F0;}
 
 tr.person-row{cursor:pointer;}
 tr.person-row:hover td{background:#F3EEE0;}
@@ -175,6 +178,19 @@ table.raw-table input{padding:5px;border:1px solid var(--line);border-radius:5px
       <div class="period-label" id="periodLabel"></div>
     </div>
     <div>
+      <label>フィルタ</label><br>
+      <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;color:#B9C2CE;font-size:12px;">
+        <label style="display:flex;align-items:center;gap:4px;white-space:nowrap;">
+          <input type="checkbox" id="filterQtyEnable">数量<input type="number" id="filterQtyValue" value="5" min="1" style="width:48px;">個未満を除外
+        </label>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;color:#B9C2CE;font-size:12px;margin-top:4px;">
+        <label style="display:flex;align-items:center;gap:4px;white-space:nowrap;">
+          <input type="checkbox" id="filterCountEnable"><select id="filterCountMode"><option value="count">件数</option><option value="percent">割合%</option></select><input type="number" id="filterCountValue" value="3" min="0" style="width:48px;">未満の人を除外
+        </label>
+      </div>
+    </div>
+    <div>
       <label>&nbsp;</label><br>
       <button id="printBtn" style="padding:8px 14px;border-radius:6px;border:1px solid var(--amber);background:var(--amber);color:var(--ink);font-weight:700;font-family:inherit;font-size:13px;cursor:pointer;">🖨 印刷</button>
       <button id="csvBtn" style="padding:8px 14px;border-radius:6px;border:1px solid #46505E;background:#232D3B;color:#fff;font-weight:700;font-family:inherit;font-size:13px;cursor:pointer;">⬇ CSV</button>
@@ -187,6 +203,7 @@ table.raw-table input{padding:5px;border:1px solid var(--line);border-radius:5px
 
 <main>
   <div class="summary-bar" id="summaryBar"></div>
+  <div class="filter-note" id="filterNote"></div>
   <div class="sort-row" id="sortRow">
     <span class="lbl">並び替え(合計):</span>
     <button class="sort-btn" data-key="productivity">生産性</button>
@@ -351,6 +368,41 @@ let editingRawId = null;
 let rawLogsByWorker = {}; // worker_no -> array of raw work_log rows (all, including cancelled)
 let lastGroupBinMap = {};
 let lastPeople = [];
+let filterQtyEnabled = false, filterQtyValue = 5;
+let filterCountEnabled = false, filterCountMode = 'count', filterCountValue = 3;
+let lastExcludedInfo = { qtyRows: 0, people: 0 };
+
+function filterSettingsKey(){
+  const siteCode = $('siteSelect').value;
+  const groupId = $('groupSelect').value;
+  return `report_filter_settings_${siteCode}_${groupId}`;
+}
+function loadFilterSettings(){
+  const saved = localGet(filterSettingsKey());
+  if(saved){
+    filterQtyEnabled = !!saved.qtyEnabled;
+    filterQtyValue = Number(saved.qtyValue) || 5;
+    filterCountEnabled = !!saved.countEnabled;
+    filterCountMode = saved.countMode === 'percent' ? 'percent' : 'count';
+    filterCountValue = Number.isFinite(Number(saved.countValue)) ? Number(saved.countValue) : 3;
+  }
+  $('filterQtyEnable').checked = filterQtyEnabled;
+  $('filterQtyValue').value = filterQtyValue;
+  $('filterCountEnable').checked = filterCountEnabled;
+  $('filterCountMode').value = filterCountMode;
+  $('filterCountValue').value = filterCountValue;
+}
+function saveFilterSettings(){
+  filterQtyEnabled = $('filterQtyEnable').checked;
+  filterQtyValue = Math.max(1, parseInt($('filterQtyValue').value, 10) || 1);
+  filterCountEnabled = $('filterCountEnable').checked;
+  filterCountMode = $('filterCountMode').value === 'percent' ? 'percent' : 'count';
+  filterCountValue = Math.max(0, Number($('filterCountValue').value) || 0);
+  localSet(filterSettingsKey(), {
+    qtyEnabled: filterQtyEnabled, qtyValue: filterQtyValue,
+    countEnabled: filterCountEnabled, countMode: filterCountMode, countValue: filterCountValue
+  });
+}
 
 async function loadSiteOptions(){
   const rows = await sbSelect('work_groups', 'select=site_code');
@@ -449,9 +501,13 @@ async function render(){
     rawLogsByWorker[r.worker_no].push(r);
   });
 
+  const qtyThreshold = filterQtyEnabled ? filterQtyValue : null;
   const validRows = logRows.filter(r => !r.cancelled);
   const byWorker = {};
   validRows.forEach(r=>{
+    const excluded = qtyThreshold !== null && r.count < qtyThreshold;
+    r._qtyExcluded = excluded;
+    if(excluded) return;
     const no = r.worker_no;
     if(!byWorker[no]) byWorker[no] = { no, name: r.worker_name, bin1: emptyBinStat(), bin2: emptyBinStat() };
     const bin = getBinForRow(r, binMap);
@@ -476,10 +532,29 @@ async function render(){
     };
   });
 
-  sortPeople(people);
-  lastPeople = people;
-  renderSummary(people);
-  renderTable(people);
+  let visiblePeople = people;
+  let excludedPeopleCount = 0;
+  if(filterCountEnabled){
+    const groupTotalStores = people.reduce((s,p)=>s+p.total.stores, 0);
+    visiblePeople = people.filter(p=>{
+      if(filterCountMode === 'percent'){
+        const pct = groupTotalStores > 0 ? (p.total.stores / groupTotalStores * 100) : 0;
+        return pct >= filterCountValue;
+      }
+      return p.total.stores >= filterCountValue;
+    });
+    excludedPeopleCount = people.length - visiblePeople.length;
+  }
+  lastExcludedInfo = {
+    qtyRows: validRows.filter(r=>r._qtyExcluded).length,
+    people: excludedPeopleCount
+  };
+
+  sortPeople(visiblePeople);
+  lastPeople = visiblePeople;
+  renderSummary(visiblePeople);
+  renderTable(visiblePeople);
+  updateFilterNote();
   updatePrintHeading();
 }
 
@@ -543,6 +618,18 @@ function sortPeople(people){
   people.sort((a,b)=> b.total[k] - a.total[k]);
 }
 
+function updateFilterNote(){
+  const parts = [];
+  if(filterQtyEnabled && lastExcludedInfo.qtyRows > 0){
+    parts.push(`数量${filterQtyValue}個未満のレコードを${lastExcludedInfo.qtyRows}件除外`);
+  }
+  if(filterCountEnabled && lastExcludedInfo.people > 0){
+    const modeLabel = filterCountMode === 'percent' ? `割合${filterCountValue}%未満` : `件数${filterCountValue}件未満`;
+    parts.push(`${modeLabel}の作業者を${lastExcludedInfo.people}名除外`);
+  }
+  $('filterNote').textContent = parts.length ? ('※ ' + parts.join('　/　')) : '';
+}
+
 function renderSummary(people){
   const totalCount = people.reduce((s,p)=>s+p.total.count,0);
   const totalStores = people.reduce((s,p)=>s+p.total.stores,0);
@@ -604,14 +691,15 @@ function renderPersonDetail(no){
         </td>
       </tr>`;
     }
+    const prodCell = r.cancelled ? '取消' : (r._qtyExcluded ? `${r.productivity}（集計除外）` : r.productivity);
     return `
-    <tr class="raw-row${r.cancelled?' cancelled':''}" data-id="${r.id}">
+    <tr class="raw-row${r.cancelled?' cancelled':''}${r._qtyExcluded?' qty-excluded':''}" data-id="${r.id}">
       ${dateTd(r)}
       <td>${esc(r.course_name)}</td><td>${r.store_no}</td><td>${bin}便</td>
       <td>${r.count}</td>
       <td colspan="2">${fmtTimeShort(r.start_at)}</td>
       <td colspan="2">${fmtTimeShort(r.end_at)}(${fmtDuration(r.duration_sec)})</td>
-      <td>${r.cancelled ? '取消' : r.productivity}</td>
+      <td>${prodCell}</td>
       <td>
         <button class="mini-btn" data-edit="${r.id}">編集</button>
         <button class="del-btn" data-del="${r.id}">削除</button>
@@ -682,8 +770,8 @@ function wireDetailHandlers(){
 
 function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-$('siteSelect').addEventListener('change', async ()=>{ await loadGroupOptions(); render(); });
-$('groupSelect').addEventListener('change', render);
+$('siteSelect').addEventListener('change', async ()=>{ await loadGroupOptions(); loadFilterSettings(); render(); });
+$('groupSelect').addEventListener('change', ()=>{ loadFilterSettings(); render(); });
 $('startDateInput').addEventListener('change', render);
 $('endDateInput').addEventListener('change', render);
 $('periodPresets').addEventListener('click', (e)=>{
@@ -693,6 +781,9 @@ $('periodPresets').addEventListener('click', (e)=>{
   $('startDateInput').value = partsToStr(range.start);
   $('endDateInput').value = partsToStr(range.end);
   render();
+});
+['filterQtyEnable','filterQtyValue','filterCountEnable','filterCountMode','filterCountValue'].forEach(id=>{
+  $(id).addEventListener('change', ()=>{ saveFilterSettings(); render(); });
 });
 $('sortRow').addEventListener('click', (e)=>{
   const btn = e.target.closest('.sort-btn');
@@ -708,6 +799,7 @@ $('sortRow').addEventListener('click', (e)=>{
   $('endDateInput').value = partsToStr(today);
   await loadSiteOptions();
   await loadGroupOptions();
+  loadFilterSettings();
   document.querySelector('.sort-btn[data-key="productivity"]').classList.add('active');
   await render();
 })();
