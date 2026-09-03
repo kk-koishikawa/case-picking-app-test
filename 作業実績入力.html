@@ -501,7 +501,7 @@ table.log tr.cancelled td{color:var(--muted);text-decoration:line-through;}
         <input type="text" id="deviceGroupFolderInput" placeholder="フォルダ名 例: 加食" style="flex:1;min-width:0;padding:8px;border:1px solid var(--line);border-radius:6px;font-family:'Space Mono',monospace;font-size:16px;">
       </div>
       <button class="mini-btn" id="loadLastRunBtn" style="width:100%;margin-top:8px;">last_run.jsonを読込</button>
-      <input type="file" id="lastRunFileInput" accept=".json" style="display:none;">
+      <input type="file" id="lastRunFileInput" style="display:none;">
       <div style="font-size:12px;color:var(--muted);margin-top:6px;">拠点導入時に一度だけ設定してください。last_run.jsonを読み込むと、この2つを自動入力します(手入力もできます)。</div>
       <div id="lastRunHint" style="font-size:12px;color:var(--steel);margin-top:6px;"></div>
     </div>
@@ -728,6 +728,7 @@ let sessionWriteInFlight = new Set(); // サーバー保存待ち中の担当者
 let todayLog = [];       // array of completed/cancelled records
 let step = 'worker';     // worker | course | store | count | closing
 let buffer = '';
+let bufferIsAutoFilled = false; // true when buffer was pre-filled from 受注データ(個口数), not typed by the person
 let ctx = {};            // in-progress entry context
 
 let lastKnownDateKey = null;
@@ -877,8 +878,9 @@ function onKey(k){
     csAppendDigit(k);
     return;
   }
-  if(k === 'clear'){ buffer = ''; renderDisplay(); return; }
+  if(k === 'clear'){ buffer = ''; bufferIsAutoFilled = false; renderDisplay(); return; }
   if(k === 'enter'){ vibrate(10); handleEnter(); return; }
+  if(bufferIsAutoFilled){ buffer = ''; bufferIsAutoFilled = false; }
   if(buffer.length >= 6) return;
   buffer += k;
   renderDisplay();
@@ -957,7 +959,7 @@ function csHandleEnter(){
     const rec = orderMap[key];
     if(!rec){ showError('店番号の誤りです(本日の受注データに該当なし)'); ctx.csStore=''; renderCsBoxes(); return; }
     ctx.storeNo = s;
-    step = 'count'; buffer = String(rec.lots);
+    step = 'count'; buffer = String(rec.lots); bufferIsAutoFilled = true;
     $('csRow').style.display = 'none';
     $('displayValue').style.display = 'block';
     $('stepEyebrow').textContent = 'STEP 4';
@@ -970,7 +972,7 @@ function csHandleEnter(){
   const match = ctx.courseMatch;
   if(s < match.minS || s > match.maxS){ showError('店番号の誤りです'); ctx.csStore=''; renderCsBoxes(); return; }
   ctx.storeNo = s;
-  step = 'count'; buffer='';
+  step = 'count'; buffer=''; bufferIsAutoFilled=false;
   $('csRow').style.display = 'none';
   $('displayValue').style.display = 'block';
   $('stepEyebrow').textContent = 'STEP 4';
@@ -1002,7 +1004,7 @@ function clearError(){ $('displayError').textContent = ''; }
 
 // ---------- step machine ----------
 function resetToWorker(){
-  step = 'worker'; buffer=''; ctx = {};
+  step = 'worker'; buffer=''; bufferIsAutoFilled=false; ctx = {};
   $('stepEyebrow').textContent = 'STEP 1';
   $('stepTitle').textContent = '担当者№を入力してください';
   $('displaySub').textContent = '';
@@ -1029,7 +1031,7 @@ function handleEnter(){
 function handleWorkerEnter(){
   if(buffer === ''){ showError('担当者№を入力して下さい'); return; }
   const no = parseInt(buffer, 10);
-  if(!Number.isInteger(no) || no <= 0){ showError('担当者№に誤りがあります'); buffer=''; renderDisplay(); return; }
+  if(!Number.isInteger(no) || no <= 0){ showError('担当者№に誤りがあります'); buffer=''; bufferIsAutoFilled=false; renderDisplay(); return; }
 
   const worker = findWorker(no);
   ctx.no = no;
@@ -1042,7 +1044,7 @@ function handleWorkerEnter(){
     $('stepEyebrow').textContent = 'STEP 2 ・ 終了確認';
     $('stepTitle').textContent = `${s.name} さんの作業を終了しますか？`;
     $('displaySub').textContent = '';
-    buffer = ''; $('displayValue').textContent = '№ ' + no; $('displayValue').classList.remove('placeholder');
+    buffer = ''; bufferIsAutoFilled = false; $('displayValue').textContent = '№ ' + no; $('displayValue').classList.remove('placeholder');
     $('lockedGrid').style.display = 'grid';
     $('lockedGrid').innerHTML = `
       <div class="locked-item"><div class="lbl">作業グループ</div><div class="val">${escapeHtml(s.groupName||'-')}</div></div>
@@ -1143,6 +1145,7 @@ function selectPickedStore(courseNo, storeNo){
   ctx.storeNo = storeNo;
   step = 'count';
   buffer = rec ? String(rec.lots) : '';
+  bufferIsAutoFilled = !!rec;
   $('pickStoreView').style.display = 'none';
   $('displayValue').style.display = 'block';
   $('keypad').style.display = 'grid';
@@ -1169,7 +1172,7 @@ function goToCourseStore(){
 function handleCountEnter(){
   if(buffer===''){ showError('個口数を入力して下さい'); return; }
   const n = parseInt(buffer,10);
-  if(!Number.isInteger(n) || n <= 0){ showError('個口数の誤りです'); buffer=''; renderDisplay(); return; }
+  if(!Number.isInteger(n) || n <= 0){ showError('個口数の誤りです'); buffer=''; bufferIsAutoFilled=false; renderDisplay(); return; }
   showStartConfirm(n);
 }
 
@@ -1179,7 +1182,7 @@ function showStartConfirm(count){
   $('stepEyebrow').textContent = 'STEP 4 ・ 開始確認';
   $('stepTitle').textContent = `この内容で開始しますか？`;
   $('displaySub').textContent = count >= 200 ? '⚠ 個口数が200以上です。内容をご確認ください。' : '';
-  buffer = '';
+  buffer = ''; bufferIsAutoFilled = false;
   $('displayValue').style.display = 'none';
   $('keypad').style.display = 'none';
   $('csRow').style.display = 'none';
@@ -1301,13 +1304,13 @@ function showConfirm(text, cb){
 }
 $('confirmYes').addEventListener('click', ()=>{
   $('confirmOverlay').classList.remove('show');
-  buffer=''; renderDisplay();
+  buffer=''; bufferIsAutoFilled=false; renderDisplay();
   if(confirmCb) confirmCb();
   confirmCb = null;
 });
 $('confirmNo').addEventListener('click', ()=>{
   $('confirmOverlay').classList.remove('show');
-  buffer=''; renderDisplay();
+  buffer=''; bufferIsAutoFilled=false; renderDisplay();
   confirmCb = null;
 });
 
@@ -1763,21 +1766,30 @@ $('lastRunFileInput').addEventListener('change', async (e)=>{
       alert('last_run.jsonの形式が想定と異なります(center_name / category_name が見つかりません)');
       return;
     }
-    $('siteCodeInput').value = data.center_name;
-    $('deviceGroupFolderInput').value = data.category_name;
+    // appSettings.groups may still hold a different site's groups (or be empty)
+    // at this point, so refetch for the site code we just read before checking matches.
+    await refetchGroupsForSiteCode(data.center_name);
+    appSettings.siteCode = data.center_name;
     const matches = (appSettings.groups || []).filter(g => g.folder === data.category_name);
 
     if(matches.length >= 1){
-      // one or more groups already exist for this category -> just point at the select tab,
-      // never silently overwrite whatever is currently being edited
+      // one or more groups already exist for this category.
+      // pre-select it (if there's exactly one) so the person can just tap 保存.
+      if(matches.length === 1) editingGroup = JSON.parse(JSON.stringify(matches[0]));
       switchSettingsTab('select');
       $('lastRunHint').textContent =
         `拠点コード「${data.center_name}」を読み込みました。「${data.category_name}」のグループが下の一覧にあります。この端末が使うものをタップして選び、「保存」を押してください。`;
     } else {
       pendingNewCategoryFromJson = data.category_name;
+      switchSettingsTab('create');
       $('lastRunHint').textContent =
-        `拠点コード「${data.center_name}」を読み込みました。「${data.category_name}」の作業グループがまだ無いようです。新しく登録する場合は「＋ 新しく作る」タブから(通常はPC側で作成してください)。`;
+        `拠点コード「${data.center_name}」を読み込みました。「${data.category_name}」の作業グループがまだ無いようです。新しく登録する場合はこのまま「フォルダ名」欄以下を入力して保存してください。`;
     }
+    // set the visible fields AFTER switching tabs / re-rendering,
+    // so nothing downstream silently overwrites them.
+    $('siteCodeInput').value = data.center_name;
+    $('deviceGroupFolderInput').value = data.category_name;
+    if(matches.length === 0) editingGroup.folder = data.category_name;
   }catch(err){
     alert('last_run.jsonの読み込みに失敗しました');
   }
