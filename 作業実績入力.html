@@ -455,7 +455,13 @@ table.log tr.cancelled td{color:var(--muted);text-decoration:line-through;}
     <div class="admin-body" style="-webkit-overflow-scrolling:touch;">
       <table class="log">
         <thead><tr>
-          <th>コース－店</th><th>担当者</th><th>個口数</th><th>開始</th><th>終了</th><th>生産性/h</th><th></th>
+          <th data-sortkey="course" style="cursor:pointer;user-select:none;">コース－店<span class="sort-arrow" data-arrow="course"></span></th>
+          <th data-sortkey="worker" style="cursor:pointer;user-select:none;">担当者<span class="sort-arrow" data-arrow="worker"></span></th>
+          <th data-sortkey="count" style="cursor:pointer;user-select:none;">個口数<span class="sort-arrow" data-arrow="count"></span></th>
+          <th data-sortkey="start" style="cursor:pointer;user-select:none;">開始<span class="sort-arrow" data-arrow="start"></span></th>
+          <th data-sortkey="end" style="cursor:pointer;user-select:none;">終了<span class="sort-arrow" data-arrow="end"></span></th>
+          <th data-sortkey="productivity" style="cursor:pointer;user-select:none;">生産性/h<span class="sort-arrow" data-arrow="productivity"></span></th>
+          <th></th>
         </tr></thead>
         <tbody id="historyBody"></tbody>
       </table>
@@ -2254,6 +2260,41 @@ function validateCourseStore(groupId, courseNo, storeNo){
   if(storeNo < match.minS || storeNo > match.maxS) return {ok:false, message:'店番号の誤りです'};
   return {ok:true, courseName: match.name};
 }
+let historySortKey = 'start'; // デフォルトは開始時間順
+let historySortDir = 'asc';
+const HISTORY_SORT_COMPARATORS = {
+  course: (a,b) => a.courseNo - b.courseNo || a.storeNo - b.storeNo,
+  worker: (a,b) => a.no - b.no,
+  count: (a,b) => a.count - b.count,
+  start: (a,b) => new Date(a.startISO) - new Date(b.startISO),
+  end: (a,b) => new Date(a.endISO) - new Date(b.endISO),
+  productivity: (a,b) => a.productivity - b.productivity,
+};
+function sortHistoryRows(rows){
+  const cmp = HISTORY_SORT_COMPARATORS[historySortKey] || HISTORY_SORT_COMPARATORS.start;
+  const sorted = [...rows].sort(cmp);
+  if(historySortDir === 'desc') sorted.reverse();
+  return sorted;
+}
+function updateHistorySortArrows(){
+  document.querySelectorAll('#historyOverlay .sort-arrow').forEach(el=>{
+    const key = el.getAttribute('data-arrow');
+    el.textContent = key === historySortKey ? (historySortDir === 'asc' ? ' ▲' : ' ▼') : '';
+  });
+}
+document.querySelectorAll('#historyOverlay th[data-sortkey]').forEach(th=>{
+  th.addEventListener('click', ()=>{
+    const key = th.getAttribute('data-sortkey');
+    if(historySortKey === key){
+      historySortDir = historySortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      historySortKey = key;
+      historySortDir = 'asc';
+    }
+    renderHistoryTable();
+  });
+});
+
 function renderHistoryTable(){
   const courseFilter = $('historyCourseFilter').value.trim();
   const workerFilter = $('historyWorkerFilter').value.trim();
@@ -2264,7 +2305,8 @@ function renderHistoryTable(){
   if(activeGroup) rows = rows.filter(r => r.groupId === activeGroup.id);
   if(courseFilter) rows = rows.filter(r => String(r.courseNo).includes(courseFilter));
   if(workerFilter) rows = rows.filter(r => String(r.no).includes(workerFilter));
-  rows.sort((a,b)=> a.courseNo - b.courseNo || a.storeNo - b.storeNo);
+  rows = sortHistoryRows(rows);
+  updateHistorySortArrows();
 
   if(rows.length === 0){
     body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px;">該当する記録がありません</td></tr>';
@@ -2393,9 +2435,11 @@ $('historyClose').addEventListener('click', ()=> $('historyOverlay').classList.r
 // 編集欄(コース№・店№・個口数)ではtrueにしない = 打鍵のたびに編集行が再描画されて入力中の値が消えるのを防ぐ。
 let historyNumpadTargetInput = null;
 let historyNumpadIsFilter = false;
+let historyNumpadFirstInput = false; // 開いた直後の最初のタップで、元の値を消してから入力する
 function openHistoryNumpad(inputEl, label, isFilter){
   historyNumpadTargetInput = inputEl;
   historyNumpadIsFilter = !!isFilter;
+  historyNumpadFirstInput = true;
   $('historyNumpadLabel').textContent = label;
   $('historyNumpadDisplay').textContent = inputEl.value || ' ';
   $('historyNumpadOverlay').classList.add('show');
@@ -2407,9 +2451,16 @@ $('historyNumpadOverlay').querySelectorAll('.numpad-key').forEach(btn=>{
     if(!historyNumpadTargetInput) return;
     const input = historyNumpadTargetInput;
     const k = btn.getAttribute('data-k');
-    if(k === 'clear') input.value = '';
-    else if(k === 'back') input.value = input.value.slice(0, -1);
-    else input.value += k;
+    if(k === 'clear'){
+      input.value = '';
+      historyNumpadFirstInput = false;
+    } else if(k === 'back'){
+      input.value = input.value.slice(0, -1);
+      historyNumpadFirstInput = false;
+    } else {
+      if(historyNumpadFirstInput){ input.value = ''; historyNumpadFirstInput = false; }
+      input.value += k;
+    }
     $('historyNumpadDisplay').textContent = input.value || ' ';
     if(historyNumpadIsFilter) renderHistoryTable();
   });
