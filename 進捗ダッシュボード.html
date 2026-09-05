@@ -401,8 +401,10 @@ async function loadSiteOptions(){
   const sites = [...new Set((rows||[]).map(r=>r.site_code))].sort();
   const sel = $('siteSelect');
   sel.innerHTML = sites.map(s=>`<option value="${s}">${s}</option>`).join('');
+  const urlSite = (new URLSearchParams(location.search).get('site')||'').trim();
   const saved = localGet('dash_site_code');
-  if(saved && sites.includes(saved)) sel.value = saved;
+  if(urlSite && sites.includes(urlSite)) sel.value = urlSite;
+  else if(saved && sites.includes(saved)) sel.value = saved;
   else if(sites.length) sel.value = sites[0];
 }
 
