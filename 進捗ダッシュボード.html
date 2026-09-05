@@ -52,6 +52,8 @@ header{
 main{padding:22px;max-width:1600px;margin:0 auto;}
 
 #groupSections{display:grid;grid-template-columns:repeat(auto-fit,minmax(460px,1fr));gap:20px;align-items:start;}
+@media (max-width:1300px){ #groupSections{ grid-template-columns:repeat(2,1fr) !important; } }
+@media (max-width:900px){ #groupSections{ grid-template-columns:1fr !important; } }
 
 .group-section{
   background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
@@ -87,8 +89,8 @@ main{padding:22px;max-width:1600px;margin:0 auto;}
   list-style:none;cursor:pointer;padding:12px 0;display:flex;align-items:center;justify-content:space-between;
 }
 .sub-details > summary::-webkit-details-marker{display:none;}
-.sub-details > summary::before{content:'▸';display:inline-block;margin-right:8px;color:var(--muted);transition:transform .15s;}
-.sub-details[open] > summary::before{transform:rotate(90deg);}
+.sub-details > summary .arrow{display:inline-block;width:12px;color:var(--steel);font-size:11px;margin-right:6px;}
+.sub-details > summary .sub-left{display:flex;align-items:center;}
 .sub-details > summary h4{display:inline;}
 .sub-details .sub-body{padding:0 0 14px;}
 
@@ -462,6 +464,11 @@ async function refresh(){
 
   LAST = { siteCode, groups: groups||[], ordersByGroup, logs, sessions, courseBinMap, rangeSummaryByGroup };
 
+  const groupCount = (groups||[]).length;
+  $('groupSections').style.gridTemplateColumns = (groupCount > 0 && groupCount <= 3)
+    ? `repeat(${groupCount}, 1fr)`
+    : '';
+
   const now = new Date();
   const sectionsHtml = (groups||[]).map(g=>{
     const planEntries = ordersByGroup[g.id] || [];
@@ -492,11 +499,11 @@ async function refresh(){
       ${rangeSummaryHtml}
       <div class="sub-block">${progressHtml}</div>
       <details class="sub-details" data-detail-key="${g.id}:workers">
-        <summary><h4>現在の作業者</h4><div class="sub-count">${openInGroup.length}人</div></summary>
+        <summary><span class="sub-left"><span class="arrow">▶</span><h4>現在の作業者</h4></span><div class="sub-count">${openInGroup.length}人</div></summary>
         <div class="sub-body">${workersHtml}</div>
       </details>
       <details class="sub-details" data-detail-key="${g.id}:perf">
-        <summary><h4>本日の個人成績</h4><div class="sub-count">${new Set(doneEntries.map(l=>l.no)).size}人</div></summary>
+        <summary><span class="sub-left"><span class="arrow">▶</span><h4>本日の個人成績</h4></span><div class="sub-count">${new Set(doneEntries.map(l=>l.no)).size}人</div></summary>
         <div class="sub-body" id="perfBody-${g.id}">${perfHtml}</div>
       </details>
       <div class="sub-block">
@@ -516,6 +523,11 @@ async function refresh(){
   });
   $('groupSections').querySelectorAll('details.sub-details').forEach(d=>{
     if(openDetailKeys.has(d.getAttribute('data-detail-key'))) d.open = true;
+    const arrow = d.querySelector('summary .arrow');
+    if(arrow) arrow.textContent = d.open ? '▼' : '▶';
+    d.addEventListener('toggle', ()=>{
+      if(arrow) arrow.textContent = d.open ? '▼' : '▶';
+    });
   });
   (groups||[]).forEach(g => attachPerfHandlers(g.id));
   $('updatedText').textContent = '最終更新: ' + fmtTimeShort(now.toISOString());
