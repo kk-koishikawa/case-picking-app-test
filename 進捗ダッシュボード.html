@@ -179,6 +179,8 @@ table.perf .row-arrow{display:inline-block;width:12px;color:var(--steel);font-si
   padding:6px 4px 2px;margin-top:4px;
 }
 .psg-head:first-child{margin-top:0;}
+.psg-head-overdue{background:#FBEAE8;border-radius:6px;padding-left:8px;padding-right:4px;}
+.psg-warn{display:block;font-size:11px;color:var(--red);font-weight:600;padding:0 4px 6px;}
 .psg-course{font-size:13px;font-weight:700;color:var(--steel);}
 .psg-count{font-size:11px;color:var(--muted);font-weight:500;margin-left:8px;}
 .psg-del{
@@ -393,7 +395,7 @@ function renderBinCards(results){
 }
 
 // ---------- data loading ----------
-let LAST = { siteCode:null, groups: [], ordersByGroup: {}, logs: [], sessions: [], courseBinMap: {} };
+let LAST = { siteCode:null, groups: [], ordersByGroup: {}, logs: [], sessions: [], courseBinMap: {}, courseSeqMap: {} };
 async function loadSiteOptions(){
   const rows = await sbSelect('work_groups', 'select=site_code');
   const sites = [...new Set((rows||[]).map(r=>r.site_code))].sort();
@@ -424,7 +426,8 @@ async function refresh(){
   ]);
 
   const courseBinMap = {};
-  (courseRows||[]).forEach(r=> courseBinMap[r.course_no] = r.bin);
+  const courseSeqMap = {};
+  (courseRows||[]).forEach(r=>{ courseBinMap[r.course_no] = r.bin; courseSeqMap[r.course_no] = r.seq; });
 
   const sessions = (sessionRows||[]).map(r=>({
     no: r.worker_no, name: r.worker_name, groupId: r.group_id, groupName: r.group_name,
@@ -448,7 +451,7 @@ async function refresh(){
     rangeSummaryByGroup[r.group_id].push({name: r.range_name, lots: r.lots});
   });
 
-  LAST = { siteCode, groups: groups||[], ordersByGroup, logs, sessions, courseBinMap, rangeSummaryByGroup };
+  LAST = { siteCode, groups: groups||[], ordersByGroup, logs, sessions, courseBinMap, courseSeqMap, rangeSummaryByGroup };
 
   const groupCount = (groups||[]).length;
   $('groupSections').style.gridTemplateColumns = (groupCount > 0 && groupCount <= 3)
@@ -727,7 +730,20 @@ function renderOrderManageDynamic(groupId){
     if(busy.has(e.courseNo+'-'+e.storeNo)) byCourse[e.courseNo].done += 1;
     else byCourse[e.courseNo].remainingItems.push(e);
   });
-  let courses = Object.values(byCourse).sort((a,b)=> a.courseNo-b.courseNo);
+
+  // 作業順(seq)がわかれば、実際の作業順に並べる。分からないコースはコース№順で末尾に。
+  const seqOf = c => LAST.courseSeqMap[c] !== undefined ? LAST.courseSeqMap[c] : Infinity;
+
+  // すでに他のコースがどこまで進んでいるか(=作業順の最前線)を調べ、
+  // それより手前の作業順なのにまだ残っているコースは「見落とし」の疑いとして目立たせる。
+  const busyCourseNos = new Set([...busy].map(k => parseInt(k.split('-')[0], 10)));
+  let frontierSeq = null;
+  busyCourseNos.forEach(c=>{
+    const s = LAST.courseSeqMap[c];
+    if(s !== undefined && (frontierSeq === null || s > frontierSeq)) frontierSeq = s;
+  });
+
+  let courses = Object.values(byCourse).sort((a,b)=> (seqOf(a.courseNo)-seqOf(b.courseNo)) || (a.courseNo-b.courseNo));
   if(filterText) courses = courses.filter(c => String(c.courseNo).includes(filterText));
   if(courses.length === 0){
     list.innerHTML = '<div class="empty-msg">該当するコースがありません</div>';
@@ -740,6 +756,9 @@ function renderOrderManageDynamic(groupId){
     const courseDelBtn = remainCount > 0
       ? `<button class="psi-del psg-del" data-course="${c.courseNo}" title="このコースの残りをすべて削除">🗑 コース削除</button>`
       : '';
+    const seq = LAST.courseSeqMap[c.courseNo];
+    const isOverdue = remainCount > 0 && frontierSeq !== null && seq !== undefined && seq <= frontierSeq;
+    const warnNote = isOverdue ? `<span class="psg-warn">⚠ 見落としの疑い(他のコースは先に進んでいます)</span>` : '';
     const storeRows = c.remainingItems
       .sort((a,b)=> a.storeNo - b.storeNo)
       .map(e => `
@@ -749,10 +768,11 @@ function renderOrderManageDynamic(groupId){
         <button class="psi-del" data-course="${e.courseNo}" data-store="${e.storeNo}" title="この店を削除">🗑</button>
       </div>`).join('');
     return `
-      <div class="psg-head">
+      <div class="psg-head${isOverdue?' psg-head-overdue':''}">
         <span class="psg-course">コース${c.courseNo}<span class="psg-count">残り${remainCount}店</span>${doneNote}</span>
         ${courseDelBtn}
       </div>
+      ${warnNote}
       ${storeRows || '<div class="empty-msg" style="padding:10px;">残っている店はありません(すべて完了)</div>'}
     `;
   }).join('');
