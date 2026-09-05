@@ -2581,6 +2581,22 @@ $('orderManageBtn').addEventListener('click', ()=>{
 $('orderManageClose').addEventListener('click', ()=> $('orderManageOverlay').classList.remove('show'));
 $('orderManageFilter').addEventListener('input', renderOrderManageList);
 
+// ---------- URL経由の自動設定(シークレットモードでも毎回設定し直さずに済むように) ----------
+// ?site=NAG&folder=加食 のような形でURLに付けておくと、起動時にその拠点・グループを
+// 自動的に選択する(=設定画面を開かなくても「本日の実績」がすぐ見える)。
+// 同じフォルダに複数の作業グループがある場合(例:加食をドビ/ラに分けた場合)は、
+// ?group=ドビ のようにグループ名も付けることで、その1件を特定できる。
+function getUrlOverrides(){
+  try{
+    const params = new URLSearchParams(location.search);
+    return {
+      site: (params.get('site')||'').trim(),
+      folder: (params.get('folder')||'').trim(),
+      group: (params.get('group')||'').trim()
+    };
+  }catch(e){ return {site:'', folder:'', group:''}; }
+}
+
 // ---------- init ----------
 buildKeypad();
 resetToWorker();
@@ -2588,7 +2604,19 @@ renderClock();
 setInterval(renderClock, 1000);
 setInterval(tickTimers, 1000);
 (async ()=>{
+  const urlOverride = getUrlOverrides();
+  if(urlOverride.site){
+    localSet('site_code', urlOverride.site);
+  }
   await loadSettings();
+  if(urlOverride.site && (urlOverride.group || urlOverride.folder)){
+    const matched = urlOverride.group
+      ? (appSettings.groups || []).find(g => g.name === urlOverride.group)
+      : (appSettings.groups || []).find(g => g.folder === urlOverride.folder);
+    if(matched){
+      localSet('device_group_id', matched.id);
+    }
+  }
   loadDeviceGroup();
   renderDeviceGroupBadge();
   await loadRoster();
