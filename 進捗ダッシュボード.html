@@ -206,21 +206,6 @@ table.perf .row-arrow{display:inline-block;width:12px;color:var(--steel);font-si
   <div id="groupSections"></div>
 </main>
 
-<div class="overlay" id="orderManageOverlay">
-  <div class="admin-card">
-    <div class="admin-head">
-      <h2 id="orderManageTitle">受注データ確認</h2>
-      <button class="close-x" id="orderManageClose">&times;</button>
-    </div>
-    <div class="admin-body">
-      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">残っている(未完了の)コース・店を、店単位・コース単位・便単位で削除できます。すでに完了した店は対象になりません。削除しても実績には影響しません。この操作は元に戻せません。</div>
-      <input type="text" id="orderManageFilter" placeholder="コース№で絞り込み" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;margin-bottom:14px;box-sizing:border-box;">
-      <div id="orderManageBinBar" style="display:none;gap:8px;margin-bottom:12px;flex-wrap:wrap;"></div>
-      <div id="orderManageList"></div>
-    </div>
-  </div>
-</div>
-
 <div class="overlay" id="workerDetailOverlay">
   <div class="admin-card" style="width:min(640px,92vw);">
     <div class="admin-head">
@@ -494,6 +479,8 @@ async function refresh(){
 
     const workersHtml = renderGroupWorkers(openInGroup);
     const perfHtml = renderGroupPerformanceTable(g.id, doneEntries);
+    const remainCount = remainingCountForGroup(g.id);
+    const filterVal = esc(ORDER_FILTER[g.id] || '');
 
     return `<div class="group-section">
       <h2>${esc(g.name)}</h2>
@@ -507,9 +494,15 @@ async function refresh(){
         <summary><span class="sub-left"><span class="arrow">▶</span><h4>本日の個人成績</h4></span><div class="sub-count">${new Set(doneEntries.map(l=>l.no)).size}人</div></summary>
         <div class="sub-body" id="perfBody-${g.id}">${perfHtml}</div>
       </details>
-      <div class="sub-block">
-        <div class="sub-head"><h4>受注データ</h4><button class="manage-btn" data-group="${g.id}">受注データ確認</button></div>
-      </div>
+      <details class="sub-details" data-detail-key="${g.id}:orders">
+        <summary><span class="sub-left"><span class="arrow">▶</span><h4>受注データ確認(消し漏れ)</h4></span><div class="sub-count"${remainCount>0?' style="color:var(--red);"':''}>${remainCount}件</div></summary>
+        <div class="sub-body">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">残っている(未完了の)コース・店を、店単位・コース単位・便単位で削除できます。すでに完了した店は対象になりません。削除しても実績には影響しません。この操作は元に戻せません。</div>
+          <input type="text" id="orderFilter-${g.id}" value="${filterVal}" placeholder="コース№で絞り込み" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;margin-bottom:14px;box-sizing:border-box;">
+          <div id="orderBinBar-${g.id}" style="display:none;gap:8px;margin-bottom:12px;flex-wrap:wrap;"></div>
+          <div id="orderList-${g.id}"></div>
+        </div>
+      </details>
     </div>`;
   }).join('');
 
@@ -519,9 +512,6 @@ async function refresh(){
   });
 
   $('groupSections').innerHTML = sectionsHtml || '<div class="empty-msg">この拠点にはまだ作業グループがありません。</div>';
-  $('groupSections').querySelectorAll('.manage-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=> openOrderManage(btn.getAttribute('data-group')));
-  });
   $('groupSections').querySelectorAll('details.sub-details').forEach(d=>{
     if(openDetailKeys.has(d.getAttribute('data-detail-key'))) d.open = true;
     const arrow = d.querySelector('summary .arrow');
@@ -530,9 +520,11 @@ async function refresh(){
       if(arrow) arrow.textContent = d.open ? '▼' : '▶';
     });
   });
-  (groups||[]).forEach(g => attachPerfHandlers(g.id));
+  (groups||[]).forEach(g => {
+    attachPerfHandlers(g.id);
+    attachOrderManageHandlers(g.id);
+  });
   $('updatedText').textContent = '最終更新: ' + fmtTimeShort(now.toISOString());
-  if($('orderManageOverlay').classList.contains('show')) renderOrderManageList();
 }
 
 function renderGroupWorkers(openInGroup){
@@ -677,7 +669,7 @@ function tickClock(){
 }
 
 // ---------- 受注データ確認(店単位・コース単位・便単位で、残っている予定を削除) ----------
-let manageGroupId = null;
+const ORDER_FILTER = {}; // groupId -> filter text
 
 function busyKeysForGroup(groupId){
   const keys = new Set();
@@ -686,29 +678,25 @@ function busyKeysForGroup(groupId){
   return keys;
 }
 
-function openOrderManage(groupId){
-  manageGroupId = groupId;
-  const g = (LAST.groups||[]).find(x=>x.id===groupId);
-  $('orderManageTitle').textContent = '受注データ確認' + (g ? ` ・ ${g.name}` : '');
-  $('orderManageFilter').value = '';
-  renderOrderManageList();
-  $('orderManageOverlay').classList.add('show');
+function remainingCountForGroup(groupId){
+  const orderEntries = LAST.ordersByGroup[groupId] || [];
+  if(orderEntries.length === 0) return 0;
+  const busy = busyKeysForGroup(groupId);
+  return orderEntries.filter(e => !busy.has(e.courseNo+'-'+e.storeNo)).length;
 }
-$('orderManageClose').addEventListener('click', ()=> $('orderManageOverlay').classList.remove('show'));
-$('orderManageFilter').addEventListener('input', renderOrderManageList);
 
-function renderOrderManageList(){
-  const list = $('orderManageList');
-  const binBar = $('orderManageBinBar');
-  const g = (LAST.groups||[]).find(x=>x.id===manageGroupId);
-  const orderEntries = LAST.ordersByGroup[manageGroupId] || [];
-  if(!g || orderEntries.length === 0){
+function renderOrderManageDynamic(groupId){
+  const binBar = $('orderBinBar-' + groupId);
+  const list = $('orderList-' + groupId);
+  if(!binBar || !list) return;
+  const orderEntries = LAST.ordersByGroup[groupId] || [];
+  if(orderEntries.length === 0){
     list.innerHTML = '<div class="empty-msg">本日の受注データがまだありません</div>';
     binBar.style.display = 'none'; binBar.innerHTML = '';
     return;
   }
-  const filterText = $('orderManageFilter').value.trim();
-  const busy = busyKeysForGroup(manageGroupId);
+  const filterText = (ORDER_FILTER[groupId] || '').trim();
+  const busy = busyKeysForGroup(groupId);
   const remaining = orderEntries.filter(e => !busy.has(e.courseNo+'-'+e.storeNo));
 
   // 便(1便/2便)一括削除バー
@@ -724,7 +712,7 @@ function renderOrderManageList(){
         const courseCount = new Set(targets.map(e=>e.courseNo)).size;
         if(targets.length === 0) return;
         showConfirm(`${bin}便の残り予定(${courseCount}コース・${targets.length}店)をまとめて削除します。完了済みの店には影響しません。この操作は元に戻せません。よろしいですか？`, ()=>{
-          deleteOrderEntries(targets);
+          deleteOrderEntries(groupId, targets);
         });
       });
     });
@@ -775,7 +763,7 @@ function renderOrderManageList(){
       const courseNo = parseInt(btn.getAttribute('data-course'), 10);
       const storeNo = parseInt(btn.getAttribute('data-store'), 10);
       showConfirm(`コース${courseNo} － 店${storeNo} の予定を削除します。実績には影響しません。この操作は元に戻せません。よろしいですか？`, ()=>{
-        deleteOrderEntries([{courseNo, storeNo}]);
+        deleteOrderEntries(groupId, [{courseNo, storeNo}]);
       });
     });
   });
@@ -785,23 +773,33 @@ function renderOrderManageList(){
       const courseNo = parseInt(btn.getAttribute('data-course'), 10);
       const targets = byCourse[courseNo].remainingItems;
       showConfirm(`コース${courseNo}の残り予定(${targets.length}店)をまとめて削除します。完了済みの店には影響しません。この操作は元に戻せません。よろしいですか？`, ()=>{
-        deleteOrderEntries(targets);
+        deleteOrderEntries(groupId, targets);
       });
     });
   });
 }
 
-async function deleteOrderEntries(entries){
+function attachOrderManageHandlers(groupId){
+  const input = $('orderFilter-' + groupId);
+  if(!input) return;
+  input.addEventListener('click', ev => ev.stopPropagation());
+  input.addEventListener('input', ()=>{
+    ORDER_FILTER[groupId] = input.value;
+    renderOrderManageDynamic(groupId);
+  });
+  renderOrderManageDynamic(groupId);
+}
+
+async function deleteOrderEntries(groupId, entries){
   const siteCode = LAST.siteCode;
-  const groupId = manageGroupId;
   if(!siteCode || !groupId || entries.length === 0) return;
   const workDate = todayKey();
   await Promise.all(entries.map(e => sbDelete('orders',
     `site_code=eq.${encodeURIComponent(siteCode)}&work_date=eq.${workDate}&group_id=eq.${encodeURIComponent(groupId)}&course_no=eq.${e.courseNo}&store_no=eq.${e.storeNo}`
   )));
   await refresh();
-  if($('orderManageOverlay').classList.contains('show')) renderOrderManageList();
 }
+
 
 $('siteSelect').addEventListener('change', refresh);
 
