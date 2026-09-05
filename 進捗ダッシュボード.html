@@ -115,6 +115,7 @@ table.perf td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--lin
 table.perf td.name-col{text-align:left;font-family:'IBM Plex Sans JP';font-weight:600;}
 table.perf tbody tr{cursor:pointer;}
 table.perf tbody tr:hover td{background:#F7F5F0;}
+table.perf .row-arrow{display:inline-block;width:12px;color:var(--steel);font-size:11px;}
 
 .wd-log{width:100%;border-collapse:collapse;font-size:13px;}
 .wd-log th{text-align:right;font-size:11px;color:var(--muted);font-weight:600;padding:6px 8px;border-bottom:2px solid var(--ink);}
@@ -593,7 +594,7 @@ function renderGroupPerformanceTable(groupId, doneEntries){
   return `<table class="perf" data-group="${groupId}">
     <thead><tr>${theadHtml}</tr></thead>
     <tbody>${people.map(p=>`
-      <tr data-worker="${p.no}" data-name="${esc(p.name)}"><td class="name-col">${esc(p.name)} <span style="color:var(--muted);font-size:11px;">(№${p.no})</span></td><td>${p.stores}</td><td>${p.count}</td><td>${p.productivity}</td></tr>
+      <tr data-worker="${p.no}" data-name="${esc(p.name)}"><td class="name-col"><span class="row-arrow">▶</span>${esc(p.name)} <span style="color:var(--muted);font-size:11px;">(№${p.no})</span></td><td>${p.stores}</td><td>${p.count}</td><td>${p.productivity}</td></tr>
     `).join('')}</tbody>
   </table>`;
 }
