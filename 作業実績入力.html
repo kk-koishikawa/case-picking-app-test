@@ -1093,6 +1093,8 @@ function showPickStore(){
   $('displaySub').textContent = '';
   $('displayValue').style.display = 'none';
   $('keypad').style.display = 'none';
+  $('csRow').style.display = 'none';
+  $('pickListLink').style.display = 'none';
   $('pickStoreView').style.display = 'flex';
   renderPickStoreList();
 }
@@ -1155,6 +1157,7 @@ function selectPickedStore(courseNo, storeNo){
   buffer = rec ? String(rec.lots) : '';
   bufferIsAutoFilled = !!rec;
   $('pickStoreView').style.display = 'none';
+  $('csRow').style.display = 'none';
   $('displayValue').style.display = 'block';
   $('keypad').style.display = 'grid';
   $('stepEyebrow').textContent = 'STEP 3';
