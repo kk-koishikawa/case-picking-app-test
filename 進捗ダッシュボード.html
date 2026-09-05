@@ -49,13 +49,22 @@ header{
 .clock{font-family:'Space Mono',monospace;font-size:15px;color:var(--amber);}
 .updated{font-size:11px;color:#9AA5B1;}
 
-main{padding:22px;max-width:1300px;margin:0 auto;}
+main{padding:22px;max-width:1600px;margin:0 auto;}
+
+#groupSections{display:grid;grid-template-columns:repeat(auto-fit,minmax(460px,1fr));gap:20px;align-items:start;}
 
 .group-section{
   background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-  padding:20px;margin-bottom:22px;
+  padding:20px;
 }
 .group-section h2{font-size:18px;margin:0 0 14px;}
+
+.qty-summary-compact{
+  background:var(--ink);color:#fff;border-radius:8px;padding:9px 12px;margin:0 0 14px;
+  display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-size:12px;
+}
+.qsc-total{font-family:'Space Mono',monospace;font-weight:700;color:var(--amber);font-size:14px;flex-shrink:0;}
+.qsc-breakdown{color:#D7DCE2;}
 .progress-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-bottom:20px;}
 .bin-card{background:#F7F5F0;border:1px solid var(--line);border-radius:10px;padding:16px;}
 .bin-card h3{margin:0 0 10px;font-size:16px;}
@@ -72,6 +81,17 @@ main{padding:22px;max-width:1300px;margin:0 auto;}
 .sub-head h4{font-size:13px;margin:0;color:var(--steel);font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
 .sub-count{font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:var(--amber-deep);}
 
+.sub-details{border:1px solid var(--line);border-radius:10px;padding:0 14px;margin-bottom:14px;background:#FCFBF8;}
+.sub-details:last-child{margin-bottom:0;}
+.sub-details > summary{
+  list-style:none;cursor:pointer;padding:12px 0;display:flex;align-items:center;justify-content:space-between;
+}
+.sub-details > summary::-webkit-details-marker{display:none;}
+.sub-details > summary::before{content:'▸';display:inline-block;margin-right:8px;color:var(--muted);transition:transform .15s;}
+.sub-details[open] > summary::before{transform:rotate(90deg);}
+.sub-details > summary h4{display:inline;}
+.sub-details .sub-body{padding:0 0 14px;}
+
 .working-list{display:flex;flex-direction:column;gap:6px;}
 .wk-row{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:8px;background:#F7F5F0;}
 .wk-avatar{
@@ -86,11 +106,21 @@ main{padding:22px;max-width:1300px;margin:0 auto;}
 .working-empty{padding:14px;text-align:center;color:var(--muted);font-size:12px;background:#F7F5F0;border-radius:8px;}
 
 table.perf{width:100%;border-collapse:collapse;font-size:13px;}
-table.perf th{text-align:right;font-size:11px;color:var(--muted);font-weight:600;padding:6px 8px;border-bottom:2px solid var(--ink);}
+table.perf th{text-align:right;font-size:11px;color:var(--muted);font-weight:600;padding:6px 8px;border-bottom:2px solid var(--ink);cursor:pointer;user-select:none;white-space:nowrap;}
 table.perf th.name-col{text-align:left;}
+table.perf th .sort-arrow{display:inline-block;width:10px;font-size:9px;color:var(--amber-deep);}
 table.perf td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--line);font-family:'Space Mono',monospace;}
 table.perf td.name-col{text-align:left;font-family:'IBM Plex Sans JP';font-weight:600;}
-table.perf tr:first-child td{color:var(--amber-deep);}
+table.perf tbody tr{cursor:pointer;}
+table.perf tbody tr:hover td{background:#F7F5F0;}
+
+.wd-log{width:100%;border-collapse:collapse;font-size:13px;}
+.wd-log th{text-align:right;font-size:11px;color:var(--muted);font-weight:600;padding:6px 8px;border-bottom:2px solid var(--ink);}
+.wd-log th.name-col{text-align:left;}
+.wd-log td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--line);font-family:'Space Mono',monospace;}
+.wd-log td.name-col{text-align:left;font-family:'IBM Plex Sans JP';}
+.wd-summary{display:flex;gap:8px;margin-bottom:14px;}
+.wd-summary .bin-stat{flex:1;}
 
 .empty-msg{padding:20px;color:var(--muted);font-size:13px;}
 
@@ -184,6 +214,19 @@ table.perf tr:first-child td{color:var(--amber-deep);}
       <input type="text" id="orderManageFilter" placeholder="コース№で絞り込み" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;margin-bottom:14px;box-sizing:border-box;">
       <div id="orderManageBinBar" style="display:none;gap:8px;margin-bottom:12px;flex-wrap:wrap;"></div>
       <div id="orderManageList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="workerDetailOverlay">
+  <div class="admin-card" style="width:min(640px,92vw);">
+    <div class="admin-head">
+      <h2 id="workerDetailTitle">個人明細</h2>
+      <button class="close-x" id="workerDetailClose">&times;</button>
+    </div>
+    <div class="admin-body">
+      <div id="workerDetailSummary"></div>
+      <div id="workerDetailList"></div>
     </div>
   </div>
 </div>
@@ -333,6 +376,15 @@ function computeEndTime(data, currentProd, prevBinEnd, expectedProd, expectedBre
   }
   return null;
 }
+function renderRangeSummary(rangeRows){
+  if(!rangeRows || rangeRows.length === 0) return '';
+  const total = rangeRows.reduce((s,r)=>s+r.lots, 0);
+  const breakdown = rangeRows.map(r=>`${esc(r.name)} ${r.lots}`).join(' ／ ');
+  return `<div class="qty-summary-compact">
+    <span class="qsc-total">合計 ${total}</span>
+    <span class="qsc-breakdown">${breakdown}</span>
+  </div>`;
+}
 function renderBinCards(results){
   return `<div class="progress-grid">` + results.map(r=>{
     const cPct = r.courseTotal ? Math.round(r.courseDone/r.courseTotal*100) : 0;
@@ -374,12 +426,13 @@ async function refresh(){
   const dayStart = dateKey + 'T00:00:00';
   const dayEnd = dateKey + 'T23:59:59.999';
 
-  const [groups, courseRows, orderRows, logRows, sessionRows] = await Promise.all([
+  const [groups, courseRows, orderRows, logRows, sessionRows, rangeSummaryRows] = await Promise.all([
     sbSelect('work_groups', `site_code=eq.${encodeURIComponent(siteCode)}&order=name.asc`),
     sbSelect('course_master', `site_code=eq.${encodeURIComponent(siteCode)}&weekday=eq.${encodeURIComponent(wd)}`),
     sbSelect('orders', `site_code=eq.${encodeURIComponent(siteCode)}&work_date=eq.${dateKey}`),
     sbSelect('work_log', `site_code=eq.${encodeURIComponent(siteCode)}&start_at=gte.${dayStart}&start_at=lte.${dayEnd}&cancelled=eq.false`),
-    sbSelect('active_sessions', `site_code=eq.${encodeURIComponent(siteCode)}`)
+    sbSelect('active_sessions', `site_code=eq.${encodeURIComponent(siteCode)}`),
+    sbSelect('order_range_summary', `site_code=eq.${encodeURIComponent(siteCode)}&work_date=eq.${dateKey}`)
   ]);
 
   const courseBinMap = {};
@@ -391,7 +444,7 @@ async function refresh(){
   }));
 
   const logs = (logRows||[]).map(r=>({
-    no: r.worker_no, name: r.worker_name, groupId: r.group_id, courseNo: r.course_no, storeNo: r.store_no,
+    no: r.worker_no, name: r.worker_name, groupId: r.group_id, courseNo: r.course_no, courseName: r.course_name, storeNo: r.store_no,
     count: r.count, startISO: r.start_at, endISO: r.end_at
   }));
 
@@ -401,13 +454,21 @@ async function refresh(){
     ordersByGroup[r.group_id].push({courseNo: r.course_no, storeNo: r.store_no, lots: r.lots});
   });
 
-  LAST = { siteCode, groups: groups||[], ordersByGroup, logs, sessions, courseBinMap };
+  const rangeSummaryByGroup = {};
+  (rangeSummaryRows||[]).forEach(r=>{
+    if(!rangeSummaryByGroup[r.group_id]) rangeSummaryByGroup[r.group_id] = [];
+    rangeSummaryByGroup[r.group_id].push({name: r.range_name, lots: r.lots});
+  });
+
+  LAST = { siteCode, groups: groups||[], ordersByGroup, logs, sessions, courseBinMap, rangeSummaryByGroup };
 
   const now = new Date();
   const sectionsHtml = (groups||[]).map(g=>{
     const planEntries = ordersByGroup[g.id] || [];
     const doneEntries = logs.filter(l => l.groupId === g.id);
     const openInGroup = sessions.filter(s => s.groupId === g.id);
+
+    const rangeSummaryHtml = renderRangeSummary(rangeSummaryByGroup[g.id]);
 
     let progressHtml = '<div class="empty-msg">本日の受注データが未取込です。</div>';
     if(planEntries.length > 0){
@@ -424,29 +485,39 @@ async function refresh(){
     }
 
     const workersHtml = renderGroupWorkers(openInGroup);
-    const perfHtml = renderGroupPerformance(doneEntries);
+    const perfHtml = renderGroupPerformanceTable(g.id, doneEntries);
 
     return `<div class="group-section">
       <h2>${esc(g.name)}</h2>
+      ${rangeSummaryHtml}
       <div class="sub-block">${progressHtml}</div>
-      <div class="sub-block">
-        <div class="sub-head"><h4>現在の作業者</h4><div class="sub-count">${openInGroup.length}人</div></div>
-        ${workersHtml}
-      </div>
-      <div class="sub-block">
-        <div class="sub-head"><h4>本日の個人成績</h4></div>
-        ${perfHtml}
-      </div>
+      <details class="sub-details" data-detail-key="${g.id}:workers">
+        <summary><h4>現在の作業者</h4><div class="sub-count">${openInGroup.length}人</div></summary>
+        <div class="sub-body">${workersHtml}</div>
+      </details>
+      <details class="sub-details" data-detail-key="${g.id}:perf">
+        <summary><h4>本日の個人成績</h4><div class="sub-count">${new Set(doneEntries.map(l=>l.no)).size}人</div></summary>
+        <div class="sub-body" id="perfBody-${g.id}">${perfHtml}</div>
+      </details>
       <div class="sub-block">
         <div class="sub-head"><h4>受注データ</h4><button class="manage-btn" data-group="${g.id}">受注データ確認</button></div>
       </div>
     </div>`;
   }).join('');
 
+  const openDetailKeys = new Set();
+  $('groupSections').querySelectorAll('details.sub-details[open]').forEach(d=>{
+    openDetailKeys.add(d.getAttribute('data-detail-key'));
+  });
+
   $('groupSections').innerHTML = sectionsHtml || '<div class="empty-msg">この拠点にはまだ作業グループがありません。</div>';
   $('groupSections').querySelectorAll('.manage-btn').forEach(btn=>{
     btn.addEventListener('click', ()=> openOrderManage(btn.getAttribute('data-group')));
   });
+  $('groupSections').querySelectorAll('details.sub-details').forEach(d=>{
+    if(openDetailKeys.has(d.getAttribute('data-detail-key'))) d.open = true;
+  });
+  (groups||[]).forEach(g => attachPerfHandlers(g.id));
   $('updatedText').textContent = '最終更新: ' + fmtTimeShort(now.toISOString());
   if($('orderManageOverlay').classList.contains('show')) renderOrderManageList();
 }
@@ -467,8 +538,15 @@ function renderGroupWorkers(openInGroup){
   }).join('') + `</div>`;
 }
 
-function renderGroupPerformance(doneEntries){
-  if(doneEntries.length === 0) return '<div class="working-empty">本日の完了実績はまだありません</div>';
+const PERF_SORT = {}; // groupId -> {key, dir}
+const PERF_COLS = [
+  {key:'name', label:'氏名', cls:'name-col'},
+  {key:'stores', label:'店舗数'},
+  {key:'count', label:'数量'},
+  {key:'productivity', label:'生産性/h'}
+];
+
+function computePerfPeople(doneEntries){
   const byWorker = {};
   doneEntries.forEach(l=>{
     if(!byWorker[l.no]) byWorker[l.no] = {no:l.no, name:l.name, storeKeys:new Set(), count:0, seconds:0};
@@ -476,19 +554,102 @@ function renderGroupPerformance(doneEntries){
     byWorker[l.no].count += l.count;
     byWorker[l.no].seconds += Math.max(0, (new Date(l.endISO) - new Date(l.startISO))/1000);
   });
-  const people = Object.values(byWorker).map(w=>{
+  return Object.values(byWorker).map(w=>{
     const minutes = w.seconds/60;
     const productivity = minutes>0 ? Math.round(w.count*60/minutes) : 0;
     return { no:w.no, name:w.name, stores:w.storeKeys.size, count:w.count, productivity };
-  }).sort((a,b)=> b.productivity - a.productivity);
+  });
+}
 
-  return `<table class="perf">
-    <thead><tr><th class="name-col">氏名</th><th>店舗数</th><th>数量</th><th>生産性/h</th></tr></thead>
+function renderGroupPerformanceTable(groupId, doneEntries){
+  if(doneEntries.length === 0) return '<div class="working-empty">本日の完了実績はまだありません</div>';
+  if(!PERF_SORT[groupId]) PERF_SORT[groupId] = {key:'productivity', dir:'desc'};
+  const {key, dir} = PERF_SORT[groupId];
+  let people = computePerfPeople(doneEntries);
+  people.sort((a,b)=>{
+    let r;
+    if(key === 'name') r = String(a.name).localeCompare(String(b.name), 'ja');
+    else r = a[key] - b[key];
+    return dir === 'asc' ? r : -r;
+  });
+
+  const theadHtml = PERF_COLS.map(c=>{
+    const arrow = c.key === key ? (dir==='asc' ? '▲' : '▼') : '';
+    return `<th class="${c.cls||''}" data-sortkey="${c.key}">${c.label}<span class="sort-arrow">${arrow}</span></th>`;
+  }).join('');
+
+  return `<table class="perf" data-group="${groupId}">
+    <thead><tr>${theadHtml}</tr></thead>
     <tbody>${people.map(p=>`
-      <tr><td class="name-col">${esc(p.name)} <span style="color:var(--muted);font-size:11px;">(№${p.no})</span></td><td>${p.stores}</td><td>${p.count}</td><td>${p.productivity}</td></tr>
+      <tr data-worker="${p.no}" data-name="${esc(p.name)}"><td class="name-col">${esc(p.name)} <span style="color:var(--muted);font-size:11px;">(№${p.no})</span></td><td>${p.stores}</td><td>${p.count}</td><td>${p.productivity}</td></tr>
     `).join('')}</tbody>
   </table>`;
 }
+
+function attachPerfHandlers(groupId){
+  const body = $('perfBody-' + groupId);
+  if(!body) return;
+  body.querySelectorAll('th[data-sortkey]').forEach(th=>{
+    th.addEventListener('click', ()=>{
+      const key = th.getAttribute('data-sortkey');
+      const cur = PERF_SORT[groupId] || {key:'productivity', dir:'desc'};
+      if(cur.key === key){ cur.dir = cur.dir === 'asc' ? 'desc' : 'asc'; }
+      else { PERF_SORT[groupId] = {key, dir: key==='name' ? 'asc' : 'desc'}; }
+      refreshPerfTable(groupId);
+    });
+  });
+  body.querySelectorAll('tbody tr[data-worker]').forEach(tr=>{
+    tr.addEventListener('click', ()=>{
+      openWorkerDetail(groupId, tr.getAttribute('data-worker'), tr.getAttribute('data-name'));
+    });
+  });
+}
+
+function refreshPerfTable(groupId){
+  const body = $('perfBody-' + groupId);
+  if(!body) return;
+  const doneEntries = LAST.logs.filter(l => l.groupId === groupId);
+  body.innerHTML = renderGroupPerformanceTable(groupId, doneEntries);
+  attachPerfHandlers(groupId);
+}
+
+// ---------- 個人明細モーダル(本日の個人成績から氏名クリックで表示) ----------
+function openWorkerDetail(groupId, workerNo, workerName){
+  const entries = LAST.logs
+    .filter(l => l.groupId === groupId && String(l.no) === String(workerNo))
+    .sort((a,b)=> new Date(a.startISO) - new Date(b.startISO));
+
+  $('workerDetailTitle').textContent = `個人明細 ・ ${workerName} (№${workerNo})`;
+
+  const totalCount = entries.reduce((s,e)=>s+e.count, 0);
+  const totalSeconds = entries.reduce((s,e)=> s + Math.max(0,(new Date(e.endISO)-new Date(e.startISO))/1000), 0);
+  const productivity = totalSeconds>0 ? Math.round(totalCount*3600/totalSeconds) : 0;
+  $('workerDetailSummary').innerHTML = `<div class="wd-summary">
+    <div class="bin-stat"><div class="n">${entries.length}</div><div class="l">完了店数</div></div>
+    <div class="bin-stat"><div class="n">${totalCount}</div><div class="l">数量</div></div>
+    <div class="bin-stat"><div class="n">${productivity}</div><div class="l">生産性/h</div></div>
+  </div>`;
+
+  if(entries.length === 0){
+    $('workerDetailList').innerHTML = '<div class="empty-msg">本日の完了実績はありません</div>';
+  } else {
+    $('workerDetailList').innerHTML = `<table class="wd-log">
+      <thead><tr><th class="name-col">コース－店</th><th>個口数</th><th>開始</th><th>終了</th><th>所要</th></tr></thead>
+      <tbody>${entries.map(e=>{
+        const dur = Math.max(0,(new Date(e.endISO)-new Date(e.startISO))/1000);
+        return `<tr>
+          <td class="name-col">${esc(e.courseName||('コース'+e.courseNo))} － ${e.storeNo}</td>
+          <td>${e.count}</td>
+          <td>${fmtTimeShort(e.startISO)}</td>
+          <td>${fmtTimeShort(e.endISO)}</td>
+          <td>${fmtDuration(dur)}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+  }
+  $('workerDetailOverlay').classList.add('show');
+}
+$('workerDetailClose').addEventListener('click', ()=> $('workerDetailOverlay').classList.remove('show'));
 
 function tickTimers(){
   document.querySelectorAll('.wk-timer').forEach(el=>{
