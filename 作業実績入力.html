@@ -2556,7 +2556,7 @@ function renderOrderManageList(){
     const isOverdue = remainCount > 0 && frontierSeq !== null && seq !== undefined && seq <= frontierSeq;
     const warnNote = isOverdue ? `<span class="psg-warn">⚠ 見落としの疑い(他のコースは先に進んでいます)</span>` : '';
     const storeRows = c.remainingItems
-      .sort((a,b)=> a.storeNo - b.storeNo)
+      .sort((a,b)=> (a.seq||0) - (b.seq||0) || a.storeNo - b.storeNo)
       .map(e => `
       <div class="pick-store-item" data-course="${e.courseNo}" data-store="${e.storeNo}" style="cursor:default;">
         <div class="psi-code">${e.courseNo} － ${e.storeNo}</div>
