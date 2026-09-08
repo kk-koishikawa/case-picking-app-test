@@ -967,13 +967,7 @@ function csHandleEnter(){
     const rec = orderMap[key];
     if(!rec){ showError('店番号の誤りです(本日の受注データに該当なし)'); ctx.csStore=''; renderCsBoxes(); return; }
     ctx.storeNo = s;
-    step = 'count'; buffer = String(rec.lots); bufferIsAutoFilled = true;
-    $('csRow').style.display = 'none';
-    $('displayValue').style.display = 'block';
-    $('stepEyebrow').textContent = 'STEP 4';
-    $('stepTitle').textContent = '個口数を確認してください';
-    $('displaySub').textContent = `${ctx.courseName} / 店${s} ｜ 受注データより自動入力(修正可)`;
-    renderDisplay();
+    showStartConfirm(rec.lots);
     return;
   }
 
@@ -1153,17 +1147,8 @@ function selectPickedStore(courseNo, storeNo){
   ctx.courseNo = courseNo;
   ctx.courseName = `コース${courseNo}`;
   ctx.storeNo = storeNo;
-  step = 'count';
-  buffer = rec ? String(rec.lots) : '';
-  bufferIsAutoFilled = !!rec;
   $('pickStoreView').style.display = 'none';
-  $('csRow').style.display = 'none';
-  $('displayValue').style.display = 'block';
-  $('keypad').style.display = 'grid';
-  $('stepEyebrow').textContent = 'STEP 3';
-  $('stepTitle').textContent = '個口数を確認してください';
-  $('displaySub').textContent = `コース${courseNo} / 店${storeNo} ｜ 受注データより自動入力(修正可)`;
-  renderDisplay();
+  showStartConfirm(rec ? rec.lots : 0);
 }
 
 function goToCourseStore(){
@@ -1201,15 +1186,31 @@ function showStartConfirm(count){
   $('lockedGrid').innerHTML = `
     <div class="locked-item"><div class="lbl">担当者№</div><div class="val">${ctx.no} ${escapeHtml(ctx.name)}</div></div>
     <div class="locked-item"><div class="lbl">作業グループ</div><div class="val">${escapeHtml(ctx.groupName||'-')}</div></div>
-    <div class="locked-item"><div class="lbl">コース</div><div class="val">${escapeHtml(ctx.courseName)}</div></div>
-    <div class="locked-item"><div class="lbl">店№</div><div class="val">${ctx.storeNo}</div></div>
-    <div class="locked-item"><div class="lbl">個口数</div><div class="val">${count}</div></div>
+    <div class="locked-item"><div class="lbl">コース－店</div><div class="val">${escapeHtml(ctx.courseName)} － 店${ctx.storeNo}</div></div>
+    <div class="locked-item"><div class="lbl">個口数(タップで修正)</div><div class="val">
+      <input type="text" readonly id="startConfirmCountInput" value="${count}"
+        style="width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:4px 8px;
+          font-family:'Space Mono',monospace;font-size:inherit;font-weight:inherit;color:inherit;
+          background:#fff;cursor:pointer;text-align:right;">
+    </div></div>
   `;
   $('startingActions').style.display = 'flex';
+  const countInput = $('startConfirmCountInput');
+  if(countInput) countInput.addEventListener('click', ()=> openHistoryNumpad(countInput, '個口数', false));
 }
 $('confirmStartBtn').addEventListener('click', ()=>{
+  const countInput = $('startConfirmCountInput');
+  let count = ctx.pendingCount;
+  if(countInput){
+    const n = parseInt(countInput.value, 10);
+    if(!Number.isInteger(n) || n <= 0){
+      vibrate([15,40,15]);
+      alert('個口数の誤りです。修正してください。');
+      return;
+    }
+    count = n;
+  }
   vibrate(10);
-  const count = ctx.pendingCount;
   $('startingActions').style.display = 'none';
   startWork(count);
 });
@@ -2468,6 +2469,10 @@ $('historyNumpadOverlay').querySelectorAll('.numpad-key').forEach(btn=>{
     }
     $('historyNumpadDisplay').textContent = input.value || ' ';
     if(historyNumpadIsFilter) renderHistoryTable();
+    if(input.id === 'startConfirmCountInput'){
+      const n = parseInt(input.value, 10);
+      $('displaySub').textContent = (Number.isInteger(n) && n >= 200) ? '⚠ 個口数が200以上です。内容をご確認ください。' : '';
+    }
   });
 });
 $('historyNumpadDone').addEventListener('click', ()=>{
