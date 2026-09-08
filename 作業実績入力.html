@@ -975,13 +975,7 @@ function csHandleEnter(){
   const match = ctx.courseMatch;
   if(s < match.minS || s > match.maxS){ showError('店番号の誤りです'); ctx.csStore=''; renderCsBoxes(); return; }
   ctx.storeNo = s;
-  step = 'count'; buffer=''; bufferIsAutoFilled=false;
-  $('csRow').style.display = 'none';
-  $('displayValue').style.display = 'block';
-  $('stepEyebrow').textContent = 'STEP 4';
-  $('stepTitle').textContent = '個口数を入力してください';
-  $('displaySub').textContent = `${ctx.courseName} / 店${s}`;
-  renderDisplay();
+  showStartConfirm(0);
 }
 function renderCsBoxes(){
   const cVal = $('csCourseVal'), sVal = $('csStoreVal');
@@ -1028,7 +1022,6 @@ function resetToWorker(){
 
 function handleEnter(){
   if(step === 'worker') return handleWorkerEnter();
-  if(step === 'count') return handleCountEnter();
 }
 
 function handleWorkerEnter(){
@@ -1166,17 +1159,10 @@ function goToCourseStore(){
   renderCsBoxes();
 }
 
-function handleCountEnter(){
-  if(buffer===''){ showError('個口数を入力して下さい'); return; }
-  const n = parseInt(buffer,10);
-  if(!Number.isInteger(n) || n <= 0){ showError('個口数の誤りです'); buffer=''; bufferIsAutoFilled=false; renderDisplay(); return; }
-  showStartConfirm(n);
-}
-
 function showStartConfirm(count){
   ctx.pendingCount = count;
   step = 'startConfirm';
-  $('stepEyebrow').textContent = 'STEP 4 ・ 開始確認';
+  $('stepEyebrow').textContent = 'STEP 3 ・ 開始確認';
   $('stepTitle').textContent = `この内容で開始しますか？`;
   $('displaySub').textContent = count >= 200 ? '⚠ 個口数が200以上です。内容をご確認ください。' : '';
   buffer = ''; bufferIsAutoFilled = false;
