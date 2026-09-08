@@ -2309,7 +2309,7 @@ function renderHistoryTable(){
   const activeGroup = resolveActiveGroup();
   if(activeGroup) rows = rows.filter(r => r.groupId === activeGroup.id);
   if(courseFilter) rows = rows.filter(r => String(r.courseNo).includes(courseFilter));
-  if(workerFilter) rows = rows.filter(r => String(r.no).includes(workerFilter));
+  if(workerFilter) rows = rows.filter(r => String(r.no) === workerFilter);
   rows = sortHistoryRows(rows);
   updateHistorySortArrows();
 
