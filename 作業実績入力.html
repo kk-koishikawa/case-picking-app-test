@@ -1190,8 +1190,9 @@ function showStartConfirm(count){
     <div class="locked-item"><div class="lbl">コース－店</div><div class="val">${escapeHtml(ctx.courseName)} － 店${ctx.storeNo}</div></div>
     <div class="locked-item"><div class="lbl">個口数(タップで修正)</div><div class="val">
       <input type="text" readonly id="startConfirmCountInput" value="${count}"
-        style="width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:6px 10px;
-          font-family:'Space Mono',monospace;font-size:34px;font-weight:700;color:inherit;
+        style="width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:10px 10px 8px;
+          font-family:'Space Mono',monospace;font-size:34px;line-height:1.25;font-weight:700;color:inherit;
+          -webkit-appearance:none;appearance:none;
           background:#fff;cursor:pointer;text-align:right;">
     </div></div>
   `;
