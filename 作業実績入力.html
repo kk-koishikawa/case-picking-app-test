@@ -1189,11 +1189,10 @@ function showStartConfirm(count){
     <div class="locked-item"><div class="lbl">作業グループ</div><div class="val">${escapeHtml(ctx.groupName||'-')}</div></div>
     <div class="locked-item"><div class="lbl">コース－店</div><div class="val">${escapeHtml(ctx.courseName)} － 店${ctx.storeNo}</div></div>
     <div class="locked-item"><div class="lbl">個口数(タップで修正)</div><div class="val">
-      <input type="text" readonly id="startConfirmCountInput" value="${count}"
-        style="width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:10px 10px 8px;
-          font-family:'Space Mono',monospace;font-size:34px;line-height:1.25;font-weight:700;color:inherit;
-          -webkit-appearance:none;appearance:none;
-          background:#fff;cursor:pointer;text-align:right;">
+      <div id="startConfirmCountInput" tabindex="0"
+        style="width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:8px 10px;
+          font-family:'Space Mono',monospace;font-size:34px;font-weight:700;color:inherit;
+          background:#fff;cursor:pointer;text-align:right;">${count}</div>
     </div></div>
   `;
   $('startingActions').style.display = 'flex';
@@ -1204,7 +1203,7 @@ $('confirmStartBtn').addEventListener('click', ()=>{
   const countInput = $('startConfirmCountInput');
   let count = ctx.pendingCount;
   if(countInput){
-    const n = parseInt(countInput.value, 10);
+    const n = parseInt(numpadElVal(countInput), 10);
     if(!Number.isInteger(n) || n <= 0){
       vibrate([15,40,15]);
       alert('個口数の誤りです。修正してください。');
@@ -2444,12 +2443,14 @@ $('historyClose').addEventListener('click', ()=> $('historyOverlay').classList.r
 let historyNumpadTargetInput = null;
 let historyNumpadIsFilter = false;
 let historyNumpadFirstInput = false; // 開いた直後の最初のタップで、元の値を消してから入力する
+function numpadElVal(el){ return ('value' in el) ? el.value : el.textContent; }
+function numpadElSetVal(el, v){ if('value' in el){ el.value = v; } else { el.textContent = v; } }
 function openHistoryNumpad(inputEl, label, isFilter){
   historyNumpadTargetInput = inputEl;
   historyNumpadIsFilter = !!isFilter;
   historyNumpadFirstInput = true;
   $('historyNumpadLabel').textContent = label;
-  $('historyNumpadDisplay').textContent = inputEl.value || ' ';
+  $('historyNumpadDisplay').textContent = numpadElVal(inputEl) || ' ';
   $('historyNumpadOverlay').classList.add('show');
 }
 $('historyCourseFilter').addEventListener('click', ()=> openHistoryNumpad($('historyCourseFilter'), 'コース№', true));
@@ -2459,20 +2460,22 @@ $('historyNumpadOverlay').querySelectorAll('.numpad-key').forEach(btn=>{
     if(!historyNumpadTargetInput) return;
     const input = historyNumpadTargetInput;
     const k = btn.getAttribute('data-k');
+    let v = numpadElVal(input);
     if(k === 'clear'){
-      input.value = '';
+      v = '';
       historyNumpadFirstInput = false;
     } else if(k === 'back'){
-      input.value = input.value.slice(0, -1);
+      v = v.slice(0, -1);
       historyNumpadFirstInput = false;
     } else {
-      if(historyNumpadFirstInput){ input.value = ''; historyNumpadFirstInput = false; }
-      input.value += k;
+      if(historyNumpadFirstInput){ v = ''; historyNumpadFirstInput = false; }
+      v += k;
     }
-    $('historyNumpadDisplay').textContent = input.value || ' ';
+    numpadElSetVal(input, v);
+    $('historyNumpadDisplay').textContent = v || ' ';
     if(historyNumpadIsFilter) renderHistoryTable();
     if(input.id === 'startConfirmCountInput'){
-      const n = parseInt(input.value, 10);
+      const n = parseInt(v, 10);
       $('displaySub').textContent = (Number.isInteger(n) && n >= 200) ? '⚠ 個口数が200以上です。内容をご確認ください。' : '';
     }
   });
