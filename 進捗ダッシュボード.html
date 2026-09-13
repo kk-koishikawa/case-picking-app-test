@@ -200,7 +200,8 @@ table.perf .row-arrow{display:inline-block;width:12px;color:var(--steel);font-si
     </div>
     <div class="clock" id="clock">--:--:--</div>
     <div class="updated" id="updatedText"></div>
-    <button id="forceReloadBtn" onclick="location.href=location.pathname+'?_r='+Date.now();" title="最新版を強制的に読み込み直します" style="padding:8px 14px;border-radius:6px;border:1px solid #46505E;background:#232D3B;color:#fff;font-weight:700;font-family:inherit;font-size:13px;cursor:pointer;">⟳ 更新</button>
+    <button id="manualRefreshBtn" title="最新のデータを取得します" style="padding:8px 14px;border-radius:6px;border:1px solid #2E7D32;background:#2E7D32;color:#fff;font-weight:700;font-family:inherit;font-size:13px;cursor:pointer;">⟳ データ更新</button>
+    <button id="forceReloadBtn" onclick="location.href=location.pathname+'?_r='+Date.now();" title="アプリの最新版を強制的に読み込み直します" style="padding:8px 14px;border-radius:6px;border:1px solid #46505E;background:#232D3B;color:#fff;font-weight:700;font-family:inherit;font-size:13px;cursor:pointer;">⟳ 版更新</button>
   </div>
 </header>
 
@@ -825,13 +826,26 @@ async function deleteOrderEntries(groupId, entries){
 
 $('siteSelect').addEventListener('change', refresh);
 
+$('manualRefreshBtn').addEventListener('click', async ()=>{
+  const btn = $('manualRefreshBtn');
+  btn.disabled = true;
+  const orig = btn.textContent;
+  btn.textContent = '更新中...';
+  try{
+    await refresh();
+  } finally {
+    btn.textContent = orig;
+    btn.disabled = false;
+  }
+});
+
 (async function init(){
   await loadSiteOptions();
   await refresh();
   tickClock();
   setInterval(tickClock, 1000);
   setInterval(tickTimers, 1000);
-  setInterval(refresh, 15000);
+  // 自動更新(15秒ポーリング)は廃止。Supabase Egress超過対策のため手動更新のみに変更(2026/9/13)
 })();
 </script>
 </body>
