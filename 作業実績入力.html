@@ -2641,7 +2641,7 @@ setInterval(tickTimers, 1000);
   await loadCourseMaster();
   await loadOrders();
   await refreshFromServer();
-  setInterval(refreshFromServer, 5000);
+  setInterval(refreshFromServer, 15000); // Supabase Egress超過対策のため5秒→15秒に変更(2026/9/13)
 })();
 </script>
 </body>
