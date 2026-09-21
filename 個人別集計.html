@@ -348,6 +348,10 @@ function weekdayJaOfTimestamp(iso){
   const jst = new Date(utcMs + 9*3600000);
   return WEEKDAY_JA[jst.getUTCDay()];
 }
+function nextWeekdayJa(wd){
+  const idx = WEEKDAY_JA.indexOf(wd);
+  return WEEKDAY_JA[(idx+1) % 7];
+}
 function fmtDateShortJst(iso){
   const utcMs = new Date(iso).getTime();
   const jst = new Date(utcMs + 9*3600000);
@@ -452,9 +456,17 @@ function detectBinsHeuristic(courseNo, allCourseNos){
 function getBinForRow(r, binMapByWeekday){
   const wd = weekdayJaOfTimestamp(r.start_at);
   const dayMap = (binMapByWeekday && binMapByWeekday[wd]) || {};
-  const b = dayMap[r.course_no];
+  let b = dayMap[r.course_no];
   // 注意: 便=0(朝配)は falsy なので `||` で判定すると誤って
   // フォールバック(1便扱い)になってしまう。undefinedかどうかで判定する。
+  if(b === undefined){
+    // 朝配(0便)は「翌日納品分を前日のうちに仕分ける」作業のため、
+    // ケース作業順表では実際の作業日ではなく"翌日"の曜日列に登録されている。
+    // 今日の曜日列に無いコースは、翌日の曜日列を便=0限定で確認する。
+    const nextWd = nextWeekdayJa(wd);
+    const nextDayMap = (binMapByWeekday && binMapByWeekday[nextWd]) || {};
+    if(nextDayMap[r.course_no] === 0) b = 0;
+  }
   return b !== undefined ? b : detectBinsHeuristic(r.course_no);
 }
 

@@ -2026,6 +2026,10 @@ function aggregateForGroup(rows, ranges){
 // ---------- course master (拠点共通のコース表: 作業順・便・曜日別コース№) ----------
 const WEEKDAY_JA = ['日','月','火','水','木','金','土'];
 function todayWeekdayJa(){ return WEEKDAY_JA[new Date().getDay()]; }
+function nextWeekdayJa(wd){
+  const idx = WEEKDAY_JA.indexOf(wd);
+  return WEEKDAY_JA[(idx+1) % 7];
+}
 
 let courseSeqMap = {};   // courseNo -> 作業順(そのコースの基準値)
 let courseBinMap = {};   // courseNo -> 便(1 or 2)
@@ -2040,17 +2044,31 @@ async function loadCourseMaster(){
   const siteCode = appSettings.siteCode;
   if(!siteCode){ setCourseMasterStatus('コース表:未設定', 'var(--muted)'); return; }
   const wd = todayWeekdayJa();
-  const rows = await sbSelect('course_master', `site_code=eq.${encodeURIComponent(siteCode)}&weekday=eq.${encodeURIComponent(wd)}`);
-  if(!rows || rows.length === 0){
+  const nextWd = nextWeekdayJa(wd);
+  // 朝配(0便)は「翌日納品分を前日のうちに仕分ける」作業のため、
+  // ケース作業順表では実際の作業日ではなく"翌日"の曜日列に登録されている。
+  // 今日の曜日列だけでは朝配コースが拾えないため、翌日の便=0行も別途取得して補う。
+  const [rows, nextBinZeroRows] = await Promise.all([
+    sbSelect('course_master', `site_code=eq.${encodeURIComponent(siteCode)}&weekday=eq.${encodeURIComponent(wd)}`),
+    sbSelect('course_master', `site_code=eq.${encodeURIComponent(siteCode)}&weekday=eq.${encodeURIComponent(nextWd)}&bin=eq.0`)
+  ]);
+  if((!rows || rows.length === 0) && (!nextBinZeroRows || nextBinZeroRows.length === 0)){
     setCourseMasterStatus(`コース表:未設定(${wd}曜日分なし・絞り込みなし)`, 'var(--muted)');
     return;
   }
-  rows.forEach(r=>{
+  (rows||[]).forEach(r=>{
     courseSeqMap[r.course_no] = r.seq;
     courseBinMap[r.course_no] = r.bin;
     validCourseSet.add(r.course_no);
   });
-  setCourseMasterStatus(`コース表:${wd}曜日 ${rows.length}コース`, 'var(--green)');
+  (nextBinZeroRows||[]).forEach(r=>{
+    if(courseBinMap[r.course_no] !== undefined) return;
+    courseSeqMap[r.course_no] = r.seq;
+    courseBinMap[r.course_no] = r.bin; // === 0
+    validCourseSet.add(r.course_no);
+  });
+  const nextCount = (nextBinZeroRows||[]).length;
+  setCourseMasterStatus(`コース表:${wd}曜日 ${(rows||[]).length}コース${nextCount ? ` + 朝配(${nextWd}曜日分)${nextCount}コース` : ''}`, 'var(--green)');
 }
 
 function parseCourseMasterXlsx(buffer){

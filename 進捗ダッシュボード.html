@@ -289,6 +289,10 @@ function fmtDuration(sec){
 function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 const WEEKDAY_JA = ['日','月','火','水','木','金','土'];
 function todayWeekdayJa(){ return WEEKDAY_JA[new Date().getDay()]; }
+function nextWeekdayJa(wd){
+  const idx = WEEKDAY_JA.indexOf(wd);
+  return WEEKDAY_JA[(idx+1) % 7];
+}
 
 // ---------- bin math (mirrors the main kiosk app) ----------
 function detectBins(courseNumbers){
@@ -419,13 +423,18 @@ async function refresh(){
   localSet('dash_site_code', siteCode);
 
   const wd = todayWeekdayJa();
+  const nextWd = nextWeekdayJa(wd);
   const dateKey = todayKey();
   const dayStart = dateKey + 'T00:00:00';
   const dayEnd = dateKey + 'T23:59:59.999';
 
-  const [groups, courseRows, orderRows, logRows, sessionRows, rangeSummaryRows] = await Promise.all([
+  const [groups, courseRows, nextBinZeroRows, orderRows, logRows, sessionRows, rangeSummaryRows] = await Promise.all([
     sbSelect('work_groups', `site_code=eq.${encodeURIComponent(siteCode)}&order=name.asc`),
     sbSelect('course_master', `site_code=eq.${encodeURIComponent(siteCode)}&weekday=eq.${encodeURIComponent(wd)}`),
+    // 朝配(0便)は「翌日納品分を前日のうちに仕分ける」作業のため、
+    // ケース作業順表では実際の作業日ではなく"翌日"の曜日列に登録されている。
+    // 今日の曜日列だけでは朝配コースが拾えないため、翌日の便=0行も別途取得して補う。
+    sbSelect('course_master', `site_code=eq.${encodeURIComponent(siteCode)}&weekday=eq.${encodeURIComponent(nextWd)}&bin=eq.0`),
     sbSelect('orders', `site_code=eq.${encodeURIComponent(siteCode)}&work_date=eq.${dateKey}`),
     sbSelect('work_log', `site_code=eq.${encodeURIComponent(siteCode)}&start_at=gte.${dayStart}&start_at=lte.${dayEnd}&cancelled=eq.false`),
     sbSelect('active_sessions', `site_code=eq.${encodeURIComponent(siteCode)}`),
@@ -435,6 +444,11 @@ async function refresh(){
   const courseBinMap = {};
   const courseSeqMap = {};
   (courseRows||[]).forEach(r=>{ courseBinMap[r.course_no] = r.bin; courseSeqMap[r.course_no] = r.seq; });
+  (nextBinZeroRows||[]).forEach(r=>{
+    if(courseBinMap[r.course_no] !== undefined) return;
+    courseBinMap[r.course_no] = r.bin; // === 0
+    courseSeqMap[r.course_no] = r.seq;
+  });
 
   const sessions = (sessionRows||[]).map(r=>({
     no: r.worker_no, name: r.worker_name, groupId: r.group_id, groupName: r.group_name,
