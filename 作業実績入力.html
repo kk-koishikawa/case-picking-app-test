@@ -1986,6 +1986,14 @@ function extractFileWorkDate(rows){
   const pad = n=>String(n).padStart(2,'0');
   return `${workDate.getFullYear()}-${pad(workDate.getMonth()+1)}-${pad(workDate.getDate())}`;
 }
+function effectiveCourseSeq(courseNo){
+  const s = courseSeqMap[courseNo];
+  if(s === undefined) return undefined;
+  // 朝配(0便)はケース作業順表内の行番号(作業順1,2,3...)が1便・2便より小さい値なので、
+  // そのまま比較すると朝配が先頭に来てしまう。実際の作業順は 1便→2便→朝配 のため、
+  // 朝配のコースには大きなオフセットを足して必ず最後尾に来るようにする。
+  return courseBinMap[courseNo] === 0 ? s + 100000 : s;
+}
 function aggregateForGroup(rows, ranges){
   const map = {};
   const rangeTotals = {}; // name -> lots
@@ -2010,7 +2018,7 @@ function aggregateForGroup(rows, ranges){
       // 作業順は「コース表のコース単位の順番」を上位、「ファイル内での実際の出現順」を
       // コース内の店の並びに使う(コース表には店ごとの並びまでは無いため)
       const seq = hasCourseTable && courseSeqMap[courseNo] !== undefined
-        ? courseSeqMap[courseNo] * 100000 + idx
+        ? effectiveCourseSeq(courseNo) * 100000 + idx
         : idx;
       map[key] = {courseNo, storeNo, lots: 0, seq};
     }
@@ -2550,14 +2558,14 @@ function renderOrderManageList(){
     else byCourse[e.courseNo].remainingItems.push(e);
   });
   // 作業順(seq)がわかれば、実際の作業順に並べる。分からないコースはコース№順で末尾に。
-  const seqOf = c => courseSeqMap[c] !== undefined ? courseSeqMap[c] : Infinity;
+  const seqOf = c => effectiveCourseSeq(c) !== undefined ? effectiveCourseSeq(c) : Infinity;
 
   // すでに他のコースがどこまで進んでいるか(=作業順の最前線)を調べ、
   // それより手前の作業順なのにまだ残っているコースは「見落とし」の疑いとして目立たせる。
   const busyCourseNos = new Set([...busy].map(k => parseInt(k.split('-')[0], 10)));
   let frontierSeq = null;
   busyCourseNos.forEach(c=>{
-    const s = courseSeqMap[c];
+    const s = effectiveCourseSeq(c);
     if(s !== undefined && (frontierSeq === null || s > frontierSeq)) frontierSeq = s;
   });
 
@@ -2574,7 +2582,7 @@ function renderOrderManageList(){
     const courseDelBtn = remainCount > 0
       ? `<button class="psi-del psg-del" data-course="${c.courseNo}" title="このコースの残りをすべて削除">🗑 コース削除</button>`
       : '';
-    const seq = courseSeqMap[c.courseNo];
+    const seq = effectiveCourseSeq(c.courseNo);
     const isOverdue = remainCount > 0 && frontierSeq !== null && seq !== undefined && seq <= frontierSeq;
     const warnNote = isOverdue ? `<span class="psg-warn">⚠ 見落としの疑い(他のコースは先に進んでいます)</span>` : '';
     const storeRows = c.remainingItems
