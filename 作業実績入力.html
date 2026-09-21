@@ -1339,7 +1339,11 @@ function detectBinsFromCourseTable(courseNumbers){
     if(!byBin[b]) byBin[b] = new Set();
     byBin[b].add(c);
   });
-  return Object.keys(byBin).map(Number).sort((a,b)=>a-b).map(b => ({label: b+'便', courseSet: byBin[b]}));
+  // 表示順は 1便→2便→朝配(0便) の固定順。bin番号の昇順ソートだと
+  // 朝配(0)が先頭に来てしまうため、順序マップで並べ替える。
+  const binOrder = b => b === 0 ? 999 : b;
+  const binLabel = b => b === 0 ? '朝配' : (b+'便');
+  return Object.keys(byBin).map(Number).sort((a,b)=>binOrder(a)-binOrder(b)).map(b => ({label: binLabel(b), courseSet: byBin[b]}));
 }
 function computeBinData(bin, planEntries, doneEntries, openSessions, now){
   const inBin = e => bin.courseSet ? bin.courseSet.has(e.courseNo) : (e.courseNo >= bin.min && e.courseNo <= bin.max);
@@ -2494,19 +2498,22 @@ function renderOrderManageList(){
   const allEntries = Object.values(orderMap);
   const remaining = allEntries.filter(e => !busy.has(e.courseNo+'-'+e.storeNo));
 
-  // 便(1便/2便)一括削除バー: コース表が読み込まれていて、複数便が残っている時だけ出す
-  const binsPresent = [...new Set(remaining.map(e => courseBinMap[e.courseNo]).filter(b => b !== undefined))].sort((a,b)=>a-b);
+  // 便(1便/2便/朝配)一括削除バー: コース表が読み込まれていて、複数便が残っている時だけ出す
+  // 表示順は 1便→2便→朝配(0便) の固定順。bin番号の昇順ソートだと朝配(0)が先頭に来てしまう。
+  const binOrderForBar = b => b === 0 ? 999 : b;
+  const binLabelForBar = b => b === 0 ? '朝配' : (b+'便');
+  const binsPresent = [...new Set(remaining.map(e => courseBinMap[e.courseNo]).filter(b => b !== undefined))].sort((a,b)=>binOrderForBar(a)-binOrderForBar(b));
   if(binsPresent.length > 1){
     binBar.style.display = 'flex';
     binBar.innerHTML = binsPresent.map(b =>
-      `<button class="bin-hide-btn" data-bin="${b}">${b}便の残りを削除</button>`).join('');
+      `<button class="bin-hide-btn" data-bin="${b}">${binLabelForBar(b)}の残りを削除</button>`).join('');
     binBar.querySelectorAll('.bin-hide-btn').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         const bin = parseInt(btn.getAttribute('data-bin'), 10);
         const targets = remaining.filter(e => courseBinMap[e.courseNo] === bin);
         const courseCount = new Set(targets.map(e=>e.courseNo)).size;
         if(targets.length === 0) return;
-        showConfirm(`${bin}便の残り予定(${courseCount}コース・${targets.length}店)をまとめて削除します。完了済みの店には影響しません。この操作は元に戻せません。よろしいですか？`, ()=>{
+        showConfirm(`${binLabelForBar(bin)}の残り予定(${courseCount}コース・${targets.length}店)をまとめて削除します。完了済みの店には影響しません。この操作は元に戻せません。よろしいですか？`, ()=>{
           deleteOrderEntries(targets);
         });
       });
