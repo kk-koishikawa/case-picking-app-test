@@ -741,7 +741,37 @@ let bufferIsAutoFilled = false; // true when buffer was pre-filled from 受注�
 let ctx = {};            // in-progress entry context
 
 let lastKnownDateKey = null;
-async function refreshFromServer(){
+let lastWorkLogFetchAt = null; // work_logの差分取得用(前回取得時刻)。nullなら全件取得する。
+
+// 稼働時間(8:30〜20:30、日本時間)内かどうか。時間外はSupabaseへの定期アクセスを止める。
+// 端末のOS側タイムゾーン設定が誤っていても影響が出ないよう、getHours()(端末のローカル時刻)
+// ではなくUTC時刻から日本時間(UTC+9、サマータイムなし)を計算して判定する。
+function isWithinOperatingHours(){
+  const now = new Date();
+  const utcMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
+  const jstMinutes = (utcMinutes + 9 * 60) % (24 * 60); // 日本時間のその日の分数(0〜1439)
+  const startMinutes = 8 * 60 + 30;  // 8:30
+  const endMinutes = 20 * 60 + 30;   // 20:30
+  return jstMinutes >= startMinutes && jstMinutes < endMinutes;
+}
+
+// 差分取得したwork_logの行を、既存のtodayLogへ反映する(新規は追加、既存はidで上書き)。
+// 削除については反映されないため、定期的な全件同期(fullSync)で補う。
+function mergeWorkLogRows(rows){
+  rows.forEach(r=>{
+    const mapped = {
+      id: r.id, no: r.worker_no, name: r.worker_name, groupId: r.group_id, groupName: r.group_name,
+      courseNo: r.course_no, courseName: r.course_name, storeNo: r.store_no, count: r.count,
+      startISO: r.start_at, endISO: r.end_at, durationSec: r.duration_sec,
+      productivity: r.productivity, cancelled: r.cancelled
+    };
+    const idx = todayLog.findIndex(x => String(x.id) === String(mapped.id));
+    if(idx >= 0) todayLog[idx] = mapped; else todayLog.push(mapped);
+  });
+  todayLog.sort((a,b)=> new Date(b.startISO) - new Date(a.startISO));
+}
+
+async function refreshFromServer(fullSync=false){
   const siteCode = appSettings.siteCode;
   if(!siteCode) return;
 
@@ -757,6 +787,9 @@ async function refreshFromServer(){
     await loadRoster();
     await loadCourseMaster();
     await loadOrders();
+    todayLog = [];
+    lastWorkLogFetchAt = null; // 日付が変わったのでwork_logも全件取得し直す
+    fullSync = true;
   }
 
   const sessRows = await sbSelect('active_sessions', `site_code=eq.${encodeURIComponent(siteCode)}`);
@@ -782,15 +815,30 @@ async function refreshFromServer(){
   const todayStart = todayStartD.toISOString();
   const todayEnd = todayEndD.toISOString();
   
-  const logRows = await sbSelect('work_log',
-    `site_code=eq.${encodeURIComponent(siteCode)}&start_at=gte.${todayStart}&start_at=lte.${todayEnd}&order=start_at.desc`);
-  if(logRows){
-    todayLog = logRows.map(r=>({
-      id: r.id, no: r.worker_no, name: r.worker_name, groupId: r.group_id, groupName: r.group_name,
-      courseNo: r.course_no, courseName: r.course_name, storeNo: r.store_no, count: r.count,
-      startISO: r.start_at, endISO: r.end_at, durationSec: r.duration_sec,
-      productivity: r.productivity, cancelled: r.cancelled
-    }));
+  // 差分取得: 前回取得時刻以降にupdated_atが更新された行だけを取る(Supabase使用量対策)。
+  // 他端末での削除は反映されないため、fullSync時(初回・日付変更時・定期の保険同期時・
+  // 自分の端末での編集/削除直後)は全件を取り直してtodayLogを置き換える。
+  const fetchStartedAt = new Date();
+  if(fullSync || !lastWorkLogFetchAt){
+    const logRows = await sbSelect('work_log',
+      `site_code=eq.${encodeURIComponent(siteCode)}&start_at=gte.${todayStart}&start_at=lte.${todayEnd}&order=start_at.desc`);
+    if(logRows){
+      todayLog = logRows.map(r=>({
+        id: r.id, no: r.worker_no, name: r.worker_name, groupId: r.group_id, groupName: r.group_name,
+        courseNo: r.course_no, courseName: r.course_name, storeNo: r.store_no, count: r.count,
+        startISO: r.start_at, endISO: r.end_at, durationSec: r.duration_sec,
+        productivity: r.productivity, cancelled: r.cancelled
+      }));
+      // 次回以降の差分取得の基準時刻。クロックのずれに備えて数秒分バッファを取る。
+      lastWorkLogFetchAt = new Date(fetchStartedAt.getTime() - 3000).toISOString();
+    }
+  } else {
+    const logRows = await sbSelect('work_log',
+      `site_code=eq.${encodeURIComponent(siteCode)}&updated_at=gte.${encodeURIComponent(lastWorkLogFetchAt)}&start_at=gte.${todayStart}&start_at=lte.${todayEnd}&order=start_at.desc`);
+    if(logRows){
+      if(logRows.length) mergeWorkLogRows(logRows);
+      lastWorkLogFetchAt = new Date(fetchStartedAt.getTime() - 3000).toISOString();
+    }
   }
 
   renderWorkingList();
@@ -2428,7 +2476,7 @@ function renderHistoryTable(){
       });
       if(!ok){ alert('保存に失敗しました。もう一度お試しください。'); return; }
       editingHistoryId = null;
-      await refreshFromServer();
+      await refreshFromServer(true); // 自分で編集した直後は全件で取り直して確実に反映する
     });
   });
   body.querySelectorAll('[data-histdel]').forEach(btn=>{
@@ -2440,7 +2488,7 @@ function renderHistoryTable(){
       showConfirm(`${row.name}さん(担№${row.no}) コース${row.courseNo}－店${row.storeNo}・${row.count}個口 の記録を削除します。このコース-店は「コース-店を選択」に再表示されます。よろしいですか？(元に戻せません)`, async ()=>{
         const ok = await sbDelete('work_log', `id=eq.${id}`);
         if(!ok){ alert('削除に失敗しました。もう一度お試しください。'); return; }
-        await refreshFromServer();
+        await refreshFromServer(true); // 自分で削除した直後は全件で取り直して確実に反映する
       });
     });
   });
@@ -2673,8 +2721,19 @@ setInterval(tickTimers, 1000);
   await loadRoster();
   await loadCourseMaster();
   await loadOrders();
-  await refreshFromServer();
-  setInterval(refreshFromServer, 15000); // Supabase Egress超過対策のため5秒→15秒に変更(2026/9/13)
+  await refreshFromServer(true); // 起動時は必ず全件で最新状態を取得する
+
+  // Supabase使用量対策(2026/9/22):
+  //  ・稼働時間(8:30〜20:30、日本時間)外は自動更新を止める
+  //  ・通常は差分(updated_at基準)のみ取得し、40回(目安10分)に1回だけ
+  //    他端末での削除等を取りこぼさないよう全件で同期し直す
+  let pollTickCount = 0;
+  setInterval(()=>{
+    if(!isWithinOperatingHours()) return; // 稼働時間外はSupabaseへアクセスしない
+    pollTickCount++;
+    const fullSyncTick = (pollTickCount % 40 === 0);
+    refreshFromServer(fullSyncTick);
+  }, 15000);
 })();
 </script>
 </body>
