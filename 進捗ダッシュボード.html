@@ -289,17 +289,16 @@ function fmtDuration(sec){
 function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 const WEEKDAY_JA = ['日','月','火','水','木','金','土'];
 function todayWeekdayJa(){ return WEEKDAY_JA[new Date().getDay()]; }
-function nextWeekdayJa(wd){
-  const idx = WEEKDAY_JA.indexOf(wd);
-  return WEEKDAY_JA[(idx+1) % 7];
-}
-function effectiveCourseSeq(courseNo){
-  const s = LAST.courseSeqMap[courseNo];
-  if(s === undefined) return undefined;
-  // 朝配(0便)はケース作業順表内の行番号(作業順1,2,3...)が1便・2便より小さい値なので、
-  // そのまま比較すると朝配が先頭に来てしまう。実際の作業順は 1便→2便→朝配 のため、
-  // 朝配のコースには大きなオフセットを足して必ず最後尾に来るようにする。
-  return LAST.courseBinMap[courseNo] === 0 ? s + 100000 : s;
+// 受注データの作業順(コースの作業順×100000＋ファイル内の順番)から、コースごとの作業順を求める。
+// 朝配は取込時に1便・2便の後ろへ補正済みなので、ここでは特別扱い不要。
+function courseSeqFromOrders(entries){
+  const m = {};
+  entries.forEach(e=>{
+    if(!(e.seq >= 100000)) return;
+    const cs = Math.floor(e.seq / 100000);
+    if(m[e.courseNo] === undefined || cs < m[e.courseNo]) m[e.courseNo] = cs;
+  });
+  return m;
 }
 
 // ---------- bin math (mirrors the main kiosk app) ----------
@@ -386,7 +385,10 @@ function computeEndTime(data, currentProd, prevBinEnd, expectedProd, expectedBre
 function renderRangeSummary(rangeRows){
   if(!rangeRows || rangeRows.length === 0) return '';
   const total = rangeRows.reduce((s,r)=>s+r.lots, 0);
-  const breakdown = rangeRows.map(r=>`${esc(r.name)} ${r.lots}`).join(' ／ ');
+  // 朝配分(part='asa')と1便・2便分(part='main')は、同じ棚番範囲どうし合算して表示する
+  const merged = {};
+  rangeRows.forEach(r=>{ merged[r.name] = (merged[r.name]||0) + r.lots; });
+  const breakdown = Object.entries(merged).map(([name, lots])=>`${esc(name)} ${lots}`).join(' ／ ');
   return `<div class="qty-summary-compact">
     <span class="qsc-total">合計 ${total}</span>
     <span class="qsc-breakdown">${breakdown}</span>
@@ -412,7 +414,7 @@ function renderBinCards(results){
 }
 
 // ---------- data loading ----------
-let LAST = { siteCode:null, groups: [], ordersByGroup: {}, logs: [], sessions: [], courseBinMap: {}, courseSeqMap: {} };
+let LAST = { siteCode:null, groups: [], ordersByGroup: {}, logs: [], sessions: [], courseBinMap: {} };
 async function loadSiteOptions(){
   const rows = await sbSelect('work_groups', 'select=site_code');
   const sites = [...new Set((rows||[]).map(r=>r.site_code))].sort();
@@ -431,32 +433,27 @@ async function refresh(){
   localSet('dash_site_code', siteCode);
 
   const wd = todayWeekdayJa();
-  const nextWd = nextWeekdayJa(wd);
   const dateKey = todayKey();
-  const dayStart = dateKey + 'T00:00:00';
-  const dayEnd = dateKey + 'T23:59:59.999';
+  // 日本時間の0:00〜23:59を、タイムゾーン付きで問い合わせる
+  // (オフセット無しの 'T00:00:00' はSupabase側でUTCと解釈され、日本時間9:00より前の実績が漏れていた)
+  const dayStart = encodeURIComponent(new Date(dateKey + 'T00:00:00.000+09:00').toISOString());
+  const dayEnd = encodeURIComponent(new Date(dateKey + 'T23:59:59.999+09:00').toISOString());
 
-  const [groups, courseRows, nextBinZeroRows, orderRows, logRows, sessionRows, rangeSummaryRows] = await Promise.all([
+  const [groups, courseRows, asaCourseRows, orderRows, logRows, sessionRows, rangeSummaryRows] = await Promise.all([
     sbSelect('work_groups', `site_code=eq.${encodeURIComponent(siteCode)}&order=name.asc`),
-    sbSelect('course_master', `site_code=eq.${encodeURIComponent(siteCode)}&weekday=eq.${encodeURIComponent(wd)}`),
-    // 朝配(0便)は「翌日納品分を前日のうちに仕分ける」作業のため、
-    // ケース作業順表では実際の作業日ではなく"翌日"の曜日列に登録されている。
-    // 今日の曜日列だけでは朝配コースが拾えないため、翌日の便=0行も別途取得して補う。
-    sbSelect('course_master', `site_code=eq.${encodeURIComponent(siteCode)}&weekday=eq.${encodeURIComponent(nextWd)}&bin=eq.0`),
+    sbSelect('course_master', `site_code=eq.${encodeURIComponent(siteCode)}&weekday=eq.${encodeURIComponent(wd)}&select=course_no,bin`),
+    // 朝配(便=0)のコース№は曜日に関係なく「朝配」。どこかの曜日で便=0として載っているコースを朝配とみなす。
+    sbSelect('course_master', `site_code=eq.${encodeURIComponent(siteCode)}&bin=eq.0&select=course_no`),
     sbSelect('orders', `site_code=eq.${encodeURIComponent(siteCode)}&work_date=eq.${dateKey}`),
     sbSelect('work_log', `site_code=eq.${encodeURIComponent(siteCode)}&start_at=gte.${dayStart}&start_at=lte.${dayEnd}&cancelled=eq.false`),
     sbSelect('active_sessions', `site_code=eq.${encodeURIComponent(siteCode)}`),
     sbSelect('order_range_summary', `site_code=eq.${encodeURIComponent(siteCode)}&work_date=eq.${dateKey}`)
   ]);
 
+  // 今日の作業の便: 1便・2便は今日の曜日列、朝配は曜日に関係なく朝配コース
   const courseBinMap = {};
-  const courseSeqMap = {};
-  (courseRows||[]).forEach(r=>{ courseBinMap[r.course_no] = r.bin; courseSeqMap[r.course_no] = r.seq; });
-  (nextBinZeroRows||[]).forEach(r=>{
-    if(courseBinMap[r.course_no] !== undefined) return;
-    courseBinMap[r.course_no] = r.bin; // === 0
-    courseSeqMap[r.course_no] = r.seq;
-  });
+  (courseRows||[]).forEach(r=>{ if(r.bin !== 0) courseBinMap[r.course_no] = r.bin; });
+  (asaCourseRows||[]).forEach(r=>{ courseBinMap[r.course_no] = 0; });
 
   const sessions = (sessionRows||[]).map(r=>({
     no: r.worker_no, name: r.worker_name, groupId: r.group_id, groupName: r.group_name,
@@ -472,6 +469,8 @@ async function refresh(){
   (orderRows||[]).forEach(r=>{
     if(!ordersByGroup[r.group_id]) ordersByGroup[r.group_id] = [];
     ordersByGroup[r.group_id].push({courseNo: r.course_no, storeNo: r.store_no, lots: r.lots, seq: r.seq||0});
+    // 受注データに記録された便(取込時にコース表から決定)があればそれを優先する。旧方式の行はコース表で判定。
+    if(r.bin !== undefined && r.bin !== null) courseBinMap[r.course_no] = r.bin;
   });
 
   const rangeSummaryByGroup = {};
@@ -480,7 +479,7 @@ async function refresh(){
     rangeSummaryByGroup[r.group_id].push({name: r.range_name, lots: r.lots});
   });
 
-  LAST = { siteCode, groups: groups||[], ordersByGroup, logs, sessions, courseBinMap, courseSeqMap, rangeSummaryByGroup };
+  LAST = { siteCode, groups: groups||[], ordersByGroup, logs, sessions, courseBinMap, rangeSummaryByGroup };
 
   const groupCount = (groups||[]).length;
   $('groupSections').style.gridTemplateColumns = (groupCount > 0 && groupCount <= 3)
@@ -764,6 +763,8 @@ function renderOrderManageDynamic(groupId){
   });
 
   // 作業順(seq)がわかれば、実際の作業順に並べる。分からないコースはコース№順で末尾に。
+  const courseSeq = courseSeqFromOrders(orderEntries);
+  const effectiveCourseSeq = c => courseSeq[c];
   const seqOf = c => effectiveCourseSeq(c) !== undefined ? effectiveCourseSeq(c) : Infinity;
 
   // すでに他のコースがどこまで進んでいるか(=作業順の最前線)を調べ、
