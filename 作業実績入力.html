@@ -1329,7 +1329,15 @@ $('finishJobBtn').addEventListener('click', async ()=>{
 
   await sbDelete('active_sessions', `site_code=eq.${encodeURIComponent(appSettings.siteCode)}&worker_no=eq.${ctx.no}`);
   delete sessions[ctx.no];
-  todayLog.unshift({...s, endISO, durationSec, productivity, cancelled:false});
+  // 保存結果(サーバーが採番したidを含む行)で履歴に追加する。
+  // idなしで追加すると、次の差分取得で同じ実績がidありで届いたときに
+  // 別の行とみなされ、全件同期(10分ごと)まで履歴が2行になっていたため(2026/9/30修正)。
+  const savedRow = Array.isArray(insertOk) ? insertOk[0] : null;
+  if(savedRow && savedRow.id !== undefined && savedRow.id !== null){
+    mergeWorkLogRows([savedRow]);
+  } else {
+    todayLog.unshift({...s, endISO, durationSec, productivity, cancelled:false});
+  }
   renderWorkingList();
 
   $('resultType').textContent = '作業終了';
